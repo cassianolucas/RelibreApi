@@ -4,11 +4,11 @@ using RelibreApi.Models;
 
 namespace RelibreApi.Maps
 {
-    public class PessoaMap : IEntityTypeConfiguration<Person>
+    public class PhoneMap : IEntityTypeConfiguration<Phone>
     {
-        public void Configure(EntityTypeBuilder<Person> builder)
+        public void Configure(EntityTypeBuilder<Phone> builder)
         {
-            builder.ToTable("person");
+            builder.ToTable("phone");
 
             builder.HasKey(x => x.Id);
 
@@ -18,26 +18,21 @@ namespace RelibreApi.Maps
                 .ValueGeneratedOnAdd()
                 .IsRequired();
 
-            builder.Property(x => x.Name)
-                .HasColumnName("name")
+            builder.Property(x => x.IdPerson)
+                .HasColumnName("id_person")                
+                .IsRequired();
+
+            builder.Property(x => x.Number)
+                .HasColumnName("number")
                 .HasColumnType("varchar")
-                .HasMaxLength(255)
+                .HasMaxLength(20)
                 .IsRequired();
             
-            builder.Property(x => x.LastName)
-                .HasColumnName("last_name")
-                .HasColumnType("varchar")
-                .HasMaxLength(255);        
+            builder.Property(x => x.Master)
+                .HasColumnName("master")
+                .HasColumnType("boolean")
+                .IsRequired();
             
-            builder.Property(x => x.Document)
-                .HasColumnName("document")
-                .HasColumnType("varchar")
-                .HasMaxLength(18);
-
-            builder.Property(x => x.TypePerson)
-                .HasColumnName("type_person")
-                .HasMaxLength(144);
-
             builder.Property(x => x.State)
                 .HasColumnName("state")
                 .HasColumnType("boolean")
@@ -46,7 +41,7 @@ namespace RelibreApi.Maps
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
                 .HasColumnType("timestamp")
-                .IsRequired();
+                .IsRequired();                        
         }
     }
 }

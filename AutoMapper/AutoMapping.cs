@@ -1,4 +1,5 @@
 using AutoMapper;
+using RelibreApi.ViewModel;
 
 namespace RelibreApi.AutoMapper
 {
@@ -6,7 +7,10 @@ namespace RelibreApi.AutoMapper
     {
         public AutoMapping()
         {
-            
+            CreateMap<UserViewModel, Models.User>();
+
+
+            CreateMap<Models.User, UserViewModel>();
         }
     }
 }

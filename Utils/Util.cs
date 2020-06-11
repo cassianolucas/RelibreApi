@@ -12,11 +12,11 @@ namespace RelibreApi.Utils
 {
     public class Constants
     {
-        public const string Configuration = "Settings"; 
+        public const string Configuration = "Settings";
         public const string DefaultContentType = "application/json";
     }
     public class Util
-    {        
+    {
         public static DateTime CurrentDateTime()
         {
             return DateTime.Now;
@@ -53,7 +53,7 @@ namespace RelibreApi.Utils
             var Claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.Login),
-                new Claim("name", user.Person.Name + " " + user.Person.LastName),
+                new Claim("name", user.Name + " " + user.LastName),
                 new Claim("profile_id", user.Profile.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
@@ -76,6 +76,31 @@ namespace RelibreApi.Utils
             var access_token = new JwtSecurityTokenHandler().WriteToken(Token);
 
             return access_token;
+        }
+        public static double Distance(double lat1, double lon1, double lat2, double lon2)
+        {
+            double theta = lon1 - lon2;
+
+            double dist = Math.Sin(Deg2Rad(lat1)) * Math.Sin(Deg2Rad(lat2)) + Math.Cos(Deg2Rad(lat1)) * Math.Cos(Deg2Rad(lat2)) * Math.Cos(Deg2Rad(theta));
+
+            dist = Math.Acos(dist);
+
+            dist = Rad2Deg(dist);
+
+            dist = dist * 60 * 1.1515;
+            
+            dist = dist * 1.609344;
+
+            return (dist);
+        }
+
+        private static double Deg2Rad(double deg)
+        {
+            return (deg * Math.PI / 180.0);
+        }
+        private static double Rad2Deg(double rad)
+        {
+            return (rad * 180 / Math.PI);
         }
     }
 }

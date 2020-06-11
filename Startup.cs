@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,6 +50,7 @@ namespace RelibreApi
             })
             .AddJwtBearer(x =>
             {
+                x.RequireHttpsMetadata = false;
                 x.SaveToken = true;
 
                 x.TokenValidationParameters = new TokenValidationParameters()
@@ -69,8 +71,8 @@ namespace RelibreApi
                     {
                         if (context.Request.Headers.ContainsKey("Authorization"))
                         {
-                            var token = context.Request.Headers["Authorization"].ToString();
-                            context.Token = token.Replace("Bearer", "").Trim();
+                            var accessToken = context.Request.Headers["Authorization"].ToString();
+                            context.Token = accessToken.Replace("Bearer", "").Trim();
                         }
 
                         return Task.CompletedTask;

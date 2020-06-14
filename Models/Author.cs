@@ -1,12 +1,13 @@
 using System;
+using System.Collections.Generic;
 
 namespace RelibreApi.Models
 {
-    public class Notification
+    public class Author
     {
         public long Id { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }        
         public DateTime CreatedAt { get; set; }
+        public ICollection<Book> Books { get; set; }
     }
 }

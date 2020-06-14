@@ -9,7 +9,7 @@ namespace RelibreApi.Models
         public string Name { get; set; }
         public string LastName { get; set; }
         public string Document { get; set; }
-        public string TypePerson { get; set; }
+        public string PersonType { get; set; }
         public bool State { get; set; }
         public DateTime CreatedAt { get; set; }
         public virtual Library Library { get; set; }

@@ -34,7 +34,7 @@ namespace RelibreApi.Maps
                 .HasColumnType("varchar")
                 .HasMaxLength(18);
 
-            builder.Property(x => x.TypePerson)
+            builder.Property(x => x.PersonType)
                 .HasColumnName("type_person")
                 .HasMaxLength(144);
 

@@ -28,11 +28,11 @@ namespace RelibreApi.Maps
                 .HasColumnType("varchar")
                 .HasMaxLength(50);
 
-            builder.Property(x => x.PostalCode)                
-                .HasColumnName("postal_code")
-                .HasColumnType("varchar")
-                .HasMaxLength(8)
-                .IsRequired();
+            // builder.Property(x => x.PostalCode)                
+            //     .HasColumnName("postal_code")
+            //     .HasColumnType("varchar")
+            //     .HasMaxLength(8)
+            //     .IsRequired();
             
             builder.Property(x => x.Master)
                 .HasColumnName("master")

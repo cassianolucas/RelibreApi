@@ -6,42 +6,54 @@ namespace RelibreApi.Maps
 {
     public class PhoneMap : IEntityTypeConfiguration<Phone>
     {
-        public void Configure(EntityTypeBuilder<Phone> builder)
+        public void Configure(EntityTypeBuilder<Phone> o)
         {
-            builder.ToTable("phone");
+            o.ToTable("phone");
 
-            builder.HasKey(x => x.Id);
+            o.HasKey(x => x.Id);
 
-            builder.Property(x => x.Id)
-                .HasColumnName("id")                
-                .HasColumnType("bigint")
+            o.Property(x => x.Id)
+                .HasColumnName("id")
+                .UseSerialColumn<long>()
+                .HasIdentityOptions(1, 1, 1)
                 .ValueGeneratedOnAdd()
                 .IsRequired();
 
-            builder.Property(x => x.IdPerson)
-                .HasColumnName("id_person")                
+            o.Property(x => x.IdPerson)
+                .HasColumnName("id_person")
+                .HasColumnType("bigint")
                 .IsRequired();
 
-            builder.Property(x => x.Number)
+            o.HasOne(x => x.Person)
+                .WithMany(x => x.Phones)
+                .HasForeignKey(x => x.IdPerson)
+                .HasConstraintName("fk_phone_person_id_person")
+                .OnDelete(DeleteBehavior.Restrict);
+
+            o.Property(x => x.Number)
                 .HasColumnName("number")
-                .HasColumnType("varchar")
-                .HasMaxLength(20)
+                .HasColumnType("varchar(50)")
                 .IsRequired();
             
-            builder.Property(x => x.Master)
+            o.Property(x => x.Master)
                 .HasColumnName("master")
                 .HasColumnType("boolean")
                 .IsRequired();
             
-            builder.Property(x => x.State)
-                .HasColumnName("state")
+            o.Property(x => x.Active)
+                .HasColumnName("active")
                 .HasColumnType("boolean")
                 .IsRequired();
             
-            builder.Property(x => x.CreatedAt)
+            o.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
                 .HasColumnType("timestamp")
-                .IsRequired();                        
+                .IsRequired();
+            
+            o.Property(x => x.UpdatedAt)
+                .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .IsRequired();
         }
     }
 }

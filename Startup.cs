@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -40,7 +43,6 @@ namespace RelibreApi
         public void ConfigureServices(IServiceCollection services)
         {
             var settings = new Setting();
-
             Configuration.GetSection(Constants.Configuration).Bind(settings);
 
             services.AddAuthentication(x =>
@@ -77,13 +79,16 @@ namespace RelibreApi
 
                         return Task.CompletedTask;
                     },
-                    OnAuthenticationFailed = context =>
+                    OnAuthenticationFailed = async context =>
                     {
                         context.NoResult();
                         context.Response.StatusCode = 401;
                         context.Response.ContentType = Constants.DefaultContentType;
 
-                        return context.Response.WriteAsync(context.Exception.ToString());
+                        await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+                        {
+                            Message = Constants.MessageExceptionNotAuthorize
+                        }));
                     }
                 };
             });
@@ -95,6 +100,13 @@ namespace RelibreApi
             services.AddTransient<IAuthorizationHandler, CustomRequirementHandler>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IUser, UserRepository>();
+            services.AddTransient<IProfile, ProfileRepository>();
+            services.AddTransient<IType, TypeRepository>();
+            services.AddTransient<ILibrary, LibraryRepository>();
+            services.AddTransient<IBook, BookRepository>();
+            services.AddTransient<ICategory, CategoryRepository>();
+            services.AddTransient<IAuthor, AuthorRepository>();
+            services.AddTransient<ILibraryBook, LibraryBookRepository>();
 
             services.AddMvc(x =>
             {
@@ -112,6 +124,20 @@ namespace RelibreApi
                 x.SerializerSettings.Formatting = Formatting.None;
                 x.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 x.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                x.SerializerSettings.Culture = System.Globalization.CultureInfo.CurrentCulture;
+                x.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
+                x.SerializerSettings.DateFormatString = Constants.FormatDateTimeDefault;
+            })
+            .ConfigureApiBehaviorOptions(x =>
+            {
+                x.InvalidModelStateResponseFactory = context =>
+                {
+                    var result = new BadRequestObjectResult(context.ModelState);
+
+                    result.ContentTypes.Add(MediaTypeNames.Application.Json);
+
+                    return result;
+                };
             });
 
             services.AddHttpContextAccessor();
@@ -124,6 +150,14 @@ namespace RelibreApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var supportedCultures = "pt-BR";
+            var localizationOptions = new RequestLocalizationOptions()
+                .SetDefaultCulture(supportedCultures)
+                .AddSupportedCultures(supportedCultures)
+                .AddSupportedUICultures(supportedCultures);
+
+            app.UseRequestLocalization(localizationOptions);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -142,6 +176,29 @@ namespace RelibreApi
 
             app.UseHttpsRedirection();
 
+            app.UseExceptionHandler(x =>
+            {
+                x.Run(
+                    async context =>
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        context.Response.ContentType = Constants.DefaultContentType;
+                        var exception = context.Features.Get<IExceptionHandlerFeature>();
+
+                        if (exception != null)
+                        {
+                            // "Erro interno!"
+                            var mensagemErro = new
+                            {
+                                mensagem = Constants.MessageExceptionDefault,
+                                status = 500
+                            };
+
+                            await context.Response.WriteAsync(mensagemErro.ToString()).ConfigureAwait(false);
+                        }
+                    });
+            });
+
             app.UseRouting();
 
             app.UseAuthentication();
@@ -151,6 +208,10 @@ namespace RelibreApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                // endpoints.MapControllerRoute(
+                //     name: "default",
+                //     pattern: "{controller=Account}/{action=Index}/{id?}");
             });
         }
     }

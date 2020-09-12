@@ -4,22 +4,22 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using RelibreApi.Models;
 
 namespace RelibreApi.Utils
 {
-    public class Constants
-    {
-        public const string Configuration = "Settings";
-        public const string DefaultContentType = "application/json";
-    }
     public class Util
     {
         public static DateTime CurrentDateTime()
         {
-            return DateTime.Now;
+            return Convert.ToDateTime(
+                DateTime.Now
+                    .ToString(
+                        Constants.FormatDateTimeDefault));
         }
 
         public static string Encrypt(string valor)
@@ -53,7 +53,7 @@ namespace RelibreApi.Utils
             var Claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.Login),
-                new Claim("name", user.Name + " " + user.LastName),
+                new Claim("name", user.Person.Name + " " + user.Person.LastName),
                 new Claim("profile_id", user.Profile.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
@@ -65,13 +65,8 @@ namespace RelibreApi.Utils
 
             var SigningCredentials = new SigningCredentials(Key, SecurityAlgorithms.HmacSha256);
 
-            var Token = new JwtSecurityToken(
-                        setting.Issuer,
-                        setting.Audience,
-                        Claims,
-                        notBefore: Created,
-                        expires: Expires,
-                        SigningCredentials);
+            var Token = new JwtSecurityToken(setting.Issuer, setting.Audience, Claims,
+                        notBefore: Created, expires: Expires, SigningCredentials);
 
             var access_token = new JwtSecurityTokenHandler().WriteToken(Token);
 
@@ -81,14 +76,16 @@ namespace RelibreApi.Utils
         {
             double theta = lon1 - lon2;
 
-            double dist = Math.Sin(Deg2Rad(lat1)) * Math.Sin(Deg2Rad(lat2)) + Math.Cos(Deg2Rad(lat1)) * Math.Cos(Deg2Rad(lat2)) * Math.Cos(Deg2Rad(theta));
+            double dist = Math.Sin(Deg2Rad(lat1))
+                * Math.Sin(Deg2Rad(lat2)) + Math.Cos(Deg2Rad(lat1))
+                * Math.Cos(Deg2Rad(lat2)) * Math.Cos(Deg2Rad(theta));
 
             dist = Math.Acos(dist);
 
             dist = Rad2Deg(dist);
 
             dist = dist * 60 * 1.1515;
-            
+
             dist = dist * 1.609344;
 
             return (dist);
@@ -101,6 +98,32 @@ namespace RelibreApi.Utils
         private static double Rad2Deg(double rad)
         {
             return (rad * 180 / Math.PI);
+        }
+
+        public static object ReturnException(Exception ex)
+        {
+            var environment = Environment
+                .GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);            
+
+            if (environment.ToString().Contains("RelibreDevelopment"))
+            {
+                return new
+                {
+                    Message = ex.Message,
+                    Error = ex.GetBaseException()
+                };
+            }
+
+            return new { Message = Constants.MessageExceptionDefault };
+        }
+
+        public static string RemoveSpecialCharacter(string valor)
+        {
+            if (string.IsNullOrEmpty(valor)) return valor;
+            
+            var rgx = new Regex(Constants.SpecialCharacter);
+
+            return rgx.Replace(valor, "");
         }
     }
 }

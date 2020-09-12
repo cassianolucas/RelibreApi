@@ -6,31 +6,44 @@ namespace RelibreApi.Maps
 {
     public class LibraryMap : IEntityTypeConfiguration<Library>
     {
-        public void Configure(EntityTypeBuilder<Library> builder)
+        public void Configure(EntityTypeBuilder<Library> o)
         {
-            builder.ToTable("library");
+            o.ToTable("library");
 
-            builder.HasKey(x => x.Id);
+            o.HasKey(x => x.Id);
 
-            builder.Property(x => x.Id)
-                .HasColumnName("id")                
-                .HasColumnType("bigint")
+            o.Property(x => x.Id)
+                .HasColumnName("id")
+                .UseSerialColumn<long>()
+                .HasIdentityOptions(1, 1, 1)
                 .ValueGeneratedOnAdd()
                 .IsRequired();
 
-            builder.Property(x => x.IdPerson)
+            o.Property(x => x.IdPerson)
                 .HasColumnName("id_person")
-                .HasColumnType("bigint");
+                .HasColumnType("bigint")
+                .IsRequired();
+            
+            o.HasOne(x => x.Person)
+                .WithOne(x => x.Library)           
+                .HasForeignKey<Library>(x => x.IdPerson)
+                .HasConstraintName("fk_library_person_id_person")
+                .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Property(x => x.State)
-                .HasColumnName("state")
+            o.Property(x => x.Active)
+                .HasColumnName("active")
                 .HasColumnType("boolean")
                 .IsRequired();
 
-            builder.Property(x => x.CreatedAt)
+            o.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
                 .HasColumnType("timestamp")
-                .IsRequired();                                                
+                .IsRequired();
+
+            o.Property(x => x.UpdatedAt)
+                .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .IsRequired();
         }
     }
 }

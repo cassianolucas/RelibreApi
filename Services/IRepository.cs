@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 namespace RelibreApi.Services
 {
     public interface IRepository<T> where T : class
-    {
-        Task<T> CreateAsync(T model);
+    {                
+        Task CreateAsync(T model);
         Task<T> UpdateAsync(T model);
         void RemoveAsync(long Id);
-        T GetByIdAsync(long Id);
-        T GetByIdAsyncNoTracking(long Id);
-        IEnumerable<T> GetAllAsync();
+        Task<T> GetByIdAsync(long Id);
+        Task<T> GetByIdAsyncNoTracking(long Id);
+        Task<List<T>> GetAllAsync();
     }
 }

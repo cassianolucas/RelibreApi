@@ -7,8 +7,7 @@ namespace RelibreApi.ViewModel
 {
     public class LibraryBookViewModel : BaseViewModel
     {
-        [JsonProperty(PropertyName = "contact")]
-        [Required(ErrorMessage = "Necessário informar o contato!")]
+        [JsonProperty(PropertyName = "contact")]        
         public ContactViewModel Contact { get; set; }
 
         [JsonProperty(PropertyName = "images")]
@@ -21,9 +20,9 @@ namespace RelibreApi.ViewModel
         [Required(ErrorMessage = "Necessário informar o livro!")]
         public BookViewModel Book { get; set; }
 
-        [JsonProperty(PropertyName = "type")]
+        [JsonProperty(PropertyName = "types")]
         [Required(ErrorMessage = "Necessário informar o tipo!")]
-        public TypeViewModel Type { get; set; }
+        public ICollection<TypeViewModel> Types { get; set; }
 
         [JsonProperty(PropertyName = "id_library")]
         public long IdLibrary { get; set; }

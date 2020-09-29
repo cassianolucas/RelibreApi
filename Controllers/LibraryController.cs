@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RelibreApi.Models;
 using RelibreApi.Services;
@@ -17,20 +20,38 @@ namespace RelibreApi.Controllers
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
         private readonly ILibraryBook _libraryBookMananger;
+        private readonly IBook _bookMananger;
+        private readonly IContact _contactMananger;
+        private readonly ILibrary _libraryMananger;
+        private readonly IType _typeMananger;
+        private readonly HttpContext _httpContext;
+        private readonly IUser _userMananger;
 
         public LibraryController(
             [FromServices] IUnitOfWork uow,
             [FromServices] IMapper mapper,
-            [FromServices] ILibraryBook libraryBookMananger
+            [FromServices] ILibraryBook libraryBookMananger,
+            [FromServices] IBook bookMananger,
+            [FromServices] IContact contactMananger,
+            [FromServices] ILibrary libraryMananger,
+            [FromServices] IType typeMananger,
+            [FromServices] IHttpContextAccessor httpContextAccessor,
+            [FromServices] IUser userMananger
             )
         {
             _uow = uow;
             _mapper = mapper;
             _libraryBookMananger = libraryBookMananger;
+            _bookMananger = bookMananger;
+            _contactMananger = contactMananger;
+            _libraryMananger = libraryMananger;
+            _typeMananger = typeMananger;
+            _httpContext = httpContextAccessor.HttpContext;
+            _userMananger = userMananger;
         }
 
         [HttpPost, Route(""), Authorize]
-        public async Task<IActionResult> RegisterAsync(
+        public async Task<IActionResult> CreateAsync(
             [FromBody] LibraryBookViewModel libraryBook
             )
         {
@@ -38,26 +59,75 @@ namespace RelibreApi.Controllers
             {
                 var libraryBookMap = _mapper.Map<LibraryBook>(libraryBook);
 
+                var bookDb = await _bookMananger.GetByCodeIntegration(libraryBookMap.Book.CodeIntegration);
 
+                // realizar validações nos campos do livro quando não existir
+                if (bookDb != null) libraryBookMap.Book = bookDb;
 
+                // quando livro não existir criar 
+                if (bookDb == null)
+                {
+                    // verificar se existe autores
+                    // verificar se existe categorias
+                    await _bookMananger.CreateAsync(libraryBookMap.Book);
+                }
+                 
+                // capturar email de usuario logado se vier nulo
+                if (libraryBook.Contact == null || string.IsNullOrEmpty(libraryBook.Contact.Email))
+                {
+                    // capturar do cadastro
+                    var login = Util.Claim(_httpContext, "email_login");
 
-                // realizar validações
+                    var userDb = await _userMananger.GetByLogin(login);
 
-                // await _libraryBookMananger.CreateAsync(libraryBookMap);
+                    libraryBookMap.Contact = new Contact();
+                    libraryBookMap.Contact.Phone = userDb.Person.Phones.SingleOrDefault(x => x.Master == true).Number;
+                    libraryBookMap.Contact.Email = userDb.Login;
+                    libraryBookMap.Contact.Active = true;
+                    libraryBookMap.Contact.CreatedAt = Util.CurrentDateTime();
+                    libraryBookMap.Contact.UpdatedAt = Util.CurrentDateTime();                
+                }
+                else
+                {
+                    var contactDb = await _contactMananger.GetByEmail(libraryBookMap.Contact.Email);
 
-                libraryBookMap.Active = true;    
+                    libraryBookMap.Contact = contactDb;
+                }
+                    
+                var libraryDb = await _libraryMananger.GetByIdAsync(libraryBookMap.IdLibrary);
+
+                if (libraryDb != null) libraryBookMap.Library = libraryDb;
+
+                // capturar tipos 
+                var typesDb = new List<Models.Type>();
+                libraryBookMap.LibraryBookTypes = new List<LibraryBookType>();
+
+                foreach (var type in libraryBook.Types)
+                {
+                    var typeDb = await _typeMananger.GetByDescriptionAsync(type.Description);
+
+                    libraryBookMap.LibraryBookTypes.Add(new LibraryBookType
+                    {
+                        LibraryBook = libraryBookMap,
+                        Type = typeDb
+                    });
+                }
+
+                libraryBookMap.Active = true;
                 libraryBookMap.CreatedAt = Util.CurrentDateTime();
-                libraryBookMap.UpdatedAt = libraryBookMap.CreatedAt;                
+                libraryBookMap.UpdatedAt = libraryBookMap.CreatedAt;
+
+                await _libraryBookMananger.CreateAsync(libraryBookMap);
 
                 _uow.Commit();
 
-                // var libraryBookCreated = _mapper.Map<LibraryBook>(libraryBookMap);
+                var libraryBookCreated = _mapper.Map<LibraryBookViewModel>(libraryBookMap);
 
-                return Created(new Uri(Url.ActionLink("Register", "Library")), libraryBookMap);
+                return Created(new Uri(Url.ActionLink("Create", "Library")), libraryBookCreated);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                return BadRequest(Util.ReturnException(ex));
             }
         }
 
@@ -68,7 +138,9 @@ namespace RelibreApi.Controllers
         {
             try
             {
-                await _libraryBookMananger.UpdateAsync(null);
+                var libraryDb = await _libraryBookMananger.GetByIdAsync(library.id);
+
+                _libraryBookMananger.Update(null);
 
                 return Ok();
             }
@@ -109,7 +181,12 @@ namespace RelibreApi.Controllers
                 // limit é o valor máximo de registros a serem retornados
                 if (idLibrary > 0) return Ok(await GetByIdLibrary(idLibrary, offset, limit));
 
-                return Ok(await GetByBookTitle(title, offset, limit));
+                var libraryBooks = await GetByBookTitle(title, offset, limit);
+
+                // verificar, não está mapeando os autores, categorias, e tipos
+                var libraryBooksMaps = _mapper.Map<ICollection<LibraryBookViewModel>>(libraryBooks);
+
+                return Ok(libraryBooksMaps);
             }
             catch (Exception ex)
             {

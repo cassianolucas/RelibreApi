@@ -10,6 +10,6 @@ namespace RelibreApi.Models
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public virtual ICollection<LibraryBook> LibraryBooks { get; set; }
+        public virtual ICollection<LibraryBookType> LibraryBookTypes { get; set; }
     }
 }

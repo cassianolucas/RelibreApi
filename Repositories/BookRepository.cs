@@ -30,13 +30,24 @@ namespace RelibreApi.Repositories
                 .ToListAsync();
         }
 
-        public Task<Book> GetByIdAsync(long Id)
+        public Task<Book> GetByCodeIntegration(string codeIntegration)
         {
             return _context.Book
                 .Include(x => x.CategoryBooks)
                     .ThenInclude(x => x.Category)
                 .Include(x => x.AuthorBooks)
                     .ThenInclude(x => x.Author)
+                .Where(x => x.CodeIntegration.Equals(codeIntegration))
+                .SingleOrDefaultAsync();
+        }
+
+        public Task<Book> GetByIdAsync(long Id)
+        {
+            return _context.Book
+                .Include(x => x.CategoryBooks)
+                    .ThenInclude(x => x.Category)
+                .Include(x => x.AuthorBooks)
+                    .ThenInclude(x => x.Author)                
                 .Where(x => x.Id == Id)
                 .SingleOrDefaultAsync();
         }
@@ -90,7 +101,7 @@ namespace RelibreApi.Repositories
             throw new System.NotImplementedException();
         }
 
-        public Task<Book> UpdateAsync(Book model)
+        public void Update(Book model)
         {
             throw new System.NotImplementedException();
         }

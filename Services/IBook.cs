@@ -8,5 +8,6 @@ namespace RelibreApi.Services
     {
         Task<List<Book>> GetByTitleAsync(string title, int offset, int limit);
         Task<Book> GetByTitleAsync(string title);
+        Task<Book> GetByCodeIntegration(string codeIntegration);
     }
 }

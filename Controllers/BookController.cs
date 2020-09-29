@@ -35,7 +35,7 @@ namespace RelibreApi.Controllers
         }
 
         [HttpPost, Route(""), Authorize]
-        public async Task<IActionResult> RegisterAsync(
+        public async Task<IActionResult> CreateAsync(
             [FromBody] BookViewModel book
             )
         {
@@ -92,7 +92,7 @@ namespace RelibreApi.Controllers
 
                 _uow.Commit();
 
-                return Created(new Uri(Url.ActionLink("Register", "Book")), book);
+                return Created(new Uri(Url.ActionLink("Create", "Book")), book);
             }
             catch (ArgumentException ex)
             {
@@ -119,7 +119,9 @@ namespace RelibreApi.Controllers
         {
             try
             {                
-                await _bookMananger.UpdateAsync(null);
+                var bookDb = await _bookMananger.GetByIdAsync(book.Id);
+                
+                _bookMananger.Update(null);
 
                 return Ok();
             }

@@ -47,6 +47,11 @@ namespace RelibreApi.Maps
                 .HasForeignKey(x => x.IdPerson)
                 .HasConstraintName("fk_user_person_id_person")
                 .OnDelete(DeleteBehavior.Restrict);
+
+            o.Property(x => x.LoginVerified)
+                .HasColumnName("login_verified")
+                .HasColumnType("boolean")
+                .IsRequired();
         }
     }
 }

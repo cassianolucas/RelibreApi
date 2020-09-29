@@ -23,12 +23,7 @@ namespace RelibreApi.Maps
                 .HasColumnName("thumbnail")
                 .HasColumnType("varchar(255)")
                 .IsRequired(false);
-
-            o.Property(x => x.Active)
-                .HasColumnName("active")
-                .HasColumnType("boolean")
-                .IsRequired();
-            
+                        
             o.Property(x => x.Small)
                 .HasColumnName("small")
                 .HasColumnType("varchar(255)")
@@ -63,17 +58,7 @@ namespace RelibreApi.Maps
                 .WithMany(x => x.Images)
                 .HasForeignKey(x => x.IdLibraryBook)
                 .HasConstraintName("fk_image_library_book_id_library_book")
-                .OnDelete(DeleteBehavior.Restrict);
-
-            o.Property(x => x.CreatedAt)
-                .HasColumnName("created_at")
-                .HasColumnType("timestamp")
-                .IsRequired();
-
-            o.Property(x => x.UpdatedAt)
-                .HasColumnName("updated_at")
-                .HasColumnType("timestamp")
-                .IsRequired();
+                .OnDelete(DeleteBehavior.Restrict);            
         }
     }
 }

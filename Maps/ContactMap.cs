@@ -32,7 +32,7 @@ namespace RelibreApi.Maps
 
             o.Property(x => x.Active)
                 .HasColumnName("active")
-                .HasColumnType("boolena")
+                .HasColumnType("boolean")
                 .IsRequired();
 
             o.Property(x => x.CreatedAt)

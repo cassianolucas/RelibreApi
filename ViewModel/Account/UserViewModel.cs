@@ -21,12 +21,7 @@ namespace RelibreApi.ViewModel
         [JsonProperty(PropertyName = "login")]
         // [Required(ErrorMessage = "Necessário informar o login!")]
         // [MinLength(10, ErrorMessage = "Login inválido!")]
-        public string Login { get; set; }  
-
-        [JsonProperty(PropertyName = "password")] 
-        // [Required(ErrorMessage = "Necessário informar uma senha!")]
-        // [MinLength(6, ErrorMessage = "Senha deve conter mais que 6 caracteres!")]
-        public string Password { get; set; }
+        public string Login { get; set; }
 
         [JsonProperty(PropertyName = "document")]
         // [Required(ErrorMessage = "Necessário informar o documento!")]
@@ -36,7 +31,7 @@ namespace RelibreApi.ViewModel
         [JsonProperty(PropertyName = "phones")]
         public ICollection<PhoneViewModel> Phones { get; set; }
 
-        [JsonProperty(PropertyName = "address")]
-        public ICollection<AddressViewModel> Address { get; set; }
+        [JsonProperty(PropertyName = "addresses")]
+        public ICollection<AddressViewModel> Addresses { get; set; }
     }
 }

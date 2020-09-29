@@ -1,6 +1,6 @@
 namespace RelibreApi.Models
 {
-    public class Image :  BaseModel
+    public class Image :  BaseModelSimple
     {        
         public string Thumbnail { get; set; }
         public string Small { get; set; }

@@ -10,8 +10,8 @@ using RelibreApi.Data;
 namespace RelibreApi.Migrations
 {
     [DbContext(typeof(RelibreContext))]
-    [Migration("20200912160326_initial")]
-    partial class initial
+    [Migration("20200929005119_SQL_0001")]
+    partial class SQL_0001
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -76,6 +76,11 @@ namespace RelibreApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnName("created_at")
                         .HasColumnType("timestamp");
+
+                    b.Property<string>("FullAddress")
+                        .IsRequired()
+                        .HasColumnName("full_address")
+                        .HasColumnType("varchar");
 
                     b.Property<long>("IdPerson")
                         .HasColumnName("id_person")
@@ -242,7 +247,7 @@ namespace RelibreApi.Migrations
                     b.ToTable("category_book");
                 });
 
-            modelBuilder.Entity("RelibreApi.Models.Image", b =>
+            modelBuilder.Entity("RelibreApi.Models.Contact", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -252,10 +257,69 @@ namespace RelibreApi.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<bool>("Active")
+                        .HasColumnName("active")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnName("created_at")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnName("Email")
+                        .HasColumnType("varchar(255)")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnName("phone")
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnName("updated_at")
+                        .HasColumnType("timestamp");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("contact");
+                });
+
+            modelBuilder.Entity("RelibreApi.Models.EmailVerification", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+
+                    b.Property<string>("CodeVerification")
+                        .IsRequired()
+                        .HasColumnName("code_verification")
+                        .HasColumnType("varchar(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnName("created_at")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasColumnName("login")
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("email_verification");
+                });
+
+            modelBuilder.Entity("RelibreApi.Models.Image", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<string>("ExtraLarge")
                         .HasColumnName("extra_large")
@@ -284,9 +348,6 @@ namespace RelibreApi.Migrations
                     b.Property<string>("Thumbnail")
                         .HasColumnName("thumbnail")
                         .HasColumnType("varchar(255)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -357,10 +418,6 @@ namespace RelibreApi.Migrations
                         .HasColumnName("id_library")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("IdType")
-                        .HasColumnName("id_type")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Reating")
                         .HasColumnName("reating")
                         .HasColumnType("varchar(255)");
@@ -372,11 +429,28 @@ namespace RelibreApi.Migrations
 
                     b.HasIndex("IdBook");
 
+                    b.HasIndex("IdContact");
+
                     b.HasIndex("IdLibrary");
+
+                    b.ToTable("library_book");
+                });
+
+            modelBuilder.Entity("RelibreApi.Models.LibraryBookType", b =>
+                {
+                    b.Property<long>("IdLibraryBook")
+                        .HasColumnName("id_library_book")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdType")
+                        .HasColumnName("id_type")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("IdLibraryBook", "IdType");
 
                     b.HasIndex("IdType");
 
-                    b.ToTable("library_book");
+                    b.ToTable("library_book_type");
                 });
 
             modelBuilder.Entity("RelibreApi.Models.Notification", b =>
@@ -454,6 +528,9 @@ namespace RelibreApi.Migrations
                     b.Property<bool>("Active")
                         .HasColumnName("active")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime>("Birthday")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnName("created_at")
@@ -566,17 +643,17 @@ namespace RelibreApi.Migrations
                         {
                             Id = 1L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 9, 28, 21, 51, 18, 0, DateTimeKind.Unspecified),
                             Name = "PJ",
-                            UpdatedAt = new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified)
+                            UpdatedAt = new DateTime(2020, 9, 28, 21, 51, 18, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 9, 28, 21, 51, 18, 0, DateTimeKind.Unspecified),
                             Name = "PF",
-                            UpdatedAt = new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified)
+                            UpdatedAt = new DateTime(2020, 9, 28, 21, 51, 18, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -610,22 +687,29 @@ namespace RelibreApi.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 9, 28, 21, 51, 18, 0, DateTimeKind.Unspecified),
                             Description = "Troca",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2L,
-                            CreatedAt = new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 9, 28, 21, 51, 18, 0, DateTimeKind.Unspecified),
                             Description = "Doação",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 3L,
-                            CreatedAt = new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 9, 28, 21, 51, 18, 0, DateTimeKind.Unspecified),
                             Description = "Emprestimo",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            CreatedAt = new DateTime(2020, 9, 28, 21, 51, 18, 0, DateTimeKind.Unspecified),
+                            Description = "Interesse",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
@@ -644,6 +728,10 @@ namespace RelibreApi.Migrations
                     b.Property<long>("IdProfile")
                         .HasColumnName("id_profile")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("LoginVerified")
+                        .HasColumnName("login_verified")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -743,17 +831,34 @@ namespace RelibreApi.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("RelibreApi.Models.Contact", "Contact")
+                        .WithMany("LibraryBooks")
+                        .HasForeignKey("IdContact")
+                        .HasConstraintName("fk_library_book_contact_id_contact")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("RelibreApi.Models.Library", "Library")
                         .WithMany("LibraryBooks")
                         .HasForeignKey("IdLibrary")
                         .HasConstraintName("fk_library_book_library_id_library")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("RelibreApi.Models.LibraryBookType", b =>
+                {
+                    b.HasOne("RelibreApi.Models.LibraryBook", "LibraryBook")
+                        .WithMany("LibraryBookTypes")
+                        .HasForeignKey("IdLibraryBook")
+                        .HasConstraintName("fk_library_book_library_book_id_library_book")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("RelibreApi.Models.Type", "Type")
-                        .WithMany("LibraryBooks")
+                        .WithMany("LibraryBookTypes")
                         .HasForeignKey("IdType")
-                        .HasConstraintName("fk_library_book_type_id_type")
+                        .HasConstraintName("fk_library_book_library_book_id_type")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

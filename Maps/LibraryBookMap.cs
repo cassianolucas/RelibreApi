@@ -56,19 +56,8 @@ namespace RelibreApi.Maps
                 .WithMany(x => x.LibraryBooks)
                 .HasForeignKey(x => x.IdBook)
                 .HasConstraintName("fk_library_book_book_id_book")
-                .OnDelete(DeleteBehavior.Restrict);
-            
-            o.Property(x => x.IdType)
-                .HasColumnName("id_type")
-                .HasColumnType("bigint")
-                .IsRequired();
-            
-            o.HasOne(x => x.Type)
-                .WithMany(x => x.LibraryBooks)
-                .HasForeignKey(x => x.IdType)
-                .HasConstraintName("fk_library_book_type_id_type")
-                .OnDelete(DeleteBehavior.Restrict);
-            
+                .OnDelete(DeleteBehavior.Restrict);                        
+                                    
             o.Property(x => x.Reating)
                 .HasColumnName("reating")
                 .HasColumnType("varchar(255)")

@@ -27,12 +27,19 @@ namespace RelibreApi.Repositories
         {
             throw new System.NotImplementedException();
         }
+        public Task<Type> GetByDescriptionAsync(string description)
+        {
+            return _context.Type
+                .Where(x => x.Description
+                    .ToLower().Equals(description.ToLower()))
+                .SingleOrDefaultAsync();
+        }
 
         public Task<Type> GetByIdAsync(long Id)
         {
             return _context.Type
                 .Where(x => x.Id == Id)
-                .SingleAsync();            
+                .SingleAsync();
         }
 
         public Task<Type> GetByIdAsyncNoTracking(long Id)
@@ -48,7 +55,7 @@ namespace RelibreApi.Repositories
             throw new System.NotImplementedException();
         }
 
-        public Task<Type> UpdateAsync(Type model)
+        public void Update(Type model)
         {
             throw new System.NotImplementedException();
         }

@@ -56,7 +56,8 @@ namespace RelibreApi.Repositories
         {
             return _context.User
                 .Include(x => x.Person)
-                    .ThenInclude(x => x.Phones)
+                .Include(x => x.Person.Phones)
+                .Include(x => x.Person.Addresses)
                 .Include(x => x.Profile)
                 .Include(x => x.Person.Library)
                 .Where(x => x.Login.ToLower().Trim().Equals(login.ToLower().Trim()))
@@ -75,27 +76,15 @@ namespace RelibreApi.Repositories
                 .AsNoTracking()
                 .SingleOrDefaultAsync();
         }
-
-        public Task<User> LoginAsync(string login, string password)
-        {
-            return _context.User
-                .Include(x => x.Person)
-                    .ThenInclude(x => x.Phones)
-                .Include(x => x.Profile)
-                .Include(x => x.Person.Library)
-                .Where(x => x.Login.ToLower().Trim().Equals(login) && x.Password.Equals(password))
-                .AsNoTracking()
-                .SingleOrDefaultAsync();
-        }
-
+        
         public void RemoveAsync(long Id)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<User> UpdateAsync(User model)
+        public void Update(User model)
         {
-            throw new System.NotImplementedException();
+            _context.User.Update(model);
         }
     }
 }

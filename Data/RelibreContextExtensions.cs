@@ -29,7 +29,8 @@ namespace RelibreApi.Data
             {                
                 new Type { Id = 1, Description = "Troca", CreatedAt = Util.CurrentDateTime() },
                 new Type { Id = 2, Description = "Doação", CreatedAt = Util.CurrentDateTime() },
-                new Type { Id = 3, Description = "Emprestimo", CreatedAt = Util.CurrentDateTime() }
+                new Type { Id = 3, Description = "Emprestimo", CreatedAt = Util.CurrentDateTime() },
+                new Type { Id = 4, Description = "Interesse", CreatedAt = Util.CurrentDateTime() }
             };
 
             modelBuilder.Entity<Type>().HasData(types);

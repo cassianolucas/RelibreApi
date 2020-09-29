@@ -9,11 +9,17 @@ namespace RelibreApi.Models
         public long IdProfile { get; set; }
         public Profile Profile { get; set; }
         public long IdPerson { get; set; }
+        public bool LoginVerified { get; set; }
         public virtual Person Person { get; set; }
 
         public User()
         {
             this.Person = new Person();
+        }
+
+        public bool IsVerified()
+        {
+            return LoginVerified;
         }
 
     }

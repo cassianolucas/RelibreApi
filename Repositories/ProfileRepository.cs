@@ -50,7 +50,7 @@ namespace RelibreApi.Repositories
             throw new System.NotImplementedException();
         }
 
-        public Task<Profile> UpdateAsync(Profile model)
+        public void Update(Profile model)
         {
             throw new System.NotImplementedException();
         }

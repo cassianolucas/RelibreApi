@@ -58,7 +58,7 @@ namespace RelibreApi.Repositories
             throw new System.NotImplementedException();
         }
 
-        public Task<Category> UpdateAsync(Category model)
+        public void Update(Category model)
         {
             throw new System.NotImplementedException();
         }

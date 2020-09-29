@@ -23,6 +23,12 @@ namespace RelibreApi.Maps
                 .HasColumnName("id_person")
                 .HasColumnType("bigint")
                 .IsRequired();
+            
+            o.HasOne(x => x.Person)
+                .WithMany(x => x.Addresses)
+                .HasForeignKey(x => x.IdPerson)
+                .HasConstraintName("fk_adress_person_id_person")
+                .OnDelete(DeleteBehavior.Restrict);
 
             o.Property(x => x.NickName)
                 .HasColumnName("nick_name")
@@ -37,6 +43,11 @@ namespace RelibreApi.Maps
             o.Property(x => x.Longitude)
                 .HasColumnName("longitude")
                 .HasColumnType("varchar(25)")
+                .IsRequired();
+
+            o.Property(x => x.FullAddress)
+                .HasColumnName("full_address")
+                .HasColumnType("varchar")
                 .IsRequired();
                         
             o.Property(x => x.Master)

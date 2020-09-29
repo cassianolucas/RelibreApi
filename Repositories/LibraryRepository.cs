@@ -57,7 +57,7 @@ namespace RelibreApi.Repositories
             throw new System.NotImplementedException();
         }
 
-        public Task<Library> UpdateAsync(Library model)
+        public void Update(Library model)
         {
             throw new System.NotImplementedException();
         }

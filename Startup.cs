@@ -91,10 +91,10 @@ namespace RelibreApi
                         }));
                     }
                 };
-            });
+            });            
 
-            services.AddEntityFrameworkNpgsql()
-                    .AddDbContext<RelibreContext>(x => x.UseNpgsql(settings.ConnectionString));
+            services.AddDbContext<RelibreContext>(x => 
+                        x.UseNpgsql(settings.ConnectionString));
 
             services.AddAuthorization(x => new CustomPolicies(x));
             services.AddTransient<IAuthorizationHandler, CustomRequirementHandler>();
@@ -107,6 +107,8 @@ namespace RelibreApi
             services.AddTransient<ICategory, CategoryRepository>();
             services.AddTransient<IAuthor, AuthorRepository>();
             services.AddTransient<ILibraryBook, LibraryBookRepository>();
+            services.AddTransient<IContact, ContactRepository>();
+            services.AddTransient<IEmailVerification, EmailVerificationRepository>();
 
             services.AddMvc(x =>
             {
@@ -188,13 +190,19 @@ namespace RelibreApi
                         if (exception != null)
                         {
                             // "Erro interno!"
-                            var mensagemErro = new
-                            {
-                                mensagem = Constants.MessageExceptionDefault,
-                                status = 500
-                            };
+                            // var mensagemErro = new
+                            // {
+                            //     mensagem = Constants.MessageExceptionDefault,
+                            //     status = 500
+                            // };
 
-                            await context.Response.WriteAsync(mensagemErro.ToString()).ConfigureAwait(false);
+                            Util.ReturnException((Exception)exception);
+
+                            await context.Response.WriteAsync(
+                                Util.ReturnException((Exception)exception).ToString())
+                                .ConfigureAwait(false);
+                                                        
+                            // await context.Response.WriteAsync(mensagemErro.ToString()).ConfigureAwait(false);
                         }
                     });
             });

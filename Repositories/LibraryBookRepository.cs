@@ -36,9 +36,16 @@ namespace RelibreApi.Repositories
         {
             return _context.LibraryBook
                 .Include(x => x.Book)
-                .Include(x => x.Type)
+                    .ThenInclude(x => x.AuthorBooks)
+                        .ThenInclude(x => x.Author)
+                .Include(x => x.Book)
+                    .ThenInclude(x => x.CategoryBooks)
+                        .ThenInclude(x => x.Category)
+                .Include(x => x.LibraryBookTypes)
+                    .ThenInclude(x => x.Type)
                 .Include(x => x.Library)
-                .Include(x => x.Images)                
+                .Include(x => x.Images)
+                .Include(x => x.Contact)
                 .Where(x => x.Id >= 0 && string.IsNullOrEmpty(title) ||
                     !string.IsNullOrEmpty(title) && 
                     Util.RemoveSpecialCharacter(
@@ -54,7 +61,8 @@ namespace RelibreApi.Repositories
         {
             return _context.LibraryBook
                 .Include(x => x.Book)
-                .Include(x => x.Type)
+                .Include(x => x.LibraryBookTypes)
+                    .ThenInclude(x => x.Type)
                 .Include(x => x.Library)
                 .Include(x => x.Images)                
                 .Where(x => x.Id == Id)
@@ -64,7 +72,8 @@ namespace RelibreApi.Repositories
         {
             return _context.LibraryBook
                 .Include(x => x.Book)
-                .Include(x => x.Type)
+                .Include(x => x.LibraryBookTypes)
+                    .ThenInclude(x => x.Type)
                 .Include(x => x.Library)
                 .Include(x => x.Images)
                 .AsNoTracking()
@@ -76,7 +85,8 @@ namespace RelibreApi.Repositories
         {
             return _context.LibraryBook
                 .Include(x => x.Book)
-                .Include(x => x.Type)
+                .Include(x => x.LibraryBookTypes)
+                    .ThenInclude(x => x.Type)
                 .Include(x => x.Library)
                 .Include(x => x.Images)
                 .AsNoTracking()
@@ -91,7 +101,7 @@ namespace RelibreApi.Repositories
             throw new System.NotImplementedException();
         }
 
-        public Task<LibraryBook> UpdateAsync(LibraryBook model)
+        public void Update(LibraryBook model)
         {
             throw new System.NotImplementedException();
         }

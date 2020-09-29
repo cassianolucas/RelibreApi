@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace RelibreApi.Migrations
 {
-    public partial class initial : Migration
+    public partial class initiaç : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -58,6 +58,38 @@ namespace RelibreApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "contact",
+                columns: table => new
+                {
+                    id = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    active = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp", nullable: false),
+                    Email = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    phone = table.Column<string>(type: "varchar(50)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_contact", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "email_verification",
+                columns: table => new
+                {
+                    id = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    login = table.Column<string>(type: "varchar(255)", nullable: false),
+                    code_verification = table.Column<string>(type: "varchar(36)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_email_verification", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Notification",
                 columns: table => new
                 {
@@ -86,7 +118,8 @@ namespace RelibreApi.Migrations
                     name = table.Column<string>(type: "varchar", maxLength: 255, nullable: false),
                     last_name = table.Column<string>(type: "varchar", maxLength: 255, nullable: true),
                     document = table.Column<string>(type: "varchar", maxLength: 18, nullable: true),
-                    type_person = table.Column<string>(maxLength: 2, nullable: false)
+                    type_person = table.Column<string>(maxLength: 2, nullable: false),
+                    Birthday = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -303,7 +336,8 @@ namespace RelibreApi.Migrations
                     login = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     password = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     id_profile = table.Column<long>(type: "bigint", nullable: false),
-                    id_person = table.Column<long>(type: "bigint", nullable: false)
+                    id_person = table.Column<long>(type: "bigint", nullable: false),
+                    login_verified = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -334,7 +368,6 @@ namespace RelibreApi.Migrations
                     id_library = table.Column<long>(type: "bigint", nullable: false),
                     id_contact = table.Column<long>(type: "bigint", nullable: false),
                     id_book = table.Column<long>(type: "bigint", nullable: false),
-                    id_type = table.Column<long>(type: "bigint", nullable: false),
                     reating = table.Column<string>(type: "varchar(255)", nullable: true)
                 },
                 constraints: table =>
@@ -347,15 +380,15 @@ namespace RelibreApi.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "fk_library_book_library_id_library",
-                        column: x => x.id_library,
-                        principalTable: "library",
+                        name: "fk_library_book_contact_id_contact",
+                        column: x => x.id_contact,
+                        principalTable: "contact",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "fk_library_book_type_id_type",
-                        column: x => x.id_type,
-                        principalTable: "type",
+                        name: "fk_library_book_library_id_library",
+                        column: x => x.id_library,
+                        principalTable: "library",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -366,9 +399,6 @@ namespace RelibreApi.Migrations
                 {
                     id = table.Column<long>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    Active = table.Column<bool>(nullable: false),
-                    CreatedAt = table.Column<DateTime>(nullable: false),
-                    UpdatedAt = table.Column<DateTime>(nullable: false),
                     thumbnail = table.Column<string>(type: "varchar(255)", nullable: true),
                     small = table.Column<string>(type: "varchar(255)", nullable: true),
                     medium = table.Column<string>(type: "varchar(255)", nullable: true),
@@ -388,13 +418,37 @@ namespace RelibreApi.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "library_book_type",
+                columns: table => new
+                {
+                    id_library_book = table.Column<long>(type: "bigint", nullable: false),
+                    id_type = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_library_book_type", x => new { x.id_library_book, x.id_type });
+                    table.ForeignKey(
+                        name: "fk_library_book_library_book_id_library_book",
+                        column: x => x.id_library_book,
+                        principalTable: "library_book",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_library_book_library_book_id_type",
+                        column: x => x.id_type,
+                        principalTable: "type",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.InsertData(
                 table: "profile",
                 columns: new[] { "id", "active", "created_at", "name", "updated_at" },
                 values: new object[,]
                 {
-                    { 1L, true, new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified), "PJ", new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified) },
-                    { 2L, true, new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified), "PF", new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified) }
+                    { 1L, true, new DateTime(2020, 9, 24, 21, 33, 15, 0, DateTimeKind.Unspecified), "PJ", new DateTime(2020, 9, 24, 21, 33, 15, 0, DateTimeKind.Unspecified) },
+                    { 2L, true, new DateTime(2020, 9, 24, 21, 33, 15, 0, DateTimeKind.Unspecified), "PF", new DateTime(2020, 9, 24, 21, 33, 15, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.InsertData(
@@ -402,9 +456,10 @@ namespace RelibreApi.Migrations
                 columns: new[] { "id", "created_at", "description", "updated_at" },
                 values: new object[,]
                 {
-                    { 1L, new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified), "Troca", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2L, new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified), "Doação", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 3L, new DateTime(2020, 9, 12, 13, 3, 25, 0, DateTimeKind.Unspecified), "Emprestimo", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1L, new DateTime(2020, 9, 24, 21, 33, 15, 0, DateTimeKind.Unspecified), "Troca", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2L, new DateTime(2020, 9, 24, 21, 33, 15, 0, DateTimeKind.Unspecified), "Doação", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 3L, new DateTime(2020, 9, 24, 21, 33, 15, 0, DateTimeKind.Unspecified), "Emprestimo", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 4L, new DateTime(2020, 9, 24, 21, 33, 15, 0, DateTimeKind.Unspecified), "Interesse", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.InsertData(
@@ -453,13 +508,18 @@ namespace RelibreApi.Migrations
                 column: "id_book");
 
             migrationBuilder.CreateIndex(
+                name: "IX_library_book_id_contact",
+                table: "library_book",
+                column: "id_contact");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_library_book_id_library",
                 table: "library_book",
                 column: "id_library");
 
             migrationBuilder.CreateIndex(
-                name: "IX_library_book_id_type",
-                table: "library_book",
+                name: "IX_library_book_type_id_type",
+                table: "library_book_type",
                 column: "id_type");
 
             migrationBuilder.CreateIndex(
@@ -509,7 +569,13 @@ namespace RelibreApi.Migrations
                 name: "category_book");
 
             migrationBuilder.DropTable(
+                name: "email_verification");
+
+            migrationBuilder.DropTable(
                 name: "image");
+
+            migrationBuilder.DropTable(
+                name: "library_book_type");
 
             migrationBuilder.DropTable(
                 name: "NotificationPerson");
@@ -530,6 +596,9 @@ namespace RelibreApi.Migrations
                 name: "library_book");
 
             migrationBuilder.DropTable(
+                name: "type");
+
+            migrationBuilder.DropTable(
                 name: "Notification");
 
             migrationBuilder.DropTable(
@@ -539,10 +608,10 @@ namespace RelibreApi.Migrations
                 name: "book");
 
             migrationBuilder.DropTable(
-                name: "library");
+                name: "contact");
 
             migrationBuilder.DropTable(
-                name: "type");
+                name: "library");
 
             migrationBuilder.DropTable(
                 name: "person");

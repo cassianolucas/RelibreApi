@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace RelibreApi.Models
 {
-    public class Contact : BaseModel
+    public class Contact : BaseModelUpdatedAt
     {
         public string Email { get; set; }
         public string Phone { get; set; }

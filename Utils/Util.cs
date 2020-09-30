@@ -141,7 +141,7 @@ namespace RelibreApi.Utils
             var strBody = new StringBuilder();
             strBody.AppendLine("<html>");
             strBody.AppendLine("<head>");
-            strBody.AppendLine(@"<link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css' 
+            strBody.AppendLine(@"<link rel=""stylesheet"" href=""https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"" 
                 integrity='sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z' crossorigin='anonymous'>");
             strBody.AppendLine("</head>");
             strBody.AppendLine("<body>");
@@ -156,7 +156,6 @@ namespace RelibreApi.Utils
 
         public static void SendEmailAsync(IConfiguration configuration, string email, string message, string endpoint)
         {
-            // verificar ambiente para montar link
             var emailSettings = new EmailSettings(configuration);
 
             var myMessage = new MailMessage();

@@ -25,7 +25,10 @@ namespace RelibreApi.Repositories
 
         public Task<List<Type>> GetAllAsync()
         {
-            throw new System.NotImplementedException();
+            return _context.Type
+                .Where(x => x.Id < 4)
+                .AsNoTracking()
+                .ToListAsync();
         }
         public Task<Type> GetByDescriptionAsync(string description)
         {

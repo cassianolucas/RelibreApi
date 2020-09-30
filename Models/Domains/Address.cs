@@ -2,7 +2,7 @@ using System;
 
 namespace RelibreApi.Models
 {
-    public class Address : BaseModel
+    public class Address : BaseModelUpdatedAt
     {        
         public long IdPerson { get; set; }
         public string NickName { get; set; }

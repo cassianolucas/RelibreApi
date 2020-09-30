@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RelibreApi.Models
 {
-    public class Profile : BaseModel
+    public class Profile : BaseModelUpdatedAt
     {        
         public string Name { get; set; }
         public virtual ICollection<AccessProfile> AccessProfiles { get; set; }

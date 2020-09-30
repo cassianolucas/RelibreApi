@@ -21,8 +21,8 @@ namespace RelibreApi.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
-        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
         private readonly IUser _userMananger;
         private readonly IProfile _profileMananger;
         private readonly ILibrary _libraryMananger;
@@ -30,8 +30,8 @@ namespace RelibreApi.Controllers
 
         public AccountController(
             [FromServices] IUnitOfWork uow,
-            [FromServices] IConfiguration configuration,
             [FromServices] IMapper mapper,
+            [FromServices] IConfiguration configuration,
             [FromServices] IUser userMananger,
             [FromServices] IProfile profileMananger,
             [FromServices] ILibrary libraryMananger,
@@ -249,9 +249,11 @@ namespace RelibreApi.Controllers
 
                 _userMananger.Update(userDb);
 
-                user = _mapper.Map<UserViewModel>(userDb);
-
                 _uow.Commit();
+
+                userDb = await _userMananger.GetByLogin(user.Login);
+
+                user = _mapper.Map<UserViewModel>(userDb);
 
                 return Ok(user);
             }

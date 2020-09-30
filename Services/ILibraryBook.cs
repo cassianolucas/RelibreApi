@@ -8,6 +8,8 @@ namespace RelibreApi.Services
     {
          Task<List<LibraryBook>> GetByIdLibrary(long IdLibrary, int offset, int limit);
 
-         Task<List<LibraryBook>> GetByBookTitle(string title, int offset, int limit);         
+         Task<List<LibraryBook>> GetByBookTitle(string title, int offset, int limit);
+
+         Task<List<LibraryBook>> GetByTypeNoTracking(Type type, int offset, int limit);
     }
 }

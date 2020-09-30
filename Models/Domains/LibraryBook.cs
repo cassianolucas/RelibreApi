@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RelibreApi.Models
 {
-    public class LibraryBook : BaseModel
+    public class LibraryBook : BaseModelUpdatedAt
     {        
         public long IdLibrary { get; set; }
         public long IdContact { get; set; }

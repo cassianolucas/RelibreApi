@@ -72,6 +72,11 @@ namespace RelibreApi.Maps
                 .HasColumnName("created_at")
                 .HasColumnType("timestamp")
                 .IsRequired();
+
+            o.Property(x => x.UpdatedAt)
+                .HasColumnName("updated_at")
+                .HasColumnType("timestamp")
+                .IsRequired();
         }
     }
 }

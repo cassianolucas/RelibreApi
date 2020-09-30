@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RelibreApi.Models
 {
-    public class Person : BaseModel
+    public class Person : BaseModelUpdatedAt 
     {                
         public string Name { get; set; }
         public string LastName { get; set; }

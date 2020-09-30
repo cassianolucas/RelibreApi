@@ -27,9 +27,9 @@ namespace RelibreApi.Data
 
             var types = new List<Type>
             {                
-                new Type { Id = 1, Description = "Troca", CreatedAt = Util.CurrentDateTime() },
-                new Type { Id = 2, Description = "Doação", CreatedAt = Util.CurrentDateTime() },
-                new Type { Id = 3, Description = "Emprestimo", CreatedAt = Util.CurrentDateTime() },
+                new Type { Id = 1, Description = "Trocar", CreatedAt = Util.CurrentDateTime() },
+                new Type { Id = 2, Description = "Doar", CreatedAt = Util.CurrentDateTime() },
+                new Type { Id = 3, Description = "Emprestar", CreatedAt = Util.CurrentDateTime() },
                 new Type { Id = 4, Description = "Interesse", CreatedAt = Util.CurrentDateTime() }
             };
 

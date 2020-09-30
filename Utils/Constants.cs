@@ -12,5 +12,6 @@ namespace RelibreApi.Utils
         public const string MessageExceptionNotAuthorize = "Não autorizado!";
         public const string SpecialCharacter = @"[^\w\s]|[ºª]";
         public enum Requests { Get, Post, Put };
+        public enum Types { Trocar, Doar, Emprestar, Interesse };
     }
 }

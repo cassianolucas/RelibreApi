@@ -96,6 +96,25 @@ namespace RelibreApi.Repositories
                 .ToListAsync();
         }
 
+        public Task<List<LibraryBook>> GetByTypeNoTracking(Type type, int offset, int limit)
+        {
+            return _context.LibraryBook
+                .Include(x => x.Book)
+                .Include(x => x.Book.AuthorBooks)
+                    .ThenInclude(x => x.Author)
+                .Include(x => x.Book.CategoryBooks)
+                    .ThenInclude(x => x.Category)
+                .Include(x => x.LibraryBookTypes)
+                    .ThenInclude(x => x.Type)
+                .Include(x => x.Library)
+                .Include(x => x.Images)
+                .AsNoTracking()
+                .Where(x => x.LibraryBookTypes.Any(x => x.IdType == type.Id))
+                .Take(offset > 0? offset : 30)
+                .Skip(limit > 0? limit : 0)
+                .ToListAsync();
+        }
+
         public void RemoveAsync(long Id)
         {
             throw new System.NotImplementedException();

@@ -52,6 +52,15 @@ namespace RelibreApi.Repositories
                 .SingleOrDefaultAsync();
         }
 
+        public Task<Library> GetLibraryByPerson(long idPerson)
+        {
+            return _context.Library
+                .Include(x => x.Person)
+                .Include(x => x.LibraryBooks)
+                .Where(x => x.Person.Id == idPerson)
+                .SingleOrDefaultAsync();
+        }
+
         public void RemoveAsync(long Id)
         {
             throw new System.NotImplementedException();

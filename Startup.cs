@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
@@ -21,7 +22,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using RelibreApi.Data;
 using RelibreApi.Models;
@@ -91,9 +94,9 @@ namespace RelibreApi
                         }));
                     }
                 };
-            });            
+            });
 
-            services.AddDbContext<RelibreContext>(x => 
+            services.AddDbContext<RelibreContext>(x =>
                         x.UseNpgsql(settings.ConnectionString));
 
             services.AddAuthorization(x => new CustomPolicies(x));
@@ -147,6 +150,38 @@ namespace RelibreApi
             services.AddControllers();
 
             services.AddAutoMapper(typeof(Startup));
+
+            services.AddSwaggerGen(x =>
+            {
+                x.SwaggerDoc("v1",
+                    new OpenApiInfo
+                    {
+                        Title = "Relibre Api",
+                        Version = "v1",
+                        Description = "Projeto Relibre API REST criada com o ASP.NET Core",
+                        Contact = new OpenApiContact
+                        {
+                            Email = "projeto.relibre@gmail.com",
+                            Url = new Uri("https://ec2-18-229-164-33.sa-east-1.compute.amazonaws.com")
+                        }
+                    });
+
+                x.ResolveConflictingActions(x => x.First());
+                                
+                string caminhoAplicacao =
+                    PlatformServices.Default.Application.ApplicationBasePath;
+                string nomeAplicacao =
+                    PlatformServices.Default.Application.ApplicationName;
+
+                string caminhoXmlDoc =
+                    Path.Combine(caminhoAplicacao, $"{nomeAplicacao}.xml");
+                
+                //Caso exista arquivo então adiciona-lo
+                if (File.Exists(caminhoXmlDoc))
+                {
+                    x.IncludeXmlComments(caminhoXmlDoc);
+                }
+            });            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -159,6 +194,13 @@ namespace RelibreApi
                 .AddSupportedUICultures(supportedCultures);
 
             app.UseRequestLocalization(localizationOptions);
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Relibre Api");
+            });
 
             if (env.IsDevelopment())
             {
@@ -188,21 +230,12 @@ namespace RelibreApi
                         var exception = context.Features.Get<IExceptionHandlerFeature>();
 
                         if (exception != null)
-                        {
-                            // "Erro interno!"
-                            // var mensagemErro = new
-                            // {
-                            //     mensagem = Constants.MessageExceptionDefault,
-                            //     status = 500
-                            // };
-
+                        {                            
                             Util.ReturnException((Exception)exception);
 
                             await context.Response.WriteAsync(
                                 Util.ReturnException((Exception)exception).ToString())
                                 .ConfigureAwait(false);
-                                                        
-                            // await context.Response.WriteAsync(mensagemErro.ToString()).ConfigureAwait(false);
                         }
                     });
             });
@@ -216,11 +249,7 @@ namespace RelibreApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-
-                // endpoints.MapControllerRoute(
-                //     name: "default",
-                //     pattern: "{controller=Account}/{action=Index}/{id?}");
-            });
+            });            
         }
     }
 }

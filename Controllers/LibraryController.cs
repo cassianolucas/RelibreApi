@@ -112,13 +112,14 @@ namespace RelibreApi.Controllers
                         }
                     }
 
-                    bookDb.CreatedAt = Util.CurrentDateTime();                    
+                    bookDb.CreatedAt = Util.CurrentDateTime();
 
                     await _bookMananger.CreateAsync(libraryBookMap.Book);
                 }
 
                 // capturar do cadastro
-                var login = Util.Claim(_httpContext, "email_login");
+                var login = Util.GetClaim(_httpContext,
+                    Constants.UserClaimIdentifier);
 
                 var userDb = await _userMananger.GetByLogin(login);
 
@@ -240,22 +241,78 @@ namespace RelibreApi.Controllers
             {
                 // offset é a partir de qual registro você quer
                 // limit é o valor máximo de registros a serem retornados
-                if (idLibrary > 0) return Ok(await GetByIdLibrary(idLibrary, offset, limit));
 
-                if (!string.IsNullOrEmpty(type)) {
+                // retorna livros da biblioteca do usuario
+                if (idLibrary > 0)
+                {
+                    var libraryBookDb =  await GetByIdLibrary(idLibrary, offset, limit);
 
-                    var libraryBookDb = await GetByType(type, offset, limit);
-
-                    var libraryBookMap = _mapper
+                    var librariesBooksMap = _mapper
                         .Map<ICollection<LibraryBookViewModel>>(libraryBookDb);
 
-                    return Ok(libraryBookMap);
+                    return Ok(librariesBooksMap);
                 }
 
-                var libraryBooks = await GetByBookTitle(title, offset, limit);
+                // capturar usuario que realizou a requisição
+                var login = Util.GetClaim(_httpContext, Constants.UserClaimIdentifier);
+                var user = await _userMananger.GetByLoginOrDocumentNoTracking(login, "");
+
+                var address = user != null ?
+                        user.Person.Addresses.SingleOrDefault(x => x.Master == true) : null;
+
+                if (!string.IsNullOrEmpty(type))
+                {
+
+                    // retorna todos os livros de todas as bibliotecas que 
+                    // forem diferente do usuario da requisição de acordo com tipo 
+                    var libraryBookDb = await GetByType(type, user.Person.Library.Id, offset, limit);
+
+                    var librariesBooksMap = _mapper
+                        .Map<ICollection<LibraryBookViewModel>>(libraryBookDb)
+                        .Select(x => new
+                        {
+                            Distance = string.Format("{0:0}",
+                                Util.Distance(Convert.ToDouble(address.Latitude),
+                                Convert.ToDouble(address.Longitude),
+                                Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
+                                Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude))),
+                            x.Book,
+                            x.Contact,
+                            x.id,
+                            x.IdLibrary,
+                            x.Images,
+                            x.Reating,
+                            x.Types
+                        })
+                        .OrderBy(x => x.Distance);
+
+                    // TRAZER LIVROS RELACIONADOS POR CATEGORIA
+
+                    return Ok(librariesBooksMap);
+                }
+
+                // retorna todos os livros de todas as bibliotecas de acordo com título
+                var libraryBooks = await GetByBookTitle(title, user.Person.Library.Id, offset, limit);
 
                 // verificar, não está mapeando os autores, categorias, e tipos
-                var libraryBooksMaps = _mapper.Map<ICollection<LibraryBookViewModel>>(libraryBooks);
+                var libraryBooksMaps = _mapper
+                    .Map<ICollection<LibraryBookViewModel>>(libraryBooks)
+                    .Select(x => new
+                    {
+                        Distance = string.Format("{0:0}",
+                                Util.Distance(Convert.ToDouble(address.Latitude),
+                                Convert.ToDouble(address.Longitude),
+                                Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
+                                Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude))),
+                        x.Book,
+                        x.Contact,
+                        x.id,
+                        x.IdLibrary,
+                        x.Images,
+                        x.Reating,
+                        x.Types
+                    })
+                    .OrderBy(x => x.Distance);
 
                 return Ok(libraryBooksMaps);
             }
@@ -264,17 +321,18 @@ namespace RelibreApi.Controllers
                 return BadRequest(Util.ReturnException(ex));
             }
         }
-        
+
         private Task<List<LibraryBook>> GetByIdLibrary(long idLibrary, int offset, int limit)
         {
             return _libraryBookMananger.GetByIdLibrary(idLibrary, offset, limit);
         }
 
-        private Task<List<LibraryBook>> GetByBookTitle(string title, int offset, int limit)
+        private Task<List<LibraryBook>> GetByBookTitle(string title, long idLibraryRequest, int offset, int limit)
         {
-            return _libraryBookMananger.GetByBookTitle(Util.RemoveSpecialCharacter(title), offset, limit);
+            return _libraryBookMananger
+                .GetByBookTitle(Util.RemoveSpecialCharacter(title), idLibraryRequest, offset, limit);
         }
-        private async Task<List<LibraryBook>> GetByType(string type, int offset, int limit)
+        private async Task<List<LibraryBook>> GetByType(string type, long idLibraryRequest, int offset, int limit)
         {
             // TROCAR
             // EMPRESTAR
@@ -282,7 +340,11 @@ namespace RelibreApi.Controllers
             // VENDER                        
             var typeDb = await _typeMananger.GetByDescriptionAsync(type);
 
-            return await _libraryBookMananger.GetByTypeNoTracking(typeDb, offset, limit);
+            if (type == null) throw new ArgumentNullException();
+            
+            idLibraryRequest = (typeDb.Description.ToLower().Equals("interesse"))? -1: idLibraryRequest;
+            
+            return await _libraryBookMananger.GetByTypeNoTracking(typeDb, idLibraryRequest, offset, limit);
         }
 
     }

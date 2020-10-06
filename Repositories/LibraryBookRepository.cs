@@ -28,11 +28,22 @@ namespace RelibreApi.Repositories
         public Task<List<LibraryBook>> GetAllAsync()
         {
             return _context.LibraryBook
+                .Include(x => x.Book)
+                .Include(x => x.Book.AuthorBooks)
+                    .ThenInclude(x => x.Author)
+                .Include(x => x.Book.CategoryBooks)
+                    .ThenInclude(x => x.Category)
+                .Include(x => x.LibraryBookTypes)
+                    .ThenInclude(x => x.Type)
+                .Include(x => x.Library)
+                .Include(x => x.Library.Person)
+                .Include(x => x.Library.Person.Addresses)
+                .Include(x => x.Images)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public Task<List<LibraryBook>> GetByBookTitle(string title, int offset, int limit)
+        public Task<List<LibraryBook>> GetByBookTitle(string title, long idLibraryRequest, int offset, int limit)
         {
             return _context.LibraryBook
                 .Include(x => x.Book)
@@ -44,10 +55,12 @@ namespace RelibreApi.Repositories
                 .Include(x => x.LibraryBookTypes)
                     .ThenInclude(x => x.Type)
                 .Include(x => x.Library)
+                .Include(x => x.Library.Person)
+                .Include(x => x.Library.Person.Addresses)
                 .Include(x => x.Images)
                 .Include(x => x.Contact)
-                .Where(x => x.Id >= 0 && string.IsNullOrEmpty(title) ||
-                    !string.IsNullOrEmpty(title) && 
+                .Where(x => x.Id >= 0 && x.IdLibrary != idLibraryRequest && 
+                    string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(title) && 
                     Util.RemoveSpecialCharacter(
                         x.Book.Title.ToLower())
                         .Contains(title.ToLower()))
@@ -61,42 +74,20 @@ namespace RelibreApi.Repositories
         {
             return _context.LibraryBook
                 .Include(x => x.Book)
+                .Include(x => x.Book.AuthorBooks)
+                    .ThenInclude(x => x.Author)
+                .Include(x => x.Book.CategoryBooks)
+                    .ThenInclude(x => x.Category)
                 .Include(x => x.LibraryBookTypes)
                     .ThenInclude(x => x.Type)
                 .Include(x => x.Library)
-                .Include(x => x.Images)                
+                .Include(x => x.Library.Person)
+                .Include(x => x.Library.Person.Addresses)
+                .Include(x => x.Images)
                 .Where(x => x.Id == Id)
                 .SingleOrDefaultAsync();
         }
         public Task<LibraryBook> GetByIdAsyncNoTracking(long Id)
-        {
-            return _context.LibraryBook
-                .Include(x => x.Book)
-                .Include(x => x.LibraryBookTypes)
-                    .ThenInclude(x => x.Type)
-                .Include(x => x.Library)
-                .Include(x => x.Images)
-                .AsNoTracking()
-                .Where(x => x.Id == Id)
-                .SingleOrDefaultAsync();
-        }
-
-        public Task<List<LibraryBook>> GetByIdLibrary(long IdLibrary, int offset, int limit)
-        {
-            return _context.LibraryBook
-                .Include(x => x.Book)
-                .Include(x => x.LibraryBookTypes)
-                    .ThenInclude(x => x.Type)
-                .Include(x => x.Library)
-                .Include(x => x.Images)
-                .AsNoTracking()
-                .Where(x => x.IdLibrary == IdLibrary)
-                .Take(offset > 0? offset : 30)
-                .Skip(limit > 0? limit : 0)
-                .ToListAsync();
-        }
-
-        public Task<List<LibraryBook>> GetByTypeNoTracking(Type type, int offset, int limit)
         {
             return _context.LibraryBook
                 .Include(x => x.Book)
@@ -107,9 +98,52 @@ namespace RelibreApi.Repositories
                 .Include(x => x.LibraryBookTypes)
                     .ThenInclude(x => x.Type)
                 .Include(x => x.Library)
+                .Include(x => x.Library.Person)
+                .Include(x => x.Library.Person.Addresses)
                 .Include(x => x.Images)
                 .AsNoTracking()
-                .Where(x => x.LibraryBookTypes.Any(x => x.IdType == type.Id))
+                .Where(x => x.Id == Id)
+                .SingleOrDefaultAsync();
+        }
+
+        public Task<List<LibraryBook>> GetByIdLibrary(long IdLibrary, int offset, int limit)
+        {
+            return _context.LibraryBook
+                .Include(x => x.Book)
+                .Include(x => x.Book.AuthorBooks)
+                    .ThenInclude(x => x.Author)
+                .Include(x => x.Book.CategoryBooks)
+                    .ThenInclude(x => x.Category)
+                .Include(x => x.LibraryBookTypes)
+                    .ThenInclude(x => x.Type)
+                .Include(x => x.Library)
+                .Include(x => x.Library.Person)
+                .Include(x => x.Library.Person.Addresses)
+                .Include(x => x.Images)
+                .AsNoTracking()
+                .Where(x => x.IdLibrary == IdLibrary)
+                .Take(offset > 0? offset : 30)
+                .Skip(limit > 0? limit : 0)
+                .ToListAsync();
+        }
+
+        public Task<List<LibraryBook>> GetByTypeNoTracking(Type type, long idLibraryRequest, int offset, int limit)
+        {
+            return _context.LibraryBook
+                .Include(x => x.Book)
+                .Include(x => x.Book.AuthorBooks)
+                    .ThenInclude(x => x.Author)
+                .Include(x => x.Book.CategoryBooks)
+                    .ThenInclude(x => x.Category)
+                .Include(x => x.LibraryBookTypes)
+                    .ThenInclude(x => x.Type)
+                .Include(x => x.Library)
+                .Include(x => x.Library.Person)
+                .Include(x => x.Library.Person.Addresses)
+                .Include(x => x.Images)
+                .AsNoTracking()
+                .Where(x => x.LibraryBookTypes.Any(x => x.IdType == type.Id) && 
+                    x.IdLibrary != idLibraryRequest)
                 .Take(offset > 0? offset : 30)
                 .Skip(limit > 0? limit : 0)
                 .ToListAsync();

@@ -5,7 +5,9 @@ namespace RelibreApi.Utils
         public const string FormatDateTimeDefault = "dd/MM/yyyy HH:mm:ss";
         public const string Configuration = "Settings";
         public const string EmailSettings = "EmailSettings";
+        public const string UserClaimIdentifier = "email_login";
         public const string GeolocationApi = "GeolocationApi";
+        public const string RedirectLogin = "RedirectLogin";
         public const string DefaultContentType = "application/json";
         public const string MessageExceptionDefault = "Não foi possível completar a requisição";
         public const string MessageExceptionConflict = "{0} Cadastro já existente!";

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using RelibreApi.ViewModel;
 
@@ -64,8 +65,9 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Type.Description, m => m.MapFrom(x => x.Description))
             .ReverseMap();
 
-            CreateMap<LibraryBookViewModel, Models.LibraryBook>()
+            CreateMap<LibraryBookViewModel, Models.LibraryBook>()            
             .ForPath(x => x.LibraryBookTypes, m => m.MapFrom(x => x.Types))
+            .ForPath(x => x.Library.Person.Addresses, m => m.MapFrom(x => x.Addresses))
             .ReverseMap();
         }
     }

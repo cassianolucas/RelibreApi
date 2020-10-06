@@ -33,7 +33,8 @@ namespace RelibreApi.Repositories
         {
             return _context.User
                 .Include(x => x.Person)
-                    .ThenInclude(x => x.Phones)
+                .Include(x => x.Person.Phones)
+                .Include(x => x.Person.Addresses)
                 .Include(x => x.Profile)
                 .Include(x => x.Person.Library)
                 .Where(x => x.IdPerson == Id)
@@ -44,7 +45,8 @@ namespace RelibreApi.Repositories
         {
             return _context.User
                 .Include(x => x.Person)
-                    .ThenInclude(x => x.Phones)
+                .Include(x => x.Person.Phones)
+                .Include(x => x.Person.Addresses)
                 .Include(x => x.Profile)
                 .Include(x => x.Person.Library)
                 .Where(x => x.IdPerson == Id)
@@ -64,14 +66,16 @@ namespace RelibreApi.Repositories
                 .SingleOrDefaultAsync();
         }
 
-        public Task<User> GetByLoginOrDocument(string login, string document)
+        public Task<User> GetByLoginOrDocumentNoTracking(string login, string document)
         {
             return _context.User
                 .Include(x => x.Person)
-                    .ThenInclude(x => x.Phones)
+                .Include(x => x.Person.Phones)
+                .Include(x => x.Person.Addresses)
                 .Include(x => x.Profile)
                 .Include(x => x.Person.Library)
-                .Where(x => x.Login.ToLower().Trim().Equals(login.ToLower().Trim()) || 
+                .Where(x => 
+                    x.Login.ToLower().Trim().Equals(login.ToLower().Trim()) ||                     
                     x.Person.Document.Trim().Equals(document.Trim()))
                 .AsNoTracking()
                 .SingleOrDefaultAsync();

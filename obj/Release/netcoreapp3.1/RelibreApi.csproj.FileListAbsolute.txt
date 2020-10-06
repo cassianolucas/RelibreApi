@@ -51,3 +51,9 @@ D:\Projetos\RelibreApi\obj\Release\netcoreapp3.1\RelibreApi.RazorTargetAssemblyI
 D:\Projetos\RelibreApi\obj\Release\netcoreapp3.1\RelibreApi.csproj.CopyComplete
 D:\Projetos\RelibreApi\obj\Release\netcoreapp3.1\RelibreApi.dll
 D:\Projetos\RelibreApi\obj\Release\netcoreapp3.1\RelibreApi.pdb
+D:\Projetos\RelibreApi\bin\Release\netcoreapp3.1\Microsoft.Extensions.PlatformAbstractions.dll
+D:\Projetos\RelibreApi\bin\Release\netcoreapp3.1\Microsoft.OpenApi.dll
+D:\Projetos\RelibreApi\bin\Release\netcoreapp3.1\Swashbuckle.AspNetCore.Swagger.dll
+D:\Projetos\RelibreApi\bin\Release\netcoreapp3.1\Swashbuckle.AspNetCore.SwaggerGen.dll
+D:\Projetos\RelibreApi\bin\Release\netcoreapp3.1\Swashbuckle.AspNetCore.SwaggerUI.dll
+D:\Projetos\RelibreApi\obj\Release\netcoreapp3.1\RelibreApi.MvcApplicationPartsAssemblyInfo.cs

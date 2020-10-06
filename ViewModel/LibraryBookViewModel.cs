@@ -1,13 +1,15 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using RelibreApi.Models;
 
 namespace RelibreApi.ViewModel
 {
     public class LibraryBookViewModel : BaseViewModel
-    {
-        [JsonProperty(PropertyName = "contact")]        
+    {   
+        [JsonIgnore]
+        public ICollection<AddressViewModel> Addresses { get; set; }
+
+        [JsonProperty(PropertyName = "contact")]
         public ContactViewModel Contact { get; set; }
 
         [JsonProperty(PropertyName = "images")]
@@ -25,6 +27,6 @@ namespace RelibreApi.ViewModel
         public ICollection<TypeViewModel> Types { get; set; }
 
         [JsonProperty(PropertyName = "id_library")]
-        public long IdLibrary { get; set; }
+        public long IdLibrary { get; set; }        
     }
 }

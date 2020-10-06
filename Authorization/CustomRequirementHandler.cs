@@ -15,10 +15,7 @@ namespace RelibreApi
         {
             _httpContext = httpContextAccessor.HttpContext;
         }
-
-        private string GetClaim(string value) =>
-            _httpContext.User.Claims.First(x => x.Type.Equals(value)).Value;
-
+        
         protected override Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
             CustomRequirement requirement)

@@ -50,13 +50,14 @@ namespace RelibreApi.Utils
         {
             return Guid.NewGuid().ToString();
         }
-        public static string Claim(HttpContext httpContext, string nome)
+        public static string GetClaim(HttpContext httpContext, string value)
         {
-            if (string.IsNullOrEmpty(nome)) return null;
+            if (string.IsNullOrEmpty(value)) return null;
 
             if (httpContext == null) return null;
 
-            return httpContext.User.Claims.SingleOrDefault(x => x.Type.Equals(nome)).Value;
+            return httpContext.User.Claims
+                .SingleOrDefault(x => x.Type.Equals(value)).Value;
         }
         public static string CreateToken(IConfiguration configuration, User user)
         {
@@ -66,7 +67,7 @@ namespace RelibreApi.Utils
             var Claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.Login),
-                new Claim("email_login", user.Login),
+                new Claim(Constants.UserClaimIdentifier, user.Login),
                 new Claim("name", user.Person.Name + " " + user.Person.LastName),
                 new Claim("profile_id", user.Profile.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
@@ -141,8 +142,7 @@ namespace RelibreApi.Utils
             var strBody = new StringBuilder();
             strBody.AppendLine("<html>");
             strBody.AppendLine("<head>");
-            strBody.AppendLine(@"<link rel=""stylesheet"" href=""https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"" 
-                integrity='sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z' crossorigin='anonymous'>");
+            strBody.AppendLine(@"<link rel=""stylesheet"" href=""https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"" >");
             strBody.AppendLine("</head>");
             strBody.AppendLine("<body>");
             strBody.AppendLine($"<form action='{link}' method='post'>");
@@ -181,24 +181,18 @@ namespace RelibreApi.Utils
             smtpClient.SendMailAsync(myMessage);
         }
 
-        public static StreamReader HttpRequest(string endpoint, Requests typeRequest)
+        public static HttpWebRequest HttpRequest(string endpoint, Requests typeRequest)
         {
             if (string.IsNullOrEmpty(endpoint)) throw new ArgumentNullException();
             
             var request = WebRequest.CreateHttp(endpoint);
 
-            request.Method = Enum.GetName(typeof(Requests), typeRequest);
-            request.UserAgent = "RelibreRequest";
+            request.Method = Enum.GetName(typeof(Requests), 
+                typeRequest).ToUpper();
+            request.Accept = "application/json";            
+            request.UserAgent = "RequisicaoWebDemo";
 
-            using (var response = request.GetResponse())
-            {
-                var streamData = response.GetResponseStream();
-                var reader = new StreamReader(streamData);
-
-                response.Close();
-
-                return reader;
-            }
-        }
+            return (HttpWebRequest)request;
+        }        
     }
 }

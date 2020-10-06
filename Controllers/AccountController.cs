@@ -199,51 +199,28 @@ namespace RelibreApi.Controllers
                     if (!string.IsNullOrEmpty(addressDb.Latitude) &&
                     !string.IsNullOrEmpty(addressDb.Longitude))
                     {
-                        var reader = Util.HttpRequest(
+                        var request = Util.HttpRequest(
                             string.Format(endPoint, addressDb.Latitude,
                             addressDb.Longitude), Requests.Get);
 
-                        object objResponse = reader.ReadToEnd();
-
-                        using (JsonDocument doc = JsonDocument.Parse(objResponse.ToString()))
+                        using (var response = request.GetResponse())
                         {
-                            JsonElement root = doc.RootElement;
-                            var results = root.GetProperty("results");
-                            var formatted = results[0].GetProperty("formatted");
-                            addressDb.FullAddress = formatted.ToString();
+                            var streamData = response.GetResponseStream();
 
-                            userDb.Person.Addresses.Add(addressDb);
+                            var reader = new StreamReader(streamData);
+
+                            object objResponse = reader.ReadToEnd();
+
+                            using (JsonDocument doc = JsonDocument.Parse(objResponse.ToString()))
+                            {
+                                JsonElement root = doc.RootElement;
+                                var results = root.GetProperty("results");
+                                var formatted = results[0].GetProperty("formatted");
+                                addressDb.FullAddress = formatted.ToString();
+
+                                userDb.Person.Addresses.Add(addressDb);
+                            };
                         };
-
-
-
-                        // var request = WebRequest.CreateHttp(
-                        //     string.Format(endPoint, addressDb.Latitude, 
-                        //         addressDb.Longitude));
-
-                        // request.Method = "GET";
-                        // request.UserAgent = "RequisicaoWebDemo";
-
-                        // using (var response = request.GetResponse())
-                        // {
-                        //     var streamData = response.GetResponseStream();
-                        //     StreamReader reader = new StreamReader(streamData);
-
-                        //     object objResponse = reader.ReadToEnd();
-
-                        //     using (JsonDocument doc = JsonDocument.Parse(objResponse.ToString()))
-                        //     {
-                        //         JsonElement root = doc.RootElement;
-                        //         var results = root.GetProperty("results");
-                        //         var formatted = results[0].GetProperty("formatted");
-                        //         addressDb.FullAddress = formatted.ToString();
-                        //     };
-
-                        //     userDb.Person.Addresses.Add(addressDb);
-
-                        //     streamData.Close();
-                        //     response.Close();
-                        // }
                     }
                 }
 
@@ -292,13 +269,23 @@ namespace RelibreApi.Controllers
 
                 _uow.Commit();
 
-                return Ok("");
+                // redirecionar para login
+                var endPoint = _configuration.GetValue<string>(
+                            Constants.RedirectLogin);
+
+                return Redirect(endPoint);                
             }
             catch (Exception ex)
             {
                 return BadRequest(Util.ReturnException(ex));
             }
         }
+
+        /// <summary>
+        /// Enpoint para gerar outra senha de acordo com login
+        /// </summary>
+        /// <param name=""login""></param>
+        /// <returns></returns>
 
         [HttpPost, Route("ForgotPassword"), AllowAnonymous]
         public async Task<IActionResult> ForgotPassword(
@@ -339,6 +326,12 @@ namespace RelibreApi.Controllers
             }
         }
 
+        /// <summary>
+        /// Método realiza alteração da senha de acordo com código gerado
+        /// </summary>
+        /// <param name=""new_password""></param>
+        /// <returns>200 para quando der certo</returns>
+
         [HttpPost, Route("ForgotPassword"), AllowAnonymous]
         public async Task<IActionResult> ForgotPassword(
             [FromQuery(Name = "verification_code")] string verificationCode,
@@ -371,7 +364,11 @@ namespace RelibreApi.Controllers
 
                 _uow.Commit();
 
-                return Ok("");
+                // redirecionar para login
+                var endPoint = _configuration.GetValue<string>(
+                            Constants.RedirectLogin);
+
+                return Redirect(endPoint);
             }
             catch (Exception ex)
             {

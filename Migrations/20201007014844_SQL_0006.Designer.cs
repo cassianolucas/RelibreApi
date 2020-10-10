@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RelibreApi.Data;
@@ -9,9 +10,10 @@ using RelibreApi.Data;
 namespace RelibreApi.Migrations
 {
     [DbContext(typeof(RelibreContext))]
-    partial class RelibreContextModelSnapshot : ModelSnapshot
+    [Migration("20201007014844_SQL_0006")]
+    partial class SQL_0006
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,11 +150,9 @@ namespace RelibreApi.Migrations
             modelBuilder.Entity("RelibreApi.Models.AuthorBook", b =>
                 {
                     b.Property<long>("IdBook")
-                        .HasColumnName("id_book")
                         .HasColumnType("bigint");
 
                     b.Property<long>("IdAuthor")
-                        .HasColumnName("id_author")
                         .HasColumnType("bigint");
 
                     b.HasKey("IdBook", "IdAuthor");
@@ -232,11 +232,9 @@ namespace RelibreApi.Migrations
             modelBuilder.Entity("RelibreApi.Models.CategoryBook", b =>
                 {
                     b.Property<long>("IdBook")
-                        .HasColumnName("id_book")
                         .HasColumnType("bigint");
 
                     b.Property<long>("IdCategory")
-                        .HasColumnName("id_category")
                         .HasColumnType("bigint");
 
                     b.HasKey("IdBook", "IdCategory");
@@ -265,13 +263,7 @@ namespace RelibreApi.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnName("email")
-                        .HasColumnType("varchar(255)")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnName("name")
+                        .HasColumnName("Email")
                         .HasColumnType("varchar(255)")
                         .HasMaxLength(255);
 
@@ -286,37 +278,7 @@ namespace RelibreApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
                     b.ToTable("contact");
-                });
-
-            modelBuilder.Entity("RelibreApi.Models.ContactBook", b =>
-                {
-                    b.Property<long>("IdContactOwner")
-                        .HasColumnName("id_contact_owner")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("IdContactRequest")
-                        .HasColumnName("id_contact_request")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("IdLibraryBook")
-                        .HasColumnName("id_library_book")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("Available")
-                        .HasColumnName("available")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("IdContactOwner", "IdContactRequest", "IdLibraryBook");
-
-                    b.HasIndex("IdContactRequest");
-
-                    b.HasIndex("IdLibraryBook");
-
-                    b.ToTable("contact_book");
                 });
 
             modelBuilder.Entity("RelibreApi.Models.EmailVerification", b =>
@@ -491,24 +453,17 @@ namespace RelibreApi.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnName("created_at")
-                        .HasColumnType("timestamp");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnName("description")
-                        .HasColumnType("varchar(255)")
-                        .HasMaxLength(255);
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnName("name")
-                        .HasColumnType("varchar(255)")
-                        .HasMaxLength(255);
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("notification");
+                    b.ToTable("Notification");
                 });
 
             modelBuilder.Entity("RelibreApi.Models.NotificationPerson", b =>
@@ -519,28 +474,30 @@ namespace RelibreApi.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool>("Active")
-                        .HasColumnName("active")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnName("created_at")
-                        .HasColumnType("timestamp");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<long>("IdNotification")
-                        .HasColumnName("id_notification")
                         .HasColumnType("bigint");
 
                     b.Property<long>("IdPerson")
-                        .HasColumnName("id_person")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("NotificationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("PersonId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdNotification");
+                    b.HasIndex("NotificationId");
 
-                    b.HasIndex("IdPerson");
+                    b.HasIndex("PersonId");
 
-                    b.ToTable("notification_person");
+                    b.ToTable("NotificationPerson");
                 });
 
             modelBuilder.Entity("RelibreApi.Models.Person", b =>
@@ -556,8 +513,7 @@ namespace RelibreApi.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("Birthday")
-                        .HasColumnName("birthday")
-                        .HasColumnType("timestamp");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnName("created_at")
@@ -670,17 +626,17 @@ namespace RelibreApi.Migrations
                         {
                             Id = 1L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 6, 22, 48, 44, 0, DateTimeKind.Unspecified),
                             Name = "PJ",
-                            UpdatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified)
+                            UpdatedAt = new DateTime(2020, 10, 6, 22, 48, 44, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 6, 22, 48, 44, 0, DateTimeKind.Unspecified),
                             Name = "PF",
-                            UpdatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified)
+                            UpdatedAt = new DateTime(2020, 10, 6, 22, 48, 44, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -714,28 +670,28 @@ namespace RelibreApi.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 6, 22, 48, 44, 0, DateTimeKind.Unspecified),
                             Description = "Trocar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2L,
-                            CreatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 6, 22, 48, 44, 0, DateTimeKind.Unspecified),
                             Description = "Doar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 3L,
-                            CreatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 6, 22, 48, 44, 0, DateTimeKind.Unspecified),
                             Description = "Emprestar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 4L,
-                            CreatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 6, 22, 48, 44, 0, DateTimeKind.Unspecified),
                             Description = "Interesse",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
@@ -832,30 +788,6 @@ namespace RelibreApi.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RelibreApi.Models.ContactBook", b =>
-                {
-                    b.HasOne("RelibreApi.Models.Contact", "ContactOwner")
-                        .WithMany("ContactBooksOwner")
-                        .HasForeignKey("IdContactOwner")
-                        .HasConstraintName("fk_contact_book_owner_contact_id_contact")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("RelibreApi.Models.Contact", "ContactRequest")
-                        .WithMany("ContactBooksRequest")
-                        .HasForeignKey("IdContactRequest")
-                        .HasConstraintName("fk_contact_book_request_contact_id_contact")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("RelibreApi.Models.LibraryBook", "LibraryBook")
-                        .WithMany("ContactBooks")
-                        .HasForeignKey("IdLibraryBook")
-                        .HasConstraintName("fk_contact_book_library_book_id_library_book")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("RelibreApi.Models.Image", b =>
                 {
                     b.HasOne("RelibreApi.Models.LibraryBook", "LibraryBook")
@@ -914,17 +846,11 @@ namespace RelibreApi.Migrations
                 {
                     b.HasOne("RelibreApi.Models.Notification", "Notification")
                         .WithMany("NotificationPeople")
-                        .HasForeignKey("IdNotification")
-                        .HasConstraintName("fk_notification_person_notification_id_notification")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("NotificationId");
 
                     b.HasOne("RelibreApi.Models.Person", "Person")
                         .WithMany("NotificationPeople")
-                        .HasForeignKey("IdPerson")
-                        .HasConstraintName("fk_notification_person_person_id_person")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("PersonId");
                 });
 
             modelBuilder.Entity("RelibreApi.Models.Phone", b =>

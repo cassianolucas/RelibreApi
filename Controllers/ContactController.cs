@@ -1,9 +1,239 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RelibreApi.Models;
+using RelibreApi.Services;
+using RelibreApi.Utils;
+using RelibreApi.ViewModel;
 
 namespace RelibreApi.Controllers
 {
-    public class ContactController: ControllerBase
+    [Route("api/v1/[controller]"), ApiController]
+    public class ContactController : ControllerBase
     {
-        
+        private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
+        private readonly HttpContext _httpContext;
+        private readonly ILibraryBook _libraryBookMananger;
+        private readonly IContact _contactMananger;
+        private readonly INotification _notificationMananger;
+        private readonly INotificationPerson _notificationPersonMananger;
+        private readonly IUser _userMananger;
+
+        public ContactController(
+            [FromServices] IUnitOfWork uow,
+            [FromServices] IMapper mapper,
+            [FromServices] IHttpContextAccessor httpContextAccessor,
+            [FromServices] ILibraryBook libraryBookMananger,
+            [FromServices] IContact contactMananger,
+            [FromServices] INotification notificationMananger,
+            [FromServices] INotificationPerson notificationPersonMananger,
+            [FromServices] IUser userMananger
+        )
+        {
+            _uow = uow;
+            _mapper = mapper;
+            _httpContext = httpContextAccessor.HttpContext;
+            _libraryBookMananger = libraryBookMananger;
+            _contactMananger = contactMananger;
+            _notificationMananger = notificationMananger;
+            _notificationPersonMananger = notificationPersonMananger;
+            _userMananger = userMananger;
+        }
+
+        [HttpPost, Route(""), Authorize]
+        public async Task<IActionResult> CreateAsync(
+            [FromBody] CreateContactViewModel createContactViewModel
+        )
+        {
+            try
+            {
+                if (createContactViewModel.IdLibraryBook <= 0)
+                    return NoContent();
+
+                // buscar do usuario autenticado
+                var login = Util.GetClaim(_httpContext,
+                    Constants.UserClaimIdentifier);
+
+                var userDbRequest = await _userMananger
+                        .GetByLogin(login);
+
+                if (userDbRequest == null)
+                    return NoContent();
+
+                // verificar se existe contado de usuario logado
+                var contactDbRequest = await _contactMananger
+                    .GetByEmail(userDbRequest.Login);
+
+                // criar contato caso não exista
+                if (contactDbRequest == null)
+                {
+                    contactDbRequest = new Contact
+                    {
+                        Email = userDbRequest.Login,
+                        Name = userDbRequest.Person.Name,
+                        Phone = userDbRequest.Person.Phones
+                            .SingleOrDefault(x => x.Master == true).Number,
+                        Active = true,
+                        CreatedAt = Util.CurrentDateTime()
+                    };
+                }
+
+                contactDbRequest.UpdatedAt = Util.CurrentDateTime();
+
+                if (contactDbRequest.Id > 0)
+                {
+                    _contactMananger.Update(contactDbRequest);
+                }
+                else
+                {
+                    await _contactMananger.CreateAsync(contactDbRequest);
+                }
+
+                // buscar livro da biblioteca 
+                var libraryBook = await _libraryBookMananger
+                    .GetByIdAsync(createContactViewModel.IdLibraryBook);
+
+                if (libraryBook == null)
+                    return NoContent();
+
+                // buscar o login do usuario dono da biblioteca para criar cadastro
+                var userOwner = await _userMananger
+                    .GetByIdAsyncNoTracking(libraryBook.Library.Person.Id);
+
+                if (userOwner == null)
+                    return NoContent();
+
+                var contactDbOwner = await _contactMananger
+                    .GetByEmail(userOwner.Login);
+
+                if (contactDbOwner == null)
+                {
+                    contactDbOwner = new Contact
+                    {
+                        Name = userOwner.Person.Name,
+                        Email = userOwner.Login,
+                        Phone = userOwner.Person.Phones
+                            .SingleOrDefault(x => x.Master == true).Number,
+                        ContactBooksOwner = new List<ContactBook>(),
+                        Active = true,
+                        CreatedAt = Util.CurrentDateTime()
+                    };
+                }
+
+                contactDbOwner.UpdatedAt = Util.CurrentDateTime();
+
+                var contactBook = new ContactBook
+                {
+                    ContactOwner = contactDbOwner,
+                    ContactRequest = contactDbRequest,
+                    LibraryBook = libraryBook,
+                    Available = false
+                };
+
+                contactDbOwner.ContactBooksOwner.Add(contactBook);
+
+                if (contactDbOwner.Id > 0)
+                {
+                    _contactMananger.Update(contactDbOwner);
+                }
+                else
+                {
+                    await _contactMananger.CreateAsync(contactDbOwner);
+                }
+
+                // gerar notificação
+                var notification = new Notification
+                {
+                    Name = "Você tem uma solicitação de contado!",
+                    Description = "Entre em seu perfil e verifique os contatos!",
+                    CreatedAt = Util.CurrentDateTime()
+                };
+
+                await _notificationMananger.CreateAsync(notification);
+
+                var personNotification = new NotificationPerson
+                {
+                    Notification = notification,
+                    Person = libraryBook.Library.Person,
+                    Active = true,
+                    CreatedAt = Util.CurrentDateTime()
+                };
+
+                await _notificationPersonMananger
+                    .CreateAsync(personNotification);
+
+                _uow.Commit();
+
+                return Created(
+                    new Uri(Url.ActionLink("Create", "Contact")), null);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(Util.ReturnException(ex));
+            }
+        }
+
+
+        [HttpPut, Route(""), Authorize]
+        public IActionResult UpdateAsync()
+        {
+            try
+            {                
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(Util.ReturnException(ex));
+            }
+        }
+
+        [HttpGet, Route(""), Authorize]
+        public async Task<IActionResult> GetAsync(
+            [FromQuery(Name = "type")] string type,
+            [FromQuery(Name = "offset")] int offset,
+            [FromQuery(Name = "limit")] int limit
+        )
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(type)) 
+                    return NoContent();
+
+                var login = Util.GetClaim(_httpContext,
+                    Constants.UserClaimIdentifier);
+
+                var contactsDb = new List<ContactBook>();
+
+                if (type.ToLower().Equals("send"))
+                {
+                    if (string.IsNullOrEmpty(login)) 
+                        return NoContent();
+
+                    contactsDb = await _contactMananger
+                        .GetByRequestNoTracking(login, false, limit, offset);
+                }
+
+                if (type.ToLower().Equals("received"))
+                {
+                    contactsDb = await _contactMananger
+                        .GetByOwnerNoTracking(login, false, limit, offset);                                        
+                }
+
+                var contacsMap = _mapper
+                    .Map<ICollection<ContactBookViewModel>>(contactsDb);
+                
+                return Ok(contacsMap);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(Util.ReturnException(ex));
+            }
+        }        
     }
 }

@@ -58,7 +58,6 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Library.Person)
                 .Include(x => x.Library.Person.Addresses)
                 .Include(x => x.Images)
-                .Include(x => x.Contact)
                 .Where(x => x.Id >= 0 && x.IdLibrary != idLibraryRequest && 
                     string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(title) && 
                     Util.RemoveSpecialCharacter(

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using RelibreApi.Data;
@@ -27,11 +28,19 @@ namespace RelibreApi.Repositories
         {
             throw new System.NotImplementedException();
         }
-
+                
         public Task<Contact> GetByEmail(string email)
         {
             return _context.Contact
-                .SingleOrDefaultAsync(x => 
+                .Include(x => x.ContactBooksOwner)
+                    .ThenInclude(x => x.LibraryBook)
+                        .ThenInclude(x => x.Library)
+                            .ThenInclude(x => x.Person)
+                .Include(x => x.ContactBooksRequest)
+                    .ThenInclude(x => x.LibraryBook)
+                            .ThenInclude(x => x.Library)
+                                .ThenInclude(x => x.Person)
+                .SingleOrDefaultAsync(x =>
                     x.Email.ToLower()
                     .Equals(email.ToLower()));
         }
@@ -46,6 +55,34 @@ namespace RelibreApi.Repositories
             throw new System.NotImplementedException();
         }
 
+        public Task<List<ContactBook>> GetByOwnerNoTracking(string email, bool available, int limit, int offset)
+        {
+            return _context.ContactBook            
+                .Include(x => x.ContactOwner)
+                .Include(x => x.LibraryBook)
+                .Include(x => x.LibraryBook.Library)
+                .Include(x => x.LibraryBook.Library.Person)
+                .Where(x => x.ContactOwner.Email.Equals(email))
+                .AsNoTracking()
+                .Take((limit > 0 ? limit : 30))
+                .Skip((offset > 0 ? offset : 0))
+                .ToListAsync();
+        }
+
+        public Task<List<ContactBook>> GetByRequestNoTracking(string email, bool available, int limit, int offset)
+        {
+            return _context.ContactBook
+                .Include(x => x.ContactRequest)
+                .Include(x => x.LibraryBook)
+                .Include(x => x.LibraryBook.Library)
+                .Include(x => x.LibraryBook.Library.Person)
+                .Where(x => x.ContactRequest.Email.Equals(email))
+                .AsNoTracking()
+                .Take((limit > 0 ? limit : 30))
+                .Skip((offset > 0 ? offset : 0))
+                .ToListAsync();
+        }
+        
         public void RemoveAsync(long Id)
         {
             throw new System.NotImplementedException();
@@ -53,7 +90,9 @@ namespace RelibreApi.Repositories
 
         public void Update(Contact model)
         {
-            throw new System.NotImplementedException();
+            _context.Contact.Update(model);
         }
+
+
     }
 }

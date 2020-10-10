@@ -24,6 +24,9 @@ namespace RelibreApi.Data
         public DbSet<Contact> Contact { get; set; }
         public DbSet<LibraryBookType> LibraryBookType { get; set; }
         public DbSet<EmailVerification> EmailVerification { get; set; }
+        public DbSet<Notification> Notification { get; set; }
+        public DbSet<NotificationPerson> NotificationPerson { get; set; }
+        public DbSet<ContactBook> ContactBook { get; set; }
 
         public RelibreContext(DbContextOptions options) : base(options) { }
 
@@ -47,6 +50,9 @@ namespace RelibreApi.Data
             modelBuilder.ApplyConfiguration(new ContactMap());
             modelBuilder.ApplyConfiguration(new LibraryBookTypeMap());
             modelBuilder.ApplyConfiguration(new EmailVerificationMap());
+            modelBuilder.ApplyConfiguration(new NotificationMap());            
+            modelBuilder.ApplyConfiguration(new NotificationPersonMap());
+            modelBuilder.ApplyConfiguration(new ContactBookMap());
             
             modelBuilder.Seed();
 

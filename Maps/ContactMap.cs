@@ -12,6 +12,9 @@ namespace RelibreApi.Maps
 
             o.HasKey(x => x.Id);
 
+            o.HasIndex(x => x.Email)
+                .IsUnique();
+
             o.Property(x => x.Id)
                 .HasColumnName("id")
                 .UseSerialColumn<long>()
@@ -19,11 +22,17 @@ namespace RelibreApi.Maps
                 .ValueGeneratedOnAdd()
                 .IsRequired();
 
-            o.Property(x => x.Email)
-                .HasColumnName("Email")
+            o.Property(x => x.Name) 
+                .HasColumnName("name")
                 .HasColumnType("varchar(255)")
                 .HasMaxLength(255)
                 .IsRequired();
+
+            o.Property(x => x.Email)
+                .HasColumnName("email")
+                .HasColumnType("varchar(255)")
+                .HasMaxLength(255)
+                .IsRequired();            
 
             o.Property(x => x.Phone)
                 .HasColumnName("phone")
@@ -33,7 +42,7 @@ namespace RelibreApi.Maps
             o.Property(x => x.Active)
                 .HasColumnName("active")
                 .HasColumnType("boolean")
-                .IsRequired();
+                .IsRequired();                
 
             o.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")

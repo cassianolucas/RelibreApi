@@ -79,6 +79,8 @@ namespace RelibreApi.Controllers
                 // quando livro não existir criar 
                 if (bookDb == null)
                 {
+                    bookDb = new Book();
+                    
                     // verificar se existe autores
                     var authors = new List<Author>();
                     foreach (var authorMap in libraryBookMap.Book.AuthorBooks)
@@ -122,27 +124,7 @@ namespace RelibreApi.Controllers
                     Constants.UserClaimIdentifier);
 
                 var userDb = await _userMananger.GetByLogin(login);
-
-                // capturar email de usuario logado se vier nulo
-                if (libraryBook.Contact == null ||
-                    string.IsNullOrEmpty(libraryBook.Contact.Email))
-                {
-                    libraryBookMap.Contact = new Contact();
-                    libraryBookMap.Contact.Phone = userDb.Person.Phones
-                        .SingleOrDefault(x => x.Master == true).Number;
-                    libraryBookMap.Contact.Email = userDb.Login;
-                    libraryBookMap.Contact.Active = true;
-                    libraryBookMap.Contact.CreatedAt = Util.CurrentDateTime();
-                    libraryBookMap.Contact.UpdatedAt = Util.CurrentDateTime();
-                }
-                else
-                {
-                    var contactDb = await _contactMananger
-                        .GetByEmail(libraryBookMap.Contact.Email);
-
-                    libraryBookMap.Contact = contactDb;
-                }
-
+                
                 var libraryDb = await _libraryMananger
                     .GetLibraryByPerson(userDb.IdPerson);
 
@@ -321,6 +303,12 @@ namespace RelibreApi.Controllers
                 return BadRequest(Util.ReturnException(ex));
             }
         }
+        
+
+        private Task<List<LibraryBook>> Combination()
+        {
+            return null;
+        }
 
         private Task<List<LibraryBook>> GetByIdLibrary(long idLibrary, int offset, int limit)
         {
@@ -337,7 +325,8 @@ namespace RelibreApi.Controllers
             // TROCAR
             // EMPRESTAR
             // DOAR
-            // VENDER                        
+            // VENDER
+            // EMPRESAS
             var typeDb = await _typeMananger.GetByDescriptionAsync(type);
 
             if (type == null) throw new ArgumentNullException();

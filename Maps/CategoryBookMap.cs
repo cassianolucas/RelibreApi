@@ -10,7 +10,17 @@ namespace RelibreApi.Maps
         {
             o.ToTable("category_book");
 
-            o.HasKey(x => new {x.IdBook, x.IdCategory});
+            o.HasKey(x => new { x.IdBook, x.IdCategory });
+
+            o.Property(x => x.IdBook)
+                .HasColumnName("id_book")
+                .HasColumnType("bigint")
+                .IsRequired();
+
+            o.Property(x => x.IdCategory)
+                .HasColumnName("id_category")
+                .HasColumnType("bigint")
+                .IsRequired();
 
             o.HasOne(x => x.Book)
                 .WithMany(x => x.CategoryBooks)

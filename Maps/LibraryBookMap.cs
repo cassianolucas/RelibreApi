@@ -29,18 +29,7 @@ namespace RelibreApi.Maps
                 .HasForeignKey(x => x.IdLibrary)
                 .HasConstraintName("fk_library_book_library_id_library")
                 .OnDelete(DeleteBehavior.Restrict);
-            
-            o.Property(x => x.IdContact)
-                .HasColumnName("id_contact")
-                .HasColumnType("bigint")
-                .IsRequired();
-            
-            o.HasOne(x => x.Contact)
-                .WithMany(x => x.LibraryBooks)
-                .HasForeignKey(x => x.IdContact)
-                .HasConstraintName("fk_library_book_contact_id_contact")
-                .OnDelete(DeleteBehavior.Restrict);
-
+                        
             o.HasMany(x => x.Images)
                 .WithOne(x => x.LibraryBook)
                 .HasForeignKey(x => x.IdLibraryBook)

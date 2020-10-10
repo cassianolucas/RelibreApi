@@ -57,3 +57,5 @@ D:\Projetos\RelibreApi\obj\Debug\netcoreapp3.1\RelibreApi.RazorTargetAssemblyInf
 D:\Projetos\RelibreApi\obj\Debug\netcoreapp3.1\RelibreApi.csproj.CopyComplete
 D:\Projetos\RelibreApi\obj\Debug\netcoreapp3.1\RelibreApi.dll
 D:\Projetos\RelibreApi\obj\Debug\netcoreapp3.1\RelibreApi.pdb
+D:\Projetos\RelibreApi\bin\Debug\netcoreapp3.1\Microsoft.EntityFrameworkCore.Relational.Design.dll
+D:\Projetos\RelibreApi\bin\Debug\netcoreapp3.1\Npgsql.EntityFrameworkCore.PostgreSQL.Design.dll

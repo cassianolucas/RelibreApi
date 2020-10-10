@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RelibreApi.Data;
@@ -9,9 +10,10 @@ using RelibreApi.Data;
 namespace RelibreApi.Migrations
 {
     [DbContext(typeof(RelibreContext))]
-    partial class RelibreContextModelSnapshot : ModelSnapshot
+    [Migration("20201007020616_SQL_0009")]
+    partial class SQL_0009
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,11 +150,9 @@ namespace RelibreApi.Migrations
             modelBuilder.Entity("RelibreApi.Models.AuthorBook", b =>
                 {
                     b.Property<long>("IdBook")
-                        .HasColumnName("id_book")
                         .HasColumnType("bigint");
 
                     b.Property<long>("IdAuthor")
-                        .HasColumnName("id_author")
                         .HasColumnType("bigint");
 
                     b.HasKey("IdBook", "IdAuthor");
@@ -232,11 +232,9 @@ namespace RelibreApi.Migrations
             modelBuilder.Entity("RelibreApi.Models.CategoryBook", b =>
                 {
                     b.Property<long>("IdBook")
-                        .HasColumnName("id_book")
                         .HasColumnType("bigint");
 
                     b.Property<long>("IdCategory")
-                        .HasColumnName("id_category")
                         .HasColumnType("bigint");
 
                     b.HasKey("IdBook", "IdCategory");
@@ -265,13 +263,7 @@ namespace RelibreApi.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnName("email")
-                        .HasColumnType("varchar(255)")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnName("name")
+                        .HasColumnName("Email")
                         .HasColumnType("varchar(255)")
                         .HasMaxLength(255);
 
@@ -286,37 +278,24 @@ namespace RelibreApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
                     b.ToTable("contact");
                 });
 
             modelBuilder.Entity("RelibreApi.Models.ContactBook", b =>
                 {
-                    b.Property<long>("IdContactOwner")
-                        .HasColumnName("id_contact_owner")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("IdContactRequest")
-                        .HasColumnName("id_contact_request")
+                    b.Property<long>("IdContact")
+                        .HasColumnName("id_contact")
                         .HasColumnType("bigint");
 
                     b.Property<long>("IdLibraryBook")
                         .HasColumnName("id_library_book")
                         .HasColumnType("bigint");
 
-                    b.Property<bool>("Available")
-                        .HasColumnName("available")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("IdContactOwner", "IdContactRequest", "IdLibraryBook");
-
-                    b.HasIndex("IdContactRequest");
+                    b.HasKey("IdContact", "IdLibraryBook");
 
                     b.HasIndex("IdLibraryBook");
 
-                    b.ToTable("contact_book");
+                    b.ToTable("ContactBook");
                 });
 
             modelBuilder.Entity("RelibreApi.Models.EmailVerification", b =>
@@ -556,8 +535,7 @@ namespace RelibreApi.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("Birthday")
-                        .HasColumnName("birthday")
-                        .HasColumnType("timestamp");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnName("created_at")
@@ -670,17 +648,17 @@ namespace RelibreApi.Migrations
                         {
                             Id = 1L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 6, 23, 6, 16, 0, DateTimeKind.Unspecified),
                             Name = "PJ",
-                            UpdatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified)
+                            UpdatedAt = new DateTime(2020, 10, 6, 23, 6, 16, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 6, 23, 6, 16, 0, DateTimeKind.Unspecified),
                             Name = "PF",
-                            UpdatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified)
+                            UpdatedAt = new DateTime(2020, 10, 6, 23, 6, 16, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -714,28 +692,28 @@ namespace RelibreApi.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 6, 23, 6, 16, 0, DateTimeKind.Unspecified),
                             Description = "Trocar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2L,
-                            CreatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 6, 23, 6, 16, 0, DateTimeKind.Unspecified),
                             Description = "Doar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 3L,
-                            CreatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 6, 23, 6, 16, 0, DateTimeKind.Unspecified),
                             Description = "Emprestar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 4L,
-                            CreatedAt = new DateTime(2020, 10, 10, 13, 35, 48, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 6, 23, 6, 16, 0, DateTimeKind.Unspecified),
                             Description = "Interesse",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
@@ -834,17 +812,10 @@ namespace RelibreApi.Migrations
 
             modelBuilder.Entity("RelibreApi.Models.ContactBook", b =>
                 {
-                    b.HasOne("RelibreApi.Models.Contact", "ContactOwner")
-                        .WithMany("ContactBooksOwner")
-                        .HasForeignKey("IdContactOwner")
-                        .HasConstraintName("fk_contact_book_owner_contact_id_contact")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("RelibreApi.Models.Contact", "ContactRequest")
-                        .WithMany("ContactBooksRequest")
-                        .HasForeignKey("IdContactRequest")
-                        .HasConstraintName("fk_contact_book_request_contact_id_contact")
+                    b.HasOne("RelibreApi.Models.Contact", "Contact")
+                        .WithMany("ContactBooks")
+                        .HasForeignKey("IdContact")
+                        .HasConstraintName("fk_contact_book_contact_id_contact")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

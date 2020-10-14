@@ -57,3 +57,5 @@ D:\Projetos\RelibreApi\bin\Release\netcoreapp3.1\Swashbuckle.AspNetCore.Swagger.
 D:\Projetos\RelibreApi\bin\Release\netcoreapp3.1\Swashbuckle.AspNetCore.SwaggerGen.dll
 D:\Projetos\RelibreApi\bin\Release\netcoreapp3.1\Swashbuckle.AspNetCore.SwaggerUI.dll
 D:\Projetos\RelibreApi\obj\Release\netcoreapp3.1\RelibreApi.MvcApplicationPartsAssemblyInfo.cs
+D:\Projetos\RelibreApi\bin\Release\netcoreapp3.1\Microsoft.EntityFrameworkCore.Relational.Design.dll
+D:\Projetos\RelibreApi\bin\Release\netcoreapp3.1\Npgsql.EntityFrameworkCore.PostgreSQL.Design.dll

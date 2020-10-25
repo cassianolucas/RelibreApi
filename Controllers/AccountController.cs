@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -62,7 +63,16 @@ namespace RelibreApi.Controllers
                 var userDb = await _userMananger.GetByLogin(userMap.Login);
 
                 // usuario já existe
-                if (userDb != null) throw new ArgumentException();
+                if (userDb != null) return Conflict(
+                    new
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = "Usuário existente!"}
+                        }
+                    }
+                );
 
                 // captura perfil de usuario padrão
                 var profileDb = await _profileMananger.GetByIdAsync(2);
@@ -111,16 +121,24 @@ namespace RelibreApi.Controllers
 
                 _uow.Commit();
 
-                return Created(new Uri(Url.ActionLink("Register", "Account")), null);
-            }
-            catch (ArgumentException)
-            {
-                return Conflict("");
+                return Created(new Uri(Url.ActionLink("Register", "Account")),
+                new ResponseViewModel
+                {
+                    Result = null,
+                    Status = Constants.Sucess
+                });
             }
             catch (Exception ex)
             {
                 // gerar log
-                return BadRequest(Util.ReturnException(ex));
+                return BadRequest(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        Util.ReturnException(ex)
+                    }
+                });
             }
         }
 
@@ -151,7 +169,7 @@ namespace RelibreApi.Controllers
                 userMap.Profile = profileDb;
                 userMap.Password = Util.Encrypt(userMap.Password);
                 userMap.Person.Active = true;
-                userMap.Person.PersonType = "PF";
+                userMap.Person.PersonType = "PJ";
                 userMap.Person.CreatedAt = Util.CurrentDateTime();
                 userMap.Person.UpdatedAt = userMap.Person.CreatedAt;
 
@@ -194,40 +212,71 @@ namespace RelibreApi.Controllers
                 return Conflict("");
             }
             catch (Exception ex)
-            {                
+            {
                 // gerar log
                 return BadRequest(Util.ReturnException(ex));
-            }            
+            }
         }
 
         [HttpPost, Route("Login"), AllowAnonymous]
         public async Task<IActionResult> LoginAsync(
-            [FromBody] UserRegisterViewModel user)  
+            [FromBody] UserRegisterViewModel user)
         {
             var userMap = await _userMananger.GetByLogin(user.Login);
 
             // não localizou usuario
-            if (userMap == null) return NoContent();
+            if (userMap == null) return NotFound(
+                new
+                {
+                    Status = Constants.NotFound,
+                    Errors = new List<object>
+                    {
+                        new { Message = "Usuário não localizado!"}
+                    }
+                }
+            );
 
             // senha não confere com cadastro
             if (!userMap.Password.Equals(
-                    Util.Encrypt(user.Password))) 
-                        return NoContent();
+                    Util.Encrypt(user.Password)))
+                return BadRequest(
+                new
+                {
+                    Status = Constants.NotFound,
+                    Errors = new List<object>
+                    {
+                        new { Message = "Usuário ou senha inválidos!"}
+                    }
+                }
+            );
 
             // usaurio não foi verificado
-            if (!userMap.IsVerified()) return Forbid();
+            if (!userMap.IsVerified()) return BadRequest(
+                new
+                {
+                    Status = Constants.NotFound,
+                    Errors = new List<object>
+                    {
+                        new { Message = "Email não verificado!"}
+                    }
+                }
+            );
 
             var access_token = Util.CreateToken(_configuration, userMap);
 
             var address = userMap.Person.Addresses
                 .SingleOrDefault(x => x.Master == true);
-            
-            return Ok(new 
+
+            return Ok(new ResponseViewModel
             {
-                login = userMap.Login,
-                access_token = access_token,
-                latitude = address != null? address.Latitude: null,
-                longitude = address != null? address.Longitude: null
+                Result = new
+                {
+                    login = userMap.Login,
+                    access_token = access_token,
+                    latitude = address != null ? address.Latitude : null,
+                    longitude = address != null ? address.Longitude : null
+                },
+                Status = Constants.Sucess
             });
         }
 
@@ -333,7 +382,7 @@ namespace RelibreApi.Controllers
         {
             try
             {
-                var login = Util.GetClaim(_httpContext, 
+                var login = Util.GetClaim(_httpContext,
                     Constants.UserClaimIdentifier);
 
                 var user = await _userMananger.GetByLogin(login);
@@ -343,7 +392,7 @@ namespace RelibreApi.Controllers
                 return Ok(userMap);
             }
             catch (Exception ex)
-            {                
+            {
                 // gerar log
                 return BadRequest(Util.ReturnException(ex));
             }
@@ -381,7 +430,7 @@ namespace RelibreApi.Controllers
                 var endPoint = _configuration.GetValue<string>(
                             Constants.RedirectLogin);
 
-                return Redirect(endPoint);                
+                return Redirect(endPoint);
             }
             catch (Exception ex)
             {
@@ -408,7 +457,7 @@ namespace RelibreApi.Controllers
                 var userDb = await _userMananger.GetByLogin(login);
 
                 // não existe usuario
-                if (userDb == null) return NoContent();
+                if (userDb == null) return NotFound();
 
                 // gerar email onde link deve redirecionar para nova senha
                 var emailVerification = new EmailVerification
@@ -466,7 +515,7 @@ namespace RelibreApi.Controllers
                 // buscar usuario por login                
                 var userDb = await _userMananger.GetByLogin(emailVerificationDb.Login);
 
-                if (userDb == null) return NoContent();
+                if (userDb == null) return NotFound();
 
                 // criptografar nova senha
                 userDb.Password = Util.Encrypt(newPassword.Trim());

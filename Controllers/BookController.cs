@@ -64,25 +64,48 @@ namespace RelibreApi.Controllers
         {
             try
             {
-                if (file == null || file.Length <= 0) 
-                    return NoContent();
+                if (file == null || file.Length <= 0)
+                    return BadRequest(
+                        new
+                        {
+                            Status = Constants.Error,
+                            Errors = new List<object>
+                            {
+                                new
+                                {
+                                    Message = "Nenhuma imagem localizada!"
+                                }
+                            }
+                        }
+                    );
 
                 var identifier = Util.GenerateGuid();
 
                 await Util.UploadImage(configuration, file, identifier);
 
                 var endPoint = string.Concat(configuration
-                    .GetSection(Constants.EndpointImage).Value, 
+                    .GetSection(Constants.EndpointImage).Value,
                         identifier, ".png");
 
-                return Ok(new
+                return Ok(new ResponseViewModel
                 {
-                    image = endPoint
+                    Result = new
+                    {
+                        image = endPoint
+                    },
+                    Status = Constants.Sucess
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(Util.ReturnException(ex));
+                return BadRequest(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        Util.ReturnException(ex)
+                    }
+                });
             }
         }
 
@@ -95,12 +118,21 @@ namespace RelibreApi.Controllers
             {
                 // parametro necessário não foi carregado
                 if (string.IsNullOrEmpty(libraryBook.Book.CodeIntegration))
-                    return NoContent();
+                    return NotFound(new
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new 
+                            {
+                                Message = "Biblioteca não localizada!"
+                            }
+                        }
+                    });
 
                 var libraryBookMap = _mapper.Map<LibraryBook>(libraryBook);
 
                 // verificar se já existe livro ativo na biblioteca
-
 
                 var bookDb = await _bookMananger
                     .GetByCodeIntegration(libraryBookMap.Book.CodeIntegration);
@@ -189,11 +221,23 @@ namespace RelibreApi.Controllers
 
                 var libraryBookCreated = _mapper.Map<LibraryBookViewModel>(libraryBookMap);
 
-                return Created(new Uri(Url.ActionLink("Create", "Library")), libraryBookCreated);
+                return Created(new Uri(Url.ActionLink("Create", "Library")), 
+                new ResponseViewModel
+                {
+                    Result = libraryBookCreated,
+                    Status = Constants.Sucess
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(Util.ReturnException(ex));
+                return BadRequest(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        Util.ReturnException(ex)
+                    }
+                });
             }
         }
 
@@ -267,7 +311,7 @@ namespace RelibreApi.Controllers
 
                 // retorna livros da biblioteca do usuario
                 if (string.IsNullOrEmpty(type) &&
-                    string.IsNullOrEmpty(title))
+                    string.IsNullOrEmpty(title) && user != null)
                 {
                     var library = await _libraryMananger
                         .GetLibraryByPerson(user.Person.Id);
@@ -281,7 +325,7 @@ namespace RelibreApi.Controllers
                     return Ok(librariesBooksMap);
                 }
 
-                if (!string.IsNullOrEmpty(type))
+                if (!string.IsNullOrEmpty(type) && user != null)
                 {
 
                     // retorna todos os livros de todas as bibliotecas que 
@@ -329,7 +373,6 @@ namespace RelibreApi.Controllers
                         })
                         .OrderBy(x => x.Distance);
 
-
                     return Ok(librariesBooksMap);
                 }
 
@@ -365,7 +408,6 @@ namespace RelibreApi.Controllers
 
         private async Task<List<LibraryBook>> Combination(long idLibraryRequest, int offset, int limit)
         {
-
             // trazer todos os livros de todos os tipos para realizar validação
             var libraryBooks = await
                 GetByType("all", idLibraryRequest, offset, limit);
@@ -383,23 +425,23 @@ namespace RelibreApi.Controllers
 
             foreach (var libraryBookInteresse in libraryBooksInteresses)
             {
-                // var libraryBook = 
-                //     libraryBooks.Where(x => 
-                //         x.Book.CodeIntegration
-                //             .Equals(libraryBookInteresse.Book.CodeIntegration) &&
-                //             x.LibraryBookTypes.Any() ));
+                var libraryBook =
+                    libraryBooks.Where(x =>
+                        x.Book.CodeIntegration
+                            .Equals(libraryBookInteresse.Book.CodeIntegration) &&
+                            x.LibraryBookTypes.Any(
+                                    x => x.LibraryBook.Book.Id == libraryBookInteresse.Book.Id));
 
-                // if (libraryBook != null)
-                // {
-                //     libraryBooksCombination.Add(libraryBookInteresse);
-                // }
+                if (libraryBook != null)
+                {
+                    libraryBooksCombination.Add(libraryBookInteresse);
+                }
             }
 
             if (libraryBooksCombination.Count <= 0)
                 throw new ArgumentNullException();
 
             // gerar notificações quando houver combinações
-
             return libraryBooksCombination;
         }
         private Task<List<LibraryBook>> GetByIdLibrary(long idLibrary, int offset, int limit)

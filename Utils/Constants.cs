@@ -17,6 +17,9 @@ namespace RelibreApi.Utils
         public const string MessageExceptionDefault = "Não foi possível completar a requisição";
         public const string MessageExceptionConflict = "{0} Cadastro já existente!";
         public const string MessageExceptionNotAuthorize = "Não autorizado!";
+        public const string Sucess = "Sucesso";
+        public const string NotFound = "Não localizado!";
+        public const string Error = "Erro!";
         public const string SpecialCharacter = @"[^\w\s]|[ºª]";
         public enum Requests { Get, Post, Put };
         public enum Types { Trocar, Doar, Emprestar, Interesse };

@@ -24,6 +24,7 @@
     ".NETCoreApp,Version=v3.1": {
       "RelibreApi/1.0.0": {
         "dependencies": {
+          "AWSSDK.S3": "3.5.3.7",
           "AutoMapper.Extensions.Microsoft.DependencyInjection": "7.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "3.0.3",
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "3.0.3",
@@ -338,6 +339,31 @@
         },
         "compile": {
           "lib/netstandard2.0/AutoMapper.Extensions.Microsoft.DependencyInjection.dll": {}
+        }
+      },
+      "AWSSDK.Core/3.5.1.29": {
+        "runtime": {
+          "lib/netcoreapp3.1/AWSSDK.Core.dll": {
+            "assemblyVersion": "3.3.0.0",
+            "fileVersion": "3.5.1.29"
+          }
+        },
+        "compile": {
+          "lib/netcoreapp3.1/AWSSDK.Core.dll": {}
+        }
+      },
+      "AWSSDK.S3/3.5.3.7": {
+        "dependencies": {
+          "AWSSDK.Core": "3.5.1.29"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/AWSSDK.S3.dll": {
+            "assemblyVersion": "3.3.0.0",
+            "fileVersion": "3.5.3.7"
+          }
+        },
+        "compile": {
+          "lib/netcoreapp3.1/AWSSDK.S3.dll": {}
         }
       },
       "Microsoft.AspNetCore.Authentication.JwtBearer/3.0.3": {
@@ -3180,6 +3206,20 @@
       "sha512": "sha512-szI4yeRIM7GWe9JyekW0dKYehPB0t6M+I55fPeCebN6PhS7zQZa0eG3bgOnOx+eP3caSNoE7KEJs2rk7MLsh8w==",
       "path": "automapper.extensions.microsoft.dependencyinjection/7.0.0",
       "hashPath": "automapper.extensions.microsoft.dependencyinjection.7.0.0.nupkg.sha512"
+    },
+    "AWSSDK.Core/3.5.1.29": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Qc0HxTZ8P4L/laNDObmKsQu2LdqvhOPeIssEyqcvp8FUXN8RVvPORJDoCV8lG3pCXThL4fBMjQ9kbIR4F1+Jnw==",
+      "path": "awssdk.core/3.5.1.29",
+      "hashPath": "awssdk.core.3.5.1.29.nupkg.sha512"
+    },
+    "AWSSDK.S3/3.5.3.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-dFoIBW3qGA7sRdHiOCY01hRPuZ6KM0HzI2QMS8e7mA6+FAFDhR8zDpAIDraLay6lb+adijMrMrKPc6BbYTr21A==",
+      "path": "awssdk.s3/3.5.3.7",
+      "hashPath": "awssdk.s3.3.5.3.7.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Authentication.JwtBearer/3.0.3": {
       "type": "package",

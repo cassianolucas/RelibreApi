@@ -13,10 +13,7 @@ namespace RelibreApi.ViewModel
         public ContactViewModel Contact { get; set; }
 
         [JsonProperty(PropertyName = "images")]
-        public ICollection<ImageViewModel> Images { get; set; }
-
-        [JsonProperty(PropertyName = "reating")]
-        public string Reating { get; set; }
+        public ICollection<ImageViewModel> Images { get; set; }        
 
         [JsonProperty(PropertyName = "book")]
         [Required(ErrorMessage = "Necessário informar o livro!")]
@@ -26,7 +23,7 @@ namespace RelibreApi.ViewModel
         [Required(ErrorMessage = "Necessário informar o tipo!")]
         public ICollection<TypeViewModel> Types { get; set; }
 
-        [JsonProperty(PropertyName = "id_library")]
-        public long IdLibrary { get; set; }        
+        // [JsonProperty(PropertyName = "id_library")]
+        // public long IdLibrary { get; set; }        
     }
 }

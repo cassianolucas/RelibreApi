@@ -6,9 +6,6 @@ namespace RelibreApi.ViewModel
     {
         [JsonProperty(PropertyName = "id")]
         public long Id { get; set; }
-        
-        [JsonProperty(PropertyName = "id_person")]
-        public long IdPerson { get; set; }
 
         [JsonProperty(PropertyName = "number")]
         public string Number { get; set; }

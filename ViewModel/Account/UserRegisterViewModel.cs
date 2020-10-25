@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 
 namespace RelibreApi.ViewModel
@@ -15,5 +16,8 @@ namespace RelibreApi.ViewModel
 
         [JsonProperty(PropertyName = "password")]
         public string Password { get; set; }
+
+        [JsonProperty(PropertyName = "birthday")]
+        public DateTime BirthDate { get; set; }
     }
 }

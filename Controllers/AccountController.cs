@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using RelibreApi.Models;
@@ -23,6 +24,7 @@ namespace RelibreApi.Controllers
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
+        private readonly HttpContext _httpContext;
         private readonly IUser _userMananger;
         private readonly IProfile _profileMananger;
         private readonly ILibrary _libraryMananger;
@@ -32,6 +34,7 @@ namespace RelibreApi.Controllers
             [FromServices] IUnitOfWork uow,
             [FromServices] IMapper mapper,
             [FromServices] IConfiguration configuration,
+            [FromServices] IHttpContextAccessor httpContextAccessor,
             [FromServices] IUser userMananger,
             [FromServices] IProfile profileMananger,
             [FromServices] ILibrary libraryMananger,
@@ -41,6 +44,7 @@ namespace RelibreApi.Controllers
             _uow = uow;
             _configuration = configuration;
             _mapper = mapper;
+            _httpContext = httpContextAccessor.HttpContext;
             _userMananger = userMananger;
             _profileMananger = profileMananger;
             _libraryMananger = libraryMananger;
@@ -120,9 +124,85 @@ namespace RelibreApi.Controllers
             }
         }
 
+        [HttpPost, Route("Register/Bussiness"), AllowAnonymous]
+        public async Task<IActionResult> RegisterBusinessAsync(
+            [FromBody] UserBusinessViewModel user
+        )
+        {
+            try
+            {
+                var userMap = _mapper.Map<User>(user);
+
+                var userDb = await _userMananger.GetByLogin(userMap.Login);
+
+                // captura perfil de usuario padrão
+                var profileDb = await _profileMananger.GetByIdAsync(1);
+
+                // usuario já existe
+                if (userDb != null) throw new ArgumentException();
+
+                var newPhone = userMap.Person.Phones.FirstOrDefault(x => x.Number.Equals(user.Phone));
+                newPhone.Active = true;
+                newPhone.Master = true;
+                newPhone.CreatedAt = Util.CurrentDateTime();
+                newPhone.UpdatedAt = newPhone.CreatedAt;
+
+                userMap.LoginVerified = false;
+                userMap.Profile = profileDb;
+                userMap.Password = Util.Encrypt(userMap.Password);
+                userMap.Person.Active = true;
+                userMap.Person.PersonType = "PF";
+                userMap.Person.CreatedAt = Util.CurrentDateTime();
+                userMap.Person.UpdatedAt = userMap.Person.CreatedAt;
+
+                await _userMananger.CreateAsync(userMap);
+
+                // create library
+                var lib = new Library
+                {
+                    Person = userMap.Person,
+                    Active = true,
+                    CreatedAt = Util.CurrentDateTime(),
+                    UpdatedAt = Util.CurrentDateTime()
+                };
+
+                await _libraryMananger.CreateAsync(lib);
+
+                user = _mapper.Map<UserBusinessViewModel>(userMap);
+
+                var emailVerification = new EmailVerification
+                {
+                    Login = userMap.Login,
+                    CreatedAt = Util.CurrentDateTime(),
+                    CodeVerification = Util.GenerateGuid()
+                };
+
+                await _emailVerificationService.CreateAsync(emailVerification);
+
+                Util.SendEmailAsync(_configuration, user.Login,
+                    "Confirmação de conta",
+                    $"Account/EmailVerification?verification_code={emailVerification.CodeVerification}");
+
+                _uow.Commit();
+
+                return Created(
+                        new Uri(
+                            Url.ActionLink("RegisterBusinessAsync", "Account")), null);
+            }
+            catch (ArgumentException)
+            {
+                return Conflict("");
+            }
+            catch (Exception ex)
+            {                
+                // gerar log
+                return BadRequest(Util.ReturnException(ex));
+            }            
+        }
+
         [HttpPost, Route("Login"), AllowAnonymous]
         public async Task<IActionResult> LoginAsync(
-            [FromBody] UserRegisterViewModel user)
+            [FromBody] UserRegisterViewModel user)  
         {
             var userMap = await _userMananger.GetByLogin(user.Login);
 
@@ -130,17 +210,24 @@ namespace RelibreApi.Controllers
             if (userMap == null) return NoContent();
 
             // senha não confere com cadastro
-            if (!userMap.Password.Equals(Util.Encrypt(user.Password))) return NoContent();
+            if (!userMap.Password.Equals(
+                    Util.Encrypt(user.Password))) 
+                        return NoContent();
 
             // usaurio não foi verificado
             if (!userMap.IsVerified()) return Forbid();
 
             var access_token = Util.CreateToken(_configuration, userMap);
 
-            return Ok(new
+            var address = userMap.Person.Addresses
+                .SingleOrDefault(x => x.Master == true);
+            
+            return Ok(new 
             {
-                userMap.Login,
-                access_token
+                login = userMap.Login,
+                access_token = access_token,
+                latitude = address != null? address.Latitude: null,
+                longitude = address != null? address.Longitude: null
             });
         }
 
@@ -241,6 +328,27 @@ namespace RelibreApi.Controllers
             }
         }
 
+        [HttpGet, Route(""), Authorize]
+        public async Task<IActionResult> GetAsync()
+        {
+            try
+            {
+                var login = Util.GetClaim(_httpContext, 
+                    Constants.UserClaimIdentifier);
+
+                var user = await _userMananger.GetByLogin(login);
+
+                var userMap = _mapper.Map<UserViewModel>(user);
+
+                return Ok(userMap);
+            }
+            catch (Exception ex)
+            {                
+                // gerar log
+                return BadRequest(Util.ReturnException(ex));
+            }
+        }
+
         [HttpPost, Route("EmailVerification"), AllowAnonymous]
         public async Task<IActionResult> EmailConfirmation(
             [FromQuery(Name = "verification_code")] string verificationCode
@@ -312,10 +420,13 @@ namespace RelibreApi.Controllers
 
                 await _emailVerificationService.CreateAsync(emailVerification);
 
+                var redirect = _configuration
+                    .GetSection(Constants.RedirectChangePassword).Value;
+
                 // verificar para redirecionar para url do front 
                 Util.SendEmailAsync(_configuration, userDb.Login,
                     "Redefinição de senha",
-                    $"Account/ForgotPassword?verification_code={emailVerification.CodeVerification}");
+                    $"{redirect}?verification_code={emailVerification.CodeVerification}");
 
                 return Ok("");
             }

@@ -11,6 +11,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -145,8 +148,8 @@ namespace RelibreApi.Utils
             strBody.AppendLine(@"<link rel=""stylesheet"" href=""https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"" >");
             strBody.AppendLine("</head>");
             strBody.AppendLine("<body>");
-            strBody.AppendLine($"<form action='{link}' method='post'>");
-            strBody.AppendLine($"<button type='submit' class='btn btn-outline-info'>{message}</button>");
+            strBody.AppendLine($"<form action='{link}' method='post' id='frmValidate'> ");
+            strBody.AppendLine($"<button type='submit' class='btn btn-outline-info' >{message}</button>");
             strBody.AppendLine("</form>");
             strBody.AppendLine("</body>");
             strBody.AppendLine("</html>");
@@ -184,15 +187,42 @@ namespace RelibreApi.Utils
         public static HttpWebRequest HttpRequest(string endpoint, Requests typeRequest)
         {
             if (string.IsNullOrEmpty(endpoint)) throw new ArgumentNullException();
-            
+
             var request = WebRequest.CreateHttp(endpoint);
 
-            request.Method = Enum.GetName(typeof(Requests), 
+            request.Method = Enum.GetName(typeof(Requests),
                 typeRequest).ToUpper();
-            request.Accept = "application/json";            
+            request.Accept = "application/json";
             request.UserAgent = "RequisicaoWebDemo";
 
             return (HttpWebRequest)request;
-        }        
+        }
+
+        public async static Task<bool> UploadImage(IConfiguration configuration, IFormFile file, string name)
+        {
+            var memoryStream = new MemoryStream();
+
+            await file.CopyToAsync(memoryStream);
+
+            var key = configuration.GetSection(Constants.AccessKeyS3).Value;
+
+            var secretKey = configuration.GetSection(Constants.SecretKeyS3).Value;
+
+            IAmazonS3 clietn = new AmazonS3Client(key, secretKey, RegionEndpoint.SAEast1);
+
+            var bucketName = configuration.GetSection(Constants.BucketNameS3).Value;
+
+            var putRequest = new PutObjectRequest
+            {
+                BucketName = bucketName,
+                Key = string.Concat(name, ".png"),
+                InputStream = memoryStream,
+                ContentType = "image/png"
+            };
+
+            var response = await clietn.PutObjectAsync(putRequest);
+
+            return (response.HttpStatusCode == HttpStatusCode.OK);
+        }
     }
 }

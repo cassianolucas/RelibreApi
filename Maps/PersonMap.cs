@@ -44,8 +44,8 @@ namespace RelibreApi.Maps
                 .HasColumnType("boolean")
                 .IsRequired();
 
-            o.Property(x => x.Birthday)
-                .HasColumnName("birthday")
+            o.Property(x => x.Birthdate)
+                .HasColumnName("birthdate")
                 .HasColumnType("timestamp")
                 .IsRequired();
             

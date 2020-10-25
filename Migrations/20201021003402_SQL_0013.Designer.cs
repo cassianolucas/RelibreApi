@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RelibreApi.Data;
@@ -9,9 +10,10 @@ using RelibreApi.Data;
 namespace RelibreApi.Migrations
 {
     [DbContext(typeof(RelibreContext))]
-    partial class RelibreContextModelSnapshot : ModelSnapshot
+    [Migration("20201021003402_SQL_0013")]
+    partial class SQL_0013
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -449,10 +451,6 @@ namespace RelibreApi.Migrations
                         .HasColumnName("id_library")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnName("price")
-                        .HasColumnType("numeric(12,4)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnName("updated_at")
                         .HasColumnType("timestamp");
@@ -555,8 +553,8 @@ namespace RelibreApi.Migrations
                         .HasColumnName("active")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTime>("Birthdate")
-                        .HasColumnName("birthdate")
+                    b.Property<DateTime>("Birthday")
+                        .HasColumnName("birthday")
                         .HasColumnType("timestamp");
 
                     b.Property<DateTime>("CreatedAt")
@@ -670,17 +668,17 @@ namespace RelibreApi.Migrations
                         {
                             Id = 1L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 10, 22, 19, 56, 45, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 20, 21, 34, 2, 0, DateTimeKind.Unspecified),
                             Name = "PJ",
-                            UpdatedAt = new DateTime(2020, 10, 22, 19, 56, 45, 0, DateTimeKind.Unspecified)
+                            UpdatedAt = new DateTime(2020, 10, 20, 21, 34, 2, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 10, 22, 19, 56, 45, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 20, 21, 34, 2, 0, DateTimeKind.Unspecified),
                             Name = "PF",
-                            UpdatedAt = new DateTime(2020, 10, 22, 19, 56, 45, 0, DateTimeKind.Unspecified)
+                            UpdatedAt = new DateTime(2020, 10, 20, 21, 34, 2, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -714,28 +712,28 @@ namespace RelibreApi.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2020, 10, 22, 19, 56, 45, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 20, 21, 34, 2, 0, DateTimeKind.Unspecified),
                             Description = "Trocar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2L,
-                            CreatedAt = new DateTime(2020, 10, 22, 19, 56, 45, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 20, 21, 34, 2, 0, DateTimeKind.Unspecified),
                             Description = "Doar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 3L,
-                            CreatedAt = new DateTime(2020, 10, 22, 19, 56, 45, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 20, 21, 34, 2, 0, DateTimeKind.Unspecified),
                             Description = "Emprestar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 4L,
-                            CreatedAt = new DateTime(2020, 10, 22, 19, 56, 45, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 20, 21, 34, 2, 0, DateTimeKind.Unspecified),
                             Description = "Interesse",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });

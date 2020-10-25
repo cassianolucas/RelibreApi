@@ -11,6 +11,8 @@ namespace RelibreApi.Models
         public long IdPerson { get; set; }
         public bool LoginVerified { get; set; }
         public virtual Person Person { get; set; }
+        public int RatingCount { get; set; }
+        public int RatingValue { get; set; }
 
         public User()
         {

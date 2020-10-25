@@ -83,6 +83,7 @@ namespace RelibreApi.Controllers
             }
             catch (Exception ex)
             {                
+                // gerar log
                 return BadRequest(Util.ReturnException(ex));
             }            
         }

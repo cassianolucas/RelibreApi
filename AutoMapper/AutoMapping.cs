@@ -14,10 +14,25 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Person.LastName, m => m.MapFrom(x => x.LastName))
             .ForPath(x => x.Person.Document, m => m.MapFrom(x => x.Document))
             .ForPath(x => x.Person.Addresses, m => m.MapFrom(x => x.Addresses))
+            .ForPath(x => x.Person.Phones, m => m.MapFrom(x => x.Phones))
             .ReverseMap();
-
+            
             CreateMap<UserRegisterViewModel, Models.User>()
             .ForPath(x => x.Person.Name, m => m.MapFrom(x => x.Name))
+            .AfterMap((src, dest) =>
+            {
+                dest.Person.Phones = new List<Models.Phone>();
+
+                dest.Person.Phones.Add(new Models.Phone
+                {
+                    Number = src.Phone
+                });
+            })
+            .ReverseMap();
+
+            CreateMap<UserBusinessViewModel, Models.User>()
+            .ForPath(x => x.Person.Name, m => m.MapFrom(x => x.Name))
+            .ForPath(x => x.Person.Document, m => m.MapFrom(x => x.Document))
             .AfterMap((src, dest) =>
             {
                 dest.Person.Phones = new List<Models.Phone>();

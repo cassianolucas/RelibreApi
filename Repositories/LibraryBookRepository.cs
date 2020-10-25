@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +13,6 @@ namespace RelibreApi.Repositories
     public class LibraryBookRepository : ILibraryBook
     {
         private readonly RelibreContext _context;
-
         public LibraryBookRepository(
             RelibreContext context
             )
@@ -119,14 +119,13 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Library.Person)
                 .Include(x => x.Library.Person.Addresses)
                 .Include(x => x.Images)
-                .AsNoTracking()
                 .Where(x => x.IdLibrary == IdLibrary)
                 .Take(offset > 0? offset : 30)
                 .Skip(limit > 0? limit : 0)
                 .ToListAsync();
         }
 
-        public Task<List<LibraryBook>> GetByTypeNoTracking(Type type, long idLibraryRequest, int offset, int limit)
+        public Task<List<LibraryBook>> GetByTypeNoTracking(Models.Type type, long idLibraryRequest, int offset, int limit)
         {
             return _context.LibraryBook
                 .Include(x => x.Book)
@@ -141,21 +140,69 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Library.Person.Addresses)
                 .Include(x => x.Images)
                 .AsNoTracking()
-                .Where(x => x.LibraryBookTypes.Any(x => x.IdType == type.Id) && 
-                    x.IdLibrary != idLibraryRequest)
+                .Where(x => ((type != null && 
+                    x.LibraryBookTypes.Any(x => x.IdType == type.Id)) || 
+                        (type == null) )  && x.IdLibrary != idLibraryRequest)
                 .Take(offset > 0? offset : 30)
                 .Skip(limit > 0? limit : 0)
                 .ToListAsync();
         }
 
-        public void RemoveAsync(long Id)
+        public Task<List<LibraryBook>> GetByAssociated(string category)
         {
-            throw new System.NotImplementedException();
+            return _context.LibraryBook
+                .Include(x => x.Book)
+                .Include(x => x.Book.AuthorBooks)
+                    .ThenInclude(x => x.Author)
+                .Include(x => x.Book.CategoryBooks)
+                    .ThenInclude(x => x.Category)
+                .Include(x => x.LibraryBookTypes)
+                    .ThenInclude(x => x.Type)
+                .Include(x => x.Library)
+                .Include(x => x.Library.Person)
+                .Include(x => x.Library.Person.Addresses)
+                .Include(x => x.Images)
+                .AsNoTracking()
+                .Where(x => x.Book.CategoryBooks
+                    .Any(x => x.Category.Name.Equals(category)))
+                .Distinct()
+                .ToListAsync();
+        }
+        public Task<List<LibraryBook>> GetByBusiness(int offset, int limit)
+        {
+            return _context.LibraryBook
+                .Include(x => x.Book)
+                .Include(x => x.Book.AuthorBooks)
+                    .ThenInclude(x => x.Author)
+                .Include(x => x.Book.CategoryBooks)
+                    .ThenInclude(x => x.Category)
+                .Include(x => x.LibraryBookTypes)
+                    .ThenInclude(x => x.Type)
+                .Include(x => x.Library)
+                .Include(x => x.Library.Person)
+                .Include(x => x.Library.Person.Addresses)
+                .Include(x => x.Images)
+                .Where(x => x.Library.Person.PersonType.Equals("PJ"))
+                .AsNoTracking()
+                .Take(offset > 0? offset : 30)
+                .Skip(limit > 0? limit : 0)
+                .Distinct()
+                .ToListAsync();
+        }
+
+        public async void RemoveAsync(long Id)
+        {
+            var libraryBook = await GetByIdAsync(Id);
+
+            if (libraryBook == null) 
+                throw new ArgumentNullException();
+
+            _context.LibraryBook.Remove(libraryBook);
         }
 
         public void Update(LibraryBook model)
         {
             throw new System.NotImplementedException();
-        }
+        }        
     }
 }

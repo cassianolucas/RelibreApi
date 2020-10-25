@@ -41,6 +41,16 @@ namespace RelibreApi.Maps
                 .HasColumnName("id_person")
                 .HasColumnType("bigint")
                 .IsRequired();
+
+            o.Property(x => x.RatingCount)
+                .HasColumnName("rating_count")
+                .HasColumnType("integer")
+                .IsRequired();
+
+            o.Property(x => x.RatingValue)
+                .HasColumnType("rating_value")
+                .HasColumnType("integer")
+                .IsRequired();
             
             o.HasOne(x => x.Person)
                 .WithMany(x => x.Users)

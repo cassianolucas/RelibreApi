@@ -8,6 +8,11 @@ namespace RelibreApi.Utils
         public const string UserClaimIdentifier = "email_login";
         public const string GeolocationApi = "GeolocationApi";
         public const string RedirectLogin = "RedirectLogin";
+        public const string RedirectChangePassword = "RedirectChangePassword";
+        public const string EndpointImage = "EndpointImage";
+        public const string AccessKeyS3 = "AccessKeyS3";
+        public const string SecretKeyS3 = "SecretKeyS3";
+        public const string BucketNameS3 = "BucketNameS3";
         public const string DefaultContentType = "application/json";
         public const string MessageExceptionDefault = "Não foi possível completar a requisição";
         public const string MessageExceptionConflict = "{0} Cadastro já existente!";

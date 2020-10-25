@@ -8,24 +8,16 @@ namespace RelibreApi.ViewModel
     public class UserViewModel
     {
 
-        [JsonProperty(PropertyName = "name")]
-        // [Required(ErrorMessage = "Necessário informar o nome!")]
-        // [MinLength(4, ErrorMessage = "Nome inválido!")]
+        [JsonProperty(PropertyName = "name")]        
         public string Name { get; set; }
 
-        [JsonProperty(PropertyName = "last_name")]
-        // [Required(ErrorMessage = "Necessário informar o sobrenome!")]
-        // [MinLength(4, ErrorMessage = "Sobrenome inválido!")]
+        [JsonProperty(PropertyName = "last_name")]        
         public string LastName { get; set; }
 
-        [JsonProperty(PropertyName = "login")]
-        // [Required(ErrorMessage = "Necessário informar o login!")]
-        // [MinLength(10, ErrorMessage = "Login inválido!")]
+        [JsonProperty(PropertyName = "login")]        
         public string Login { get; set; }
 
-        [JsonProperty(PropertyName = "document")]
-        // [Required(ErrorMessage = "Necessário informar o documento!")]
-        // [MinLength(14, ErrorMessage = "Documento inválido")]
+        [JsonProperty(PropertyName = "document")]        
         public string Document { get; set; }
 
         [JsonProperty(PropertyName = "phones")]

@@ -45,12 +45,12 @@ namespace RelibreApi.Maps
                 .WithMany(x => x.LibraryBooks)
                 .HasForeignKey(x => x.IdBook)
                 .HasConstraintName("fk_library_book_book_id_book")
-                .OnDelete(DeleteBehavior.Restrict);                        
-                                    
-            o.Property(x => x.Reating)
-                .HasColumnName("reating")
-                .HasColumnType("varchar(255)")
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Restrict);
+
+            o.Property(x => x.Price)
+                .HasColumnName("price")
+                .HasColumnType("numeric(12,4)")
+                .IsRequired();
             
             o.Property(x => x.Active)
                 .HasColumnName("active")

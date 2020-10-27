@@ -1,4 +1,3 @@
-using System;
 
 namespace RelibreApi.Models
 {

@@ -169,7 +169,7 @@ namespace RelibreApi
                     });
 
                 x.ResolveConflictingActions(x => x.First());
-                                
+
                 string caminhoAplicacao =
                     PlatformServices.Default.Application.ApplicationBasePath;
                 string nomeAplicacao =
@@ -177,13 +177,13 @@ namespace RelibreApi
 
                 string caminhoXmlDoc =
                     Path.Combine(caminhoAplicacao, $"{nomeAplicacao}.xml");
-                
+
                 //Caso exista arquivo então adiciona-lo
                 if (File.Exists(caminhoXmlDoc))
                 {
                     x.IncludeXmlComments(caminhoXmlDoc);
                 }
-            });            
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -213,11 +213,16 @@ namespace RelibreApi
                 app.UseHsts();
             }
 
+            app.UseRouting();
+
             app.UseCors(x =>
-            {
-                x.AllowAnyHeader();
+            {   
+                x.WithOrigins("https://relibre.vercel.app", "http://localhost:3000")
+                    .SetIsOriginAllowed((x) => true);                    
+
                 x.AllowAnyMethod();
                 x.AllowAnyOrigin();
+                x.AllowAnyHeader();
             });
 
             app.UseHttpsRedirection();
@@ -232,7 +237,7 @@ namespace RelibreApi
                         var exception = context.Features.Get<IExceptionHandlerFeature>();
 
                         if (exception != null)
-                        {                            
+                        {
                             Util.ReturnException((Exception)exception);
 
                             await context.Response.WriteAsync(
@@ -242,8 +247,6 @@ namespace RelibreApi
                     });
             });
 
-            app.UseRouting();
-
             app.UseAuthentication();
 
             app.UseAuthorization();
@@ -251,7 +254,7 @@ namespace RelibreApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-            });            
+            });
         }
     }
 }

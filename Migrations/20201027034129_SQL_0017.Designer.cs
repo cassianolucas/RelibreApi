@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RelibreApi.Data;
@@ -9,9 +10,10 @@ using RelibreApi.Data;
 namespace RelibreApi.Migrations
 {
     [DbContext(typeof(RelibreContext))]
-    partial class RelibreContextModelSnapshot : ModelSnapshot
+    [Migration("20201027034129_SQL_0017")]
+    partial class SQL_0017
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -306,8 +308,8 @@ namespace RelibreApi.Migrations
                         .HasColumnName("id_library_book")
                         .HasColumnType("bigint");
 
-                    b.Property<bool>("Approved")
-                        .HasColumnName("approved")
+                    b.Property<bool>("Available")
+                        .HasColumnName("available")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("Denied")
@@ -655,17 +657,17 @@ namespace RelibreApi.Migrations
                         {
                             Id = 1L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 27, 0, 41, 29, 0, DateTimeKind.Unspecified),
                             Name = "PJ",
-                            UpdatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified)
+                            UpdatedAt = new DateTime(2020, 10, 27, 0, 41, 29, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 27, 0, 41, 29, 0, DateTimeKind.Unspecified),
                             Name = "PF",
-                            UpdatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified)
+                            UpdatedAt = new DateTime(2020, 10, 27, 0, 41, 29, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -703,7 +705,7 @@ namespace RelibreApi.Migrations
                         {
                             Id = 1L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 27, 0, 41, 29, 0, DateTimeKind.Unspecified),
                             Description = "Trocar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
@@ -711,7 +713,7 @@ namespace RelibreApi.Migrations
                         {
                             Id = 2L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 27, 0, 41, 29, 0, DateTimeKind.Unspecified),
                             Description = "Doar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
@@ -719,7 +721,7 @@ namespace RelibreApi.Migrations
                         {
                             Id = 3L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 27, 0, 41, 29, 0, DateTimeKind.Unspecified),
                             Description = "Emprestar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
@@ -727,7 +729,7 @@ namespace RelibreApi.Migrations
                         {
                             Id = 4L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 10, 27, 0, 41, 29, 0, DateTimeKind.Unspecified),
                             Description = "Interesse",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
@@ -758,11 +760,11 @@ namespace RelibreApi.Migrations
                         .HasColumnType("varchar(255)")
                         .HasMaxLength(255);
 
-                    b.Property<int>("TotalCount")
-                        .HasColumnName("total_count")
+                    b.Property<int>("RatingCount")
+                        .HasColumnName("rating_count")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TotalValue")
+                    b.Property<int>("RatingValue")
                         .HasColumnType("integer");
 
                     b.HasKey("Login");

@@ -37,12 +37,23 @@ namespace RelibreApi.Controllers
 
                 var typesMap = _mapper.Map<ICollection<TypeViewModel>>(typesDb);
 
-                return Ok(typesDb);
+                return Ok(new ResponseViewModel
+                {
+                    Result = typesDb,
+                    Status = Constants.Sucess
+                });
             }
             catch (Exception ex)
-            {                
+            {
                 // gerar log
-                return BadRequest(Util.ReturnException(ex));
+                return BadRequest(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        Util.ReturnException(ex)
+                    }
+                });
             }
         }
     }

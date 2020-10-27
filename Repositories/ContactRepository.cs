@@ -28,7 +28,7 @@ namespace RelibreApi.Repositories
         {
             throw new System.NotImplementedException();
         }
-                
+
         public Task<Contact> GetByEmail(string email)
         {
             return _context.Contact
@@ -55,34 +55,60 @@ namespace RelibreApi.Repositories
             throw new System.NotImplementedException();
         }
 
-        public Task<List<ContactBook>> GetByOwnerNoTracking(string email, bool available, int limit, int offset)
-        {
-            return _context.ContactBook            
-                .Include(x => x.ContactOwner)
-                .Include(x => x.LibraryBook)
-                .Include(x => x.LibraryBook.Library)
-                .Include(x => x.LibraryBook.Library.Person)
-                .Where(x => x.ContactOwner.Email.Equals(email))
-                .AsNoTracking()
-                .Take((limit > 0 ? limit : 30))
-                .Skip((offset > 0 ? offset : 0))
-                .ToListAsync();
-        }
-
-        public Task<List<ContactBook>> GetByRequestNoTracking(string email, bool available, int limit, int offset)
+        public Task<ContactBook> GetByOwner(long idLiraryBook, long idContactOwner, long idContactRequest)
         {
             return _context.ContactBook
                 .Include(x => x.ContactRequest)
                 .Include(x => x.LibraryBook)
                 .Include(x => x.LibraryBook.Library)
                 .Include(x => x.LibraryBook.Library.Person)
-                .Where(x => x.ContactRequest.Email.Equals(email))
+                .Include(x => x.LibraryBook.Book)
+                .Include(x => x.LibraryBook.Book.AuthorBooks)
+                .Include(x => x.LibraryBook.Book.CategoryBooks)
+                .Where(x => x.ContactOwner.Id == idContactOwner &&
+                    x.ContactRequest.Id == idContactRequest &&
+                    x.LibraryBook.Id == idLiraryBook &&
+                    x.Approved == false && x.Denied == false)
+                .SingleOrDefaultAsync();
+        }
+
+        public Task<List<ContactBook>> GetByOwnerNoTracking(string email, bool approved, bool denied, int limit, int offset)
+        {
+            return _context.ContactBook
+                .Include(x => x.ContactRequest)
+                .Include(x => x.LibraryBook)
+                .Include(x => x.LibraryBook.Library)
+                .Include(x => x.LibraryBook.Library.Person)
+                .Include(x => x.LibraryBook.Book)
+                .Include(x => x.LibraryBook.Book.AuthorBooks)
+                .Include(x => x.LibraryBook.Book.CategoryBooks)
+                .Where(x => x.ContactOwner.Email.Equals(email) &&
+                    x.Approved == approved &&
+                    x.Denied == denied)
                 .AsNoTracking()
                 .Take((limit > 0 ? limit : 30))
                 .Skip((offset > 0 ? offset : 0))
                 .ToListAsync();
         }
-        
+
+        public Task<List<ContactBook>> GetByRequestNoTracking(string email, bool approved, bool denied, int limit, int offset)
+        {
+            return _context.ContactBook
+                .Include(x => x.ContactOwner)
+                .Include(x => x.LibraryBook)
+                .Include(x => x.LibraryBook.Library)
+                .Include(x => x.LibraryBook.Library.Person)
+                .Include(x => x.LibraryBook.Book)
+                .Include(x => x.LibraryBook.Book.AuthorBooks)
+                .Include(x => x.LibraryBook.Book.CategoryBooks)
+                .Where(x => x.ContactRequest.Email.Equals(email) &&
+                    x.Approved == approved && x.Denied == denied)
+                .AsNoTracking()
+                .Take((limit > 0 ? limit : 30))
+                .Skip((offset > 0 ? offset : 0))
+                .ToListAsync();
+        }
+
         public void RemoveAsync(long Id)
         {
             throw new System.NotImplementedException();
@@ -93,6 +119,9 @@ namespace RelibreApi.Repositories
             _context.Contact.Update(model);
         }
 
-
+        public void UpdateContactBook(ContactBook contactBook)
+        {
+            _context.ContactBook.Update(contactBook);
+        }
     }
 }

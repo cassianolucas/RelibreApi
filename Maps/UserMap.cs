@@ -42,13 +42,13 @@ namespace RelibreApi.Maps
                 .HasColumnType("bigint")
                 .IsRequired();
 
-            o.Property(x => x.RatingCount)
-                .HasColumnName("rating_count")
+            o.Property(x => x.TotalCount)
+                .HasColumnName("total_count")
                 .HasColumnType("integer")
                 .IsRequired();
 
-            o.Property(x => x.RatingValue)
-                .HasColumnType("rating_value")
+            o.Property(x => x.TotalValue)
+                .HasColumnType("total_value")
                 .HasColumnType("integer")
                 .IsRequired();
             

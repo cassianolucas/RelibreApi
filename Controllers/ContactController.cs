@@ -24,7 +24,6 @@ namespace RelibreApi.Controllers
         private readonly INotification _notificationMananger;
         private readonly INotificationPerson _notificationPersonMananger;
         private readonly IUser _userMananger;
-
         public ContactController(
             [FromServices] IUnitOfWork uow,
             [FromServices] IMapper mapper,
@@ -54,7 +53,14 @@ namespace RelibreApi.Controllers
             try
             {
                 if (createContactViewModel.IdLibraryBook <= 0)
-                    return NoContent();
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.LibraryNotFound }
+                        }
+                    });
 
                 // buscar do usuario autenticado
                 var login = Util.GetClaim(_httpContext,
@@ -64,7 +70,14 @@ namespace RelibreApi.Controllers
                         .GetByLogin(login);
 
                 if (userDbRequest == null)
-                    return NoContent();
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserNotFound }
+                        }
+                    });
 
                 // verificar se existe contado de usuario logado
                 var contactDbRequest = await _contactMananger
@@ -100,14 +113,39 @@ namespace RelibreApi.Controllers
                     .GetByIdAsync(createContactViewModel.IdLibraryBook);
 
                 if (libraryBook == null)
-                    return NoContent();
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.BookNotFound }
+                        }
+                    });
 
                 // buscar o login do usuario dono da biblioteca para criar cadastro
                 var userOwner = await _userMananger
                     .GetByIdAsyncNoTracking(libraryBook.Library.Person.Id);
 
+                // verifica se o livro requisitado não é do mesmo usuario
+                if (userOwner.Login.Equals(userDbRequest.Login))
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = "Não é possível adicionar o livro da sua biblioteca!" }
+                        }
+                    });
+
                 if (userOwner == null)
-                    return NoContent();
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserNotFound }
+                        }
+                    });
 
                 var contactDbOwner = await _contactMananger
                     .GetByEmail(userOwner.Login);
@@ -133,7 +171,8 @@ namespace RelibreApi.Controllers
                     ContactOwner = contactDbOwner,
                     ContactRequest = contactDbRequest,
                     LibraryBook = libraryBook,
-                    Available = false
+                    Approved = false,
+                    Denied = false
                 };
 
                 contactDbOwner.ContactBooksOwner.Add(contactBook);
@@ -171,39 +210,105 @@ namespace RelibreApi.Controllers
                 _uow.Commit();
 
                 return Created(
-                    new Uri(Url.ActionLink("Create", "Contact")), null);
+                    new Uri(Url.ActionLink("Create", "Contact")), new ResponseViewModel
+                    {
+                        Result = null,
+                        Status = Constants.Sucess
+                    });
             }
             catch (Exception ex)
             {
-                return BadRequest(Util.ReturnException(ex));
+                // gerar log
+                return BadRequest(new ResponseErrorViewModel
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object> { Util.ReturnException(ex) }
+                });
             }
         }
 
 
-        [HttpPut, Route(""), Authorize]
-        public IActionResult UpdateAsync()
+        [HttpPost, Route("Approve"), Authorize]
+        public async Task<IActionResult> ApproveAsync(
+            [FromBody] ContactBookViewModel contactBookViewModel
+        )
         {
             try
-            {                
-                return Ok();
+            {
+                var login = Util.GetClaim(_httpContext,
+                    Constants.UserClaimIdentifier);
+
+                var contactDb = await _contactMananger.GetByEmail(login);
+
+                if (contactDb == null)
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = "Contato não localizado!" }
+                        }
+                    });
+
+                // buscar contato de acordo com livro e contato
+                var contactBook = await _contactMananger
+                    .GetByOwner(contactBookViewModel.IdLibraryBook,
+                        contactBookViewModel.IdContact, contactDb.Id);
+
+                if (contactBook == null)
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Result = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = "Contato não localizado!" }
+                        }
+                    });
+
+                contactBook.Approved = contactBookViewModel.Approved;
+                contactBook.Denied = contactBookViewModel.Denied;
+
+                _contactMananger.UpdateContactBook(contactBook);
+
+                _uow.Commit();
+
+                return Ok(new ResponseViewModel
+                {
+                    Result = null,
+                    Status = Constants.Sucess
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(Util.ReturnException(ex));
+                // gerar log
+                return BadRequest(new ResponseErrorViewModel
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object> { Util.ReturnException(ex) }
+                });
             }
         }
 
         [HttpGet, Route(""), Authorize]
         public async Task<IActionResult> GetAsync(
             [FromQuery(Name = "type")] string type,
+            [FromQuery(Name = "approved")] bool approved,
+            [FromQuery(Name = "denied")] bool denied,
             [FromQuery(Name = "offset")] int offset,
             [FromQuery(Name = "limit")] int limit
         )
         {
             try
             {
-                if (string.IsNullOrEmpty(type)) 
-                    return NoContent();
+                if (string.IsNullOrEmpty(type))
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.InvalidParameter }
+                        }
+                    });
 
                 var login = Util.GetClaim(_httpContext,
                     Constants.UserClaimIdentifier);
@@ -212,28 +317,90 @@ namespace RelibreApi.Controllers
 
                 if (type.ToLower().Equals("send"))
                 {
-                    if (string.IsNullOrEmpty(login)) 
-                        return NoContent();
+                    if (string.IsNullOrEmpty(login))
+                        return BadRequest(new ResponseErrorViewModel
+                        {
+                            Status = Constants.Error,
+                            Errors = new List<object>
+                            {
+                                new { Message = Constants.UserNotFound }
+                            }
+                        });
 
                     contactsDb = await _contactMananger
-                        .GetByRequestNoTracking(login, false, limit, offset);
+                        .GetByRequestNoTracking(login, approved, denied, limit, offset);
                 }
 
                 if (type.ToLower().Equals("received"))
                 {
                     contactsDb = await _contactMananger
-                        .GetByOwnerNoTracking(login, false, limit, offset);                                        
+                        .GetByOwnerNoTracking(login, approved, denied, limit, offset);
                 }
 
-                var contacsMap = _mapper
-                    .Map<ICollection<ContactBookViewModel>>(contactsDb);
-                
-                return Ok(contacsMap);
+                var userDb = await _userMananger.GetByLogin(login);
+
+                var addressDb = userDb.Person.Addresses
+                    .SingleOrDefault(x => x.Master == true);
+                               
+                // trazer todos os dados quando approved for = true                
+                if (approved)
+                {
+                    var contacsMap = _mapper
+                        .Map<List<ContactBookApprovedViewModel>>(contactsDb)
+                        .Select(x => new 
+                        {
+                            Denied = x.Denied,
+                            Distance = Util.Distance(addressDb, 
+                                _userMananger.GetByLogin(x.Email)
+                                    .Result.Person.Addresses.SingleOrDefault(x => x.Master == true)),
+                            Email = x.Email,
+                            FullName = x.FullName,
+                            IdContact = x.IdContact,
+                            IdLibraryBook = x.IdLibraryBook,
+                            Phone = x.Phone,
+                            Rating = _userMananger.GetRatingByLogin(x.Email)
+                        });
+
+                    return Ok(new ResponseViewModel
+                    {
+                        Result = contacsMap
+                            .OrderBy(x => x.Distance),
+                        Status = Constants.Sucess
+                    });
+                }
+                else
+                {
+                    var contacsMap = _mapper
+                        .Map<List<ContactBookViewModel>>(contactsDb)
+                        .Select(x => new 
+                        {
+                            Denied = x.Denied,
+                            Distance = Util.Distance(addressDb, 
+                                _userMananger.GetByLogin(x.Email)
+                                    .Result.Person.Addresses.SingleOrDefault(x => x.Master == true)),
+                            FullName = x.FullName,
+                            IdContact = x.IdContact,
+                            IdLibraryBook = x.IdLibraryBook,
+                            Rating = _userMananger.GetRatingByLogin(x.Email)
+                        });
+
+                    return Ok(new ResponseViewModel
+                    {
+                        Result = contacsMap
+                            .OrderBy(x => x.Distance),
+                        Status = Constants.Sucess
+                    });
+                }
             }
             catch (Exception ex)
             {
-                return BadRequest(Util.ReturnException(ex));
+                // gerar log
+                return BadRequest(new ResponseErrorViewModel
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object> { Util.ReturnException(ex) }
+                });
             }
-        }        
+        }
     }
 }

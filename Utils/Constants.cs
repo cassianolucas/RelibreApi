@@ -8,6 +8,7 @@ namespace RelibreApi.Utils
         public const string UserClaimIdentifier = "email_login";
         public const string GeolocationApi = "GeolocationApi";
         public const string RedirectLogin = "RedirectLogin";
+        public const string RedirectError = "RedirectError";
         public const string RedirectChangePassword = "RedirectChangePassword";
         public const string EndpointImage = "EndpointImage";
         public const string AccessKeyS3 = "AccessKeyS3";
@@ -19,7 +20,18 @@ namespace RelibreApi.Utils
         public const string MessageExceptionNotAuthorize = "Não autorizado!";
         public const string Sucess = "Sucesso";
         public const string NotFound = "Não localizado!";
+        public const string UserFound = "Usuário existente!";
+        public const string UserNotFound = "Usuário não localizado!";
+        public const string UserInvalidOrPassword = "Usuário ou senha inválidos!";
+        public const string UserNotValidate = "Email não verificado!";
+        public const string UserPasswordInvalid = "Senha inválida";
         public const string Error = "Erro!";
+        public const string CodeInvalid = "Código não válido!";
+        public const string InvalidParameter = "Parametro não informado!";
+        public const string LibraryNotFound = "Biblioteca não localizada!";
+        public const string BookNotFound = "Livro não localizado!";
+        public const string InvalidImage = "Nenhuma imagem localizada!";
+        public const string InvalidNotification = "Notificação não localizada!";
         public const string SpecialCharacter = @"[^\w\s]|[ºª]";
         public enum Requests { Get, Post, Put };
         public enum Types { Trocar, Doar, Emprestar, Interesse };

@@ -108,6 +108,17 @@ namespace RelibreApi.Utils
 
             return (dist);
         }
+        public static double Distance(Address address1, Address address2)
+        {
+            if (address1 != null && address2 != null)
+            {
+                return Distance(Double.Parse(address1.Latitude), 
+                    Double.Parse(address1.Longitude), 
+                    Double.Parse(address2.Latitude), 
+                    Double.Parse(address2.Longitude));
+            }
+            return 0;
+        }
         private static double Deg2Rad(double deg)
         {
             return (deg * Math.PI / 180.0);

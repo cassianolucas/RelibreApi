@@ -7,5 +7,6 @@ namespace RelibreApi.Services
     {        
         Task<User> GetByLoginOrDocumentNoTracking(string login, string document);
         Task<User> GetByLogin(string login);
+        double GetRatingByLogin(string login);        
     }
 }

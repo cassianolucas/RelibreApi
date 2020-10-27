@@ -66,7 +66,15 @@ namespace RelibreApi.Controllers
         {
             try
             {
-                if (idNotification <= 0) return NoContent();
+                if (idNotification <= 0) 
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.InvalidNotification }
+                        }
+                    });
                 
                 var notificationPersonDb = await _notificationPersonMananger
                     .GetByIdAsync(idNotification);
@@ -79,12 +87,23 @@ namespace RelibreApi.Controllers
 
                 _uow.Commit();
                 
-                return Ok("");
+                return Ok(new ResponseViewModel
+                {
+                    Result = null,
+                    Status = Constants.Sucess
+                });
             }
             catch (Exception ex)
             {                
                 // gerar log
-                return BadRequest(Util.ReturnException(ex));
+                return BadRequest(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        Util.ReturnException(ex)
+                    }
+                });
             }            
         }
 
@@ -124,7 +143,15 @@ namespace RelibreApi.Controllers
 
                 var userDb = await _userMananger.GetByLogin(login);
 
-                if (userDb == null) return NoContent();
+                if (userDb == null) 
+                    return BadRequest(new ResponseErrorViewModel
+                    {                        
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserNotFound }
+                        }
+                    });
 
                 // capturar usuario da requisição para listar apenas as notificações dele
                 var notificationsDb = await GetByPerson(userDb.Person.Id, offset, limit);
@@ -132,11 +159,23 @@ namespace RelibreApi.Controllers
                 var notificationsMap = _mapper
                     .Map<ICollection<NotificationPersonViewModel>>(notificationsDb);
                 
-                return Ok(notificationsMap);
+                return Ok(new ResponseViewModel
+                {
+                    Result = notificationsMap,
+                    Status = Constants.Sucess
+                });
             }
             catch (Exception ex)
             {                
-                return BadRequest(Util.ReturnException(ex));
+                // gerar log
+                return BadRequest(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        Util.ReturnException(ex)
+                    }
+                });
             }            
         }
 

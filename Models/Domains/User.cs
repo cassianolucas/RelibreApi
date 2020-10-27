@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 
 namespace RelibreApi.Models
 {
@@ -11,14 +10,13 @@ namespace RelibreApi.Models
         public long IdPerson { get; set; }
         public bool LoginVerified { get; set; }
         public virtual Person Person { get; set; }
-        public int RatingCount { get; set; }
-        public int RatingValue { get; set; }
+        public int TotalCount { get; set; }
+        public int TotalValue { get; set; }
 
         public User()
         {
             this.Person = new Person();
         }
-
         public bool IsVerified()
         {
             return LoginVerified;

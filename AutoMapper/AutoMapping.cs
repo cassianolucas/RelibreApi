@@ -70,7 +70,7 @@ namespace RelibreApi.AutoMapper
             .ReverseMap();
 
             CreateMap<ImageViewModel, Models.Image>()
-            .ForPath(x => x.Medium, m => m.MapFrom(x => x.Image))
+            .ForPath(x => x.ImageLink, m => m.MapFrom(x => x.Image))
             .ReverseMap();
 
             CreateMap<TypeViewModel, Models.LibraryBookType>()
@@ -87,22 +87,50 @@ namespace RelibreApi.AutoMapper
             .ReverseMap();
             
             CreateMap<ContactBookViewModel, Models.ContactBook>()
-            .ForPath(x => x.Available, m => m.MapFrom(x => x.Available));
+            .ForPath(x => x.Approved, m => m.MapFrom(x => x.Approved));
 
             CreateMap<Models.ContactBook, ContactBookViewModel>()
+            .ForPath(x => x.Book, m => m.MapFrom(x => x.LibraryBook.Book))
+            .AfterMap((src, dest) =>
+            {
+                if (src.ContactOwner == null)
+                {                
+                    dest.IdContact = src.IdContactRequest;
+                    dest.FullName = src.ContactRequest.Name;
+                    dest.CreatedAt = src.ContactRequest.CreatedAt;
+                    dest.Email = src.ContactRequest.Email;
+                }
+                else
+                {
+                    dest.IdContact = src.IdContactOwner;
+                    dest.FullName = src.ContactOwner.Name;
+                    dest.CreatedAt = src.ContactOwner.CreatedAt;
+                    dest.Email = src.ContactOwner.Email;
+                }
+                
+                dest.Approved = src.Approved;
+                dest.Denied = src.Denied;
+                dest.IdLibraryBook = dest.IdLibraryBook;
+            });
+
+            CreateMap<Models.ContactBook, ContactBookApprovedViewModel>()
             .AfterMap((src, dest) =>
             {
                 if (src.ContactOwner == null)
                 {
+                    dest.IdContact = src.IdContactRequest;
                     dest.Email = src.ContactRequest.Email;
                     dest.FullName = src.ContactRequest.Name;
                     dest.Phone = src.ContactRequest.Phone;
+                    dest.CreatedAt = src.ContactRequest.CreatedAt;
                 }
                 else
                 {
+                    dest.IdContact = src.IdContactOwner;
                     dest.Email = src.ContactOwner.Email;
                     dest.FullName = src.ContactOwner.Name;
                     dest.Phone = src.ContactOwner.Phone;
+                    dest.CreatedAt = src.ContactOwner.CreatedAt;
                 }
             });
 

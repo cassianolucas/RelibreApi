@@ -5,7 +5,7 @@ namespace RelibreApi.Models
 {
     public class LibraryBook : BaseModelUpdatedAt
     {        
-        public long IdLibrary { get; set; }        
+        public long IdLibrary { get; set; }
         public ICollection<Image> Images { get; set; }
         public long IdBook { get; set; }
         public double Price { get; set; }

@@ -18,36 +18,11 @@ namespace RelibreApi.Maps
                 .HasIdentityOptions(1, 1, 1)
                 .ValueGeneratedOnAdd()
                 .IsRequired();
-
-            o.Property(x => x.Thumbnail)
-                .HasColumnName("thumbnail")
+            
+            o.Property(x => x.ImageLink)
+                .HasColumnName("image_link")
                 .HasColumnType("varchar(255)")
-                .IsRequired(false);
-                        
-            o.Property(x => x.Small)
-                .HasColumnName("small")
-                .HasColumnType("varchar(255)")
-                .IsRequired(false);
-
-            o.Property(x => x.Medium)
-                .HasColumnName("medium")
-                .HasColumnType("varchar(255)")
-                .IsRequired(false);
-
-            o.Property(x => x.Large)
-                .HasColumnName("large")
-                .HasColumnType("varchar(255)")
-                .IsRequired(false);
-
-            o.Property(x => x.SmallThumbnail)
-                .HasColumnName("small_thumbnail")
-                .HasColumnType("varchar(255)")
-                .IsRequired(false);
-
-            o.Property(x => x.ExtraLarge)
-                .HasColumnName("extra_large")
-                .HasColumnType("varchar(255)")
-                .IsRequired(false);
+                .IsRequired();
             
             o.Property(x => x.IdLibraryBook)
                 .HasColumnName("id_library_book")

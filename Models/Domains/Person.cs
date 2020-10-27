@@ -9,12 +9,11 @@ namespace RelibreApi.Models
         public string LastName { get; set; }
         public string Document { get; set; }
         public string PersonType { get; set; }
-        public DateTime Birthdate { get; set; }
+        public DateTime BirthDate { get; set; }
         public virtual Library Library { get; set; }
         public virtual ICollection<User> Users { get; set; }
         public virtual ICollection<Address> Addresses { get; set; }
         public virtual ICollection<Phone> Phones { get; set; }
         public virtual ICollection<NotificationPerson> NotificationPeople { get; set; }
-
     }
 }

@@ -65,18 +65,14 @@ namespace RelibreApi.Controllers
             try
             {
                 if (file == null || file.Length <= 0)
-                    return BadRequest(
-                        new
-                        {
-                            Status = Constants.Error,
-                            Errors = new List<object>
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
                             {
-                                new
-                                {
-                                    Message = "Nenhuma imagem localizada!"
-                                }
+                                new { Message = Constants.InvalidImage }
                             }
-                        }
+                    }
                     );
 
                 var identifier = Util.GenerateGuid();
@@ -98,6 +94,7 @@ namespace RelibreApi.Controllers
             }
             catch (Exception ex)
             {
+                // gerar log
                 return BadRequest(new
                 {
                     Status = Constants.Error,
@@ -118,15 +115,12 @@ namespace RelibreApi.Controllers
             {
                 // parametro necessário não foi carregado
                 if (string.IsNullOrEmpty(libraryBook.Book.CodeIntegration))
-                    return NotFound(new
+                    return NotFound(new ResponseErrorViewModel
                     {
                         Status = Constants.Error,
                         Errors = new List<object>
                         {
-                            new 
-                            {
-                                Message = "Biblioteca não localizada!"
-                            }
+                            new { Message = Constants.LibraryNotFound }
                         }
                     });
 
@@ -221,7 +215,7 @@ namespace RelibreApi.Controllers
 
                 var libraryBookCreated = _mapper.Map<LibraryBookViewModel>(libraryBookMap);
 
-                return Created(new Uri(Url.ActionLink("Create", "Library")), 
+                return Created(new Uri(Url.ActionLink("Create", "Book")),
                 new ResponseViewModel
                 {
                     Result = libraryBookCreated,
@@ -230,6 +224,7 @@ namespace RelibreApi.Controllers
             }
             catch (Exception ex)
             {
+                // gerar log
                 return BadRequest(new
                 {
                     Status = Constants.Error,
@@ -251,17 +246,37 @@ namespace RelibreApi.Controllers
                 var libraryDb = await _libraryBookMananger.GetByIdAsync(library.id);
 
                 // não localizou
-                if (libraryDb == null) return NoContent();
+                if (libraryDb == null)
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.LibraryNotFound }
+                        }
+                    });
 
                 libraryDb.UpdatedAt = Util.CurrentDateTime();
 
                 _libraryBookMananger.Update(libraryDb);
 
-                return Ok("");
+                return Ok(new ResponseViewModel
+                {
+                    Result = null,
+                    Status = Constants.Sucess
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(Util.ReturnException(ex));
+                // gerar log
+                return BadRequest(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        Util.ReturnException(ex)
+                    }
+                });
             }
         }
 
@@ -279,11 +294,23 @@ namespace RelibreApi.Controllers
 
                 _libraryBookMananger.RemoveAsync(id);
 
-                return Ok("");
+                return Ok(new ResponseViewModel
+                {
+                    Result = null,
+                    Status = Constants.Sucess
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(Util.ReturnException(ex));
+                // gerar log
+                return BadRequest(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        Util.ReturnException(ex)
+                    }
+                });
             }
         }
 
@@ -311,7 +338,7 @@ namespace RelibreApi.Controllers
 
                 // retorna livros da biblioteca do usuario
                 if (string.IsNullOrEmpty(type) &&
-                    string.IsNullOrEmpty(title) && user != null)
+                    string.IsNullOrEmpty(title))
                 {
                     var library = await _libraryMananger
                         .GetLibraryByPerson(user.Person.Id);
@@ -322,25 +349,35 @@ namespace RelibreApi.Controllers
                     var librariesBooksMap = _mapper
                         .Map<ICollection<LibraryBookViewModel>>(libraryBookDb);
 
-                    return Ok(librariesBooksMap);
+                    return Ok(new ResponseViewModel
+                    {
+                        Result = librariesBooksMap,
+                        Status = Constants.Sucess
+                    });
                 }
 
-                if (!string.IsNullOrEmpty(type) && user != null)
+                if (!string.IsNullOrEmpty(type))
                 {
-
                     // retorna todos os livros de todas as bibliotecas que 
                     // forem diferente do usuario da requisição de acordo com tipo 
                     var libraryBookDb = await
                         GetByType(type, user.Person.Library.Id, offset, limit);
 
                     if (libraryBookDb.Count <= 0)
-                        return NoContent();
+                        return BadRequest(new ResponseErrorViewModel
+                        {
+                            Status = Constants.Error,
+                            Errors = new List<object>
+                            {
+                                new { Message = Constants.LibraryNotFound }
+                            }
+                        });
 
                     // TRAZER LIVROS RELACIONADOS POR CATEGORIA
-                    var categories = libraryBookDb
-                        .Select(x => x.Book.CategoryBooks
-                            .Select(x => x.Category.Name)
-                                .Distinct().ToArray()).Single();
+                    // var categories = libraryBookDb
+                    //     .Select(x => x.Book.CategoryBooks
+                    //         .Select(x => x.Category.Name)
+                    //             .Distinct().ToArray()).Single();
 
                     // var associateds = new List<LibraryBook>();
 
@@ -355,25 +392,38 @@ namespace RelibreApi.Controllers
                     // libraryBookDb.AddRange(associateds);
 
                     if (libraryBookDb.Count <= 0)
-                        return NoContent();
+                        return BadRequest(new ResponseErrorViewModel
+                        {
+                            Status = Constants.Error,
+                            Errors = new List<object>
+                            {
+                                new { Message = Constants.LibraryNotFound }
+                            }
+                        });
 
                     var librariesBooksMap = _mapper
                         .Map<ICollection<LibraryBookViewModel>>(libraryBookDb)
                         .Select(x => new
                         {
-                            Distance = string.Format("{0:0}",
-                                Util.Distance(latitude, longitude,
-                                Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
-                                Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude))).Substring(0, 4),
+                            // Distance = string.Format("{0:0}",
+                            //     Util.Distance(latitude, longitude,
+                            //     x.Addresses != null && x.Addresses.Count > 0? 
+                            //         Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude): -1,
+                            //     x.Addresses != null && x.Addresses.Count > 0? 
+                            //         Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude): -1)).Substring(0, 4),
                             x.Book,
                             x.Contact,
                             x.id,
                             x.Images,
                             x.Types
-                        })
-                        .OrderBy(x => x.Distance);
+                        });
+                        // .OrderBy(x => x.Distance);
 
-                    return Ok(librariesBooksMap);
+                    return Ok(new ResponseViewModel
+                    {
+                        Result = librariesBooksMap,
+                        Status = Constants.Sucess
+                    });
                 }
 
                 // retorna todos os livros de todas as bibliotecas de acordo com título
@@ -397,12 +447,75 @@ namespace RelibreApi.Controllers
                     })
                     .OrderBy(x => x.Distance);
 
-                return Ok(libraryBooksMaps);
+                return Ok(new ResponseViewModel
+                {
+                    Result = libraryBooksMaps,
+                    Status = Constants.Sucess
+                });
             }
             catch (Exception ex)
             {
                 // gerar log
-                return BadRequest(Util.ReturnException(ex));
+                return BadRequest(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        Util.ReturnException(ex)
+                    }
+                });
+            }
+        }
+
+        [HttpGet, Route("Public"), AllowAnonymous]
+        public async Task<IActionResult> GetPublicAsync(
+            [FromQuery(Name = "title")] string title,
+            [FromQuery(Name = "offset")] int offset,
+            [FromQuery(Name = "limit")] int limit,
+            [FromQuery(Name = "latitude")] int latitude,
+            [FromQuery(Name = "longitude")] int longitude
+        )
+        {
+            try
+            {
+                var libraryBooks = await
+                    GetByBookTitle(title, -1, offset, limit);
+
+                // verificar, não está mapeando os autores, categorias, e tipos
+                var libraryBooksMaps = _mapper
+                    .Map<ICollection<LibraryBookViewModel>>(libraryBooks)
+                    .Select(x => new
+                    {
+                        Distance = Util.Distance(latitude, longitude, 
+                        (x.Addresses.Count > 0? 
+                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude): 0), 
+                        (x.Addresses.Count > 0?
+                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude): 0)),
+                        x.Book,
+                        x.Contact,
+                        x.id,
+                        x.Images,
+                        x.Types
+                    })
+                    .OrderBy(x => x.Distance);
+
+                return Ok(new ResponseViewModel
+                {
+                    Result = libraryBooksMaps,
+                    Status = Constants.Sucess
+                });
+            }
+            catch (Exception ex)
+            {
+                // gerar log
+                return BadRequest(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        Util.ReturnException(ex)
+                    }
+                });
             }
         }
 

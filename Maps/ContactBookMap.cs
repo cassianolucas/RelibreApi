@@ -45,8 +45,13 @@ namespace RelibreApi.Maps
                 .HasConstraintName("fk_contact_book_library_book_id_library_book")
                 .OnDelete(DeleteBehavior.Restrict);
 
-            o.Property(x => x.Available)
-                .HasColumnName("available")
+            o.Property(x => x.Approved)
+                .HasColumnName("approved")
+                .HasColumnType("boolean")
+                .IsRequired();
+
+            o.Property(x => x.Denied)
+                .HasColumnName("denied")
                 .HasColumnType("boolean")
                 .IsRequired();
         }

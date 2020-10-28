@@ -201,7 +201,7 @@ namespace RelibreApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, RelibreContext context)
         {            
-            context.Database.Migrate();
+            // context.Database.Migrate();
 
             var supportedCultures = "pt-BR";
             var localizationOptions = new RequestLocalizationOptions()

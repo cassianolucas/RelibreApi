@@ -63,19 +63,22 @@ namespace RelibreApi.Controllers
                 var emailSettings = new EmailSettings(_configuration);
 
                 var myMessage = new MailMessage();
-                myMessage.IsBodyHtml = true;
                 myMessage.From = new MailAddress(emailSettings.Email, "Relibre");
                 myMessage.To.Add(new MailAddress("lucas.conception26@gmail.com"));
                 myMessage.Subject = "Confirmação de conta";
+                myMessage.Body = Util.CreateButtonEmail(
+                        string.Format(emailSettings.RedirectLink, 
+                        $"Account/EmailVerification?verification_code="), "Confirmação de conta");
+                myMessage.IsBodyHtml = true;
 
-                myMessage.AlternateViews.Add(
-                    AlternateView.CreateAlternateViewFromString(
-                        "Confirmação de conta", null, MediaTypeNames.Text.Plain));
+                // myMessage.AlternateViews.Add(
+                //     AlternateView.CreateAlternateViewFromString(
+                //         "Confirmação de conta", null, MediaTypeNames.Text.Plain));
 
-                myMessage.AlternateViews.Add(
-                    AlternateView.CreateAlternateViewFromString(
-                        Util.CreateButtonEmail(string.Format(emailSettings.RedirectLink, $"Account/EmailVerification?verification_code="), "Confirmação de conta"),
-                        null, MediaTypeNames.Text.Html));
+                // myMessage.AlternateViews.Add(
+                //     AlternateView.CreateAlternateViewFromString(
+                //         Util.CreateButtonEmail(string.Format(emailSettings.RedirectLink, $"Account/EmailVerification?verification_code="), "Confirmação de conta"),
+                //         null, MediaTypeNames.Text.Html));
 
                 SmtpClient smtpClient = new SmtpClient(emailSettings.Smtp, emailSettings.Port);
                 NetworkCredential credentials = new NetworkCredential(emailSettings.Email, emailSettings.Password);

@@ -68,17 +68,8 @@ namespace RelibreApi.Controllers
                 myMessage.Subject = "Confirmação de conta";
                 myMessage.Body = Util.CreateButtonEmail(
                         string.Format(emailSettings.RedirectLink, 
-                        $"Account/EmailVerification?verification_code="), "Confirmação de conta");
+                        $"Account/EmailVerification?verification_code=30929f07-0941-46cb-89aa-d2ef861ef58c"), "Confirmação de conta");
                 myMessage.IsBodyHtml = true;
-
-                // myMessage.AlternateViews.Add(
-                //     AlternateView.CreateAlternateViewFromString(
-                //         "Confirmação de conta", null, MediaTypeNames.Text.Plain));
-
-                // myMessage.AlternateViews.Add(
-                //     AlternateView.CreateAlternateViewFromString(
-                //         Util.CreateButtonEmail(string.Format(emailSettings.RedirectLink, $"Account/EmailVerification?verification_code="), "Confirmação de conta"),
-                //         null, MediaTypeNames.Text.Html));
 
                 SmtpClient smtpClient = new SmtpClient(emailSettings.Smtp, emailSettings.Port);
                 NetworkCredential credentials = new NetworkCredential(emailSettings.Email, emailSettings.Password);

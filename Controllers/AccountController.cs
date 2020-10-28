@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
+using System.Net.Mime;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -53,6 +55,49 @@ namespace RelibreApi.Controllers
             _emailVerificationService = emailVerificationService;
         }
 
+        [HttpPost, Route("Validate"), AllowAnonymous]
+        public async Task<IActionResult> SendConfirmationEmail()
+        {
+            try
+            {                                    
+                var emailSettings = new EmailSettings(_configuration);
+
+                var myMessage = new MailMessage();
+                myMessage.IsBodyHtml = true;
+                myMessage.From = new MailAddress(emailSettings.Email, "Relibre");
+                myMessage.To.Add(new MailAddress("lucas.conception26@gmail.com"));
+                myMessage.Subject = "Confirmação de conta";
+
+                myMessage.AlternateViews.Add(
+                    AlternateView.CreateAlternateViewFromString(
+                        "Confirmação de conta", null, MediaTypeNames.Text.Plain));
+
+                myMessage.AlternateViews.Add(
+                    AlternateView.CreateAlternateViewFromString(
+                        Util.CreateButtonEmail(string.Format(emailSettings.RedirectLink, $"Account/EmailVerification?verification_code="), "Confirmação de conta"),
+                        null, MediaTypeNames.Text.Html));
+
+                SmtpClient smtpClient = new SmtpClient(emailSettings.Smtp, emailSettings.Port);
+                NetworkCredential credentials = new NetworkCredential(emailSettings.Email, emailSettings.Password);
+                smtpClient.Credentials = credentials;
+                smtpClient.EnableSsl = true;
+
+                await smtpClient.SendMailAsync(myMessage);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+                // // gerar log
+                // return BadRequest(new ResponseErrorViewModel
+                // {
+                //     Status = Constants.Error,
+                //     Errors = new List<object> { Util.ReturnException(ex) }
+                // });
+            }
+        }
+
         [HttpPost, Route("Register"), AllowAnonymous]
         public async Task<IActionResult> RegisterAsync(
             [FromBody] UserRegisterViewModel user)
@@ -77,7 +122,7 @@ namespace RelibreApi.Controllers
                 var profileDb = await _profileMananger.GetByIdAsync(2);
 
                 var newPhone = userMap.Person.Phones
-                    .FirstOrDefault(x => x.Number.Equals(user.Phone));                                
+                    .FirstOrDefault(x => x.Number.Equals(user.Phone));
 
                 newPhone.Active = true;
                 newPhone.Master = true;
@@ -482,16 +527,10 @@ namespace RelibreApi.Controllers
                 // redirecionar para endereço de erro
                 var endPointError = _configuration.GetValue<string>(
                             Constants.RedirectError);
-                            
+
                 return Redirect(endPointError);
             }
         }
-
-        /// <summary>
-        /// Enpoint para gerar outra senha de acordo com login
-        /// </summary>
-        /// <param name=""login""></param>
-        /// <returns></returns>
 
         [HttpPost, Route("ForgotPassword"), AllowAnonymous]
         public async Task<IActionResult> ForgotPassword(
@@ -616,7 +655,7 @@ namespace RelibreApi.Controllers
                 var userDb = await _userMananger
                     .GetByLogin(emailVerificationDb.Login);
 
-                if (userDb == null) 
+                if (userDb == null)
                     return BadRequest(new ResponseErrorViewModel
                     {
                         Status = Constants.Error,

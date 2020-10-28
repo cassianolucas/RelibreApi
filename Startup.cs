@@ -176,7 +176,7 @@ namespace RelibreApi
                         Contact = new OpenApiContact
                         {
                             Email = "projeto.relibre@gmail.com",
-                            Url = new Uri("https://ec2-18-229-164-33.sa-east-1.compute.amazonaws.com")
+                            Url = new Uri("https://relibre.herokuapp.com/")
                         }
                     });
 

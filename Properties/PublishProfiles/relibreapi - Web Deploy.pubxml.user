@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAvK11arbdaUGxo4GKj7P+QAAAAAACAAAAAAAQZgAAAAEAACAAAABnr8yDPPdgAZQGdyZ6ZBBiK4zoRCJqvpDvQHBRGvNdWAAAAAAOgAAAAAIAACAAAABJaVAkA4S7zpCTADvyHA7I7YYUGkZd2+heocJrQJyt34AAAAAjtusFGpfjrtoPU6syUrzGQ8YbFULOe5wvi+piLKi5J146vhyeyaftDg15y1iGAIBX8JbwQ0TKZxv3ggMLdQqi4yEc8aHU3R1esJtARcxynkZ2Kb7epgpOPJdnJdStv5EIQRlQso3U2cZJppnCfIHzlX95K7yHTUOs3+PJE/69v0AAAACH3hkt+4Xyvr++0D93LNXjk03BmHX898P/RM1naQqI54SHIaVrQ7vXlmSJ3tWnyn1g6yHcegBBcTrZN4JgtGFS</EncryptedPassword>
+  </PropertyGroup>
+  <ItemGroup>
+    <EFMigrations Include="RelibreApi.Data.RelibreContext">
+      <Value>Host=localhost%3bDatabase=db_relibre%3bUsername=postgres%3bPassword=admin</Value>
+    </EFMigrations>
+  </ItemGroup>
+</Project>

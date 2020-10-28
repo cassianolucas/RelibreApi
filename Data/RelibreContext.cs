@@ -27,9 +27,8 @@ namespace RelibreApi.Data
         public DbSet<Notification> Notification { get; set; }
         public DbSet<NotificationPerson> NotificationPerson { get; set; }
         public DbSet<ContactBook> ContactBook { get; set; }
-
         public RelibreContext(DbContextOptions options) : base(options) { }
-
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new PersonMap());

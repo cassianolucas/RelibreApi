@@ -11,6 +11,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +25,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using RelibreApi.Data;
@@ -37,16 +39,26 @@ namespace RelibreApi
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        private readonly IWebHostEnvironment _env;
+        private readonly IWebHostEnvironment _env;        
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
-            _env = env;
+            _env = env;            
         }
         public void ConfigureServices(IServiceCollection services)
         {
             var settings = new Setting();
             Configuration.GetSection(Constants.Configuration).Bind(settings);
+
+            services.AddCors(x =>
+            {
+                x.AddPolicy("policy", x =>
+                {
+                    x.AllowAnyHeader();
+                    x.AllowAnyMethod();
+                    x.AllowAnyOrigin();
+                });
+            });
 
             services.AddAuthentication(x =>
             {
@@ -187,8 +199,10 @@ namespace RelibreApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, RelibreContext context)
+        {            
+            // context.Database.Migrate();
+
             var supportedCultures = "pt-BR";
             var localizationOptions = new RequestLocalizationOptions()
                 .SetDefaultCulture(supportedCultures)
@@ -213,19 +227,11 @@ namespace RelibreApi
                 app.UseHsts();
             }
 
+            app.UseHttpsRedirection();
+
             app.UseRouting();
 
-            app.UseCors(x =>
-            {   
-                x.WithOrigins("https://relibre.vercel.app", "http://localhost:3000")
-                    .SetIsOriginAllowed((x) => true);                    
-
-                x.AllowAnyMethod();
-                x.AllowAnyOrigin();
-                x.AllowAnyHeader();
-            });
-
-            app.UseHttpsRedirection();
+            app.UseCors("policy");
 
             app.UseExceptionHandler(x =>
             {
@@ -255,6 +261,7 @@ namespace RelibreApi
             {
                 endpoints.MapControllers();
             });
-        }
+        }        
     }
+
 }

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="IIS Web Application Name" description="" value="relibreapi" tags="IisApp">
+    <parameterEntry kind="ProviderPath" scope="IisApp" match="^D:\\Projetos\\RelibreApi\\obj\\Release\\netcoreapp3\.1\\PubTmp\\Out\\$" />
+  </parameter>
+  <parameter name="RelibreApi.Data.RelibreContext" description="" value="Host=localhost;Database=db_relibre;Username=postgres;Password=admin" tags="dbfullsql">
+    <parameterEntry kind="ProviderPath" scope="dbfullsql" match="^D:\\Projetos\\RelibreApi\\obj\\Release\\netcoreapp3\.1\\PubTmp\\EFSQLScripts\\RelibreApi\.Data\.RelibreContext\.sql$" />
+  </parameter>
+</parameters>

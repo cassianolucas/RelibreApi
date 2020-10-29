@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Security.Claims;
@@ -171,28 +172,30 @@ namespace RelibreApi.Utils
         public static void SendEmailAsync(IConfiguration configuration, string email, string message, string endpoint)
         {
             var emailSettings = new EmailSettings(configuration);
+                                    
+            var emailSend = new EmailSend
+            {   
+                EmailTo = email,
+                Message = message,
+                Subject = "Confirmação de conta",
+                Body = CreateButtonEmail(string
+                    .Format(emailSettings.RedirectLink, endpoint), message)
+            };
 
-            var myMessage = new MailMessage();
-            myMessage.IsBodyHtml = true;
-            myMessage.From = new MailAddress(emailSettings.Email, "Relibre");
-            myMessage.To.Add(new MailAddress(email));
-            myMessage.Subject = message;
+            var emailSerialize = JsonConvert.SerializeObject(emailSend);
 
-            myMessage.AlternateViews.Add(
-                AlternateView.CreateAlternateViewFromString(
-                    message, null, MediaTypeNames.Text.Plain));
+            var data = new StringContent(emailSerialize, Encoding.UTF8, "application/json");
+            
+            HttpClientHandler clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback = 
+                (sender, cert, chain, sslPolicyErrors) => { return true; };
 
-            myMessage.AlternateViews.Add(
-                AlternateView.CreateAlternateViewFromString(
-                    CreateButtonEmail(string.Format(emailSettings.RedirectLink, endpoint), message),
-                    null, MediaTypeNames.Text.Html));
+            var endPoint = "https://ec2-18-229-164-33.sa-east-1.compute.amazonaws.com/api/v1/email";
 
-            SmtpClient smtpClient = new SmtpClient(emailSettings.Smtp, emailSettings.Port);
-            NetworkCredential credentials = new NetworkCredential(emailSettings.Email, emailSettings.Password);
-            smtpClient.Credentials = credentials;
-            smtpClient.EnableSsl = true;
+            // Pass the handler to httpclient(from you are calling api)
+            HttpClient client = new HttpClient(clientHandler);
 
-            smtpClient.SendMailAsync(myMessage);
+            client.PostAsync(endPoint, data);
         }
 
         public static HttpWebRequest HttpRequest(string endpoint, Requests typeRequest)
@@ -205,6 +208,7 @@ namespace RelibreApi.Utils
                 typeRequest).ToUpper();
             request.Accept = "application/json";
             request.UserAgent = "RequisicaoWebDemo";
+            request.ContentType = "application/json";
 
             return (HttpWebRequest)request;
         }

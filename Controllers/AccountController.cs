@@ -54,44 +54,7 @@ namespace RelibreApi.Controllers
             _libraryMananger = libraryMananger;
             _emailVerificationService = emailVerificationService;
         }
-
-        [HttpPost, Route("Validate"), AllowAnonymous]
-        public async Task<IActionResult> SendConfirmationEmail()
-        {
-            try
-            {                                    
-                var emailSettings = new EmailSettings(_configuration);
-
-                var myMessage = new MailMessage();
-                myMessage.From = new MailAddress(emailSettings.Email, "Relibre");
-                myMessage.To.Add(new MailAddress("lucas.conception26@gmail.com"));
-                myMessage.Subject = "Confirmação de conta";
-                myMessage.Body = Util.CreateButtonEmail(
-                        string.Format(emailSettings.RedirectLink, 
-                        $"Account/EmailVerification?verification_code=30929f07-0941-46cb-89aa-d2ef861ef58c"), "Confirmação de conta");
-                myMessage.IsBodyHtml = true;
-
-                SmtpClient smtpClient = new SmtpClient(emailSettings.Smtp, emailSettings.Port);
-                NetworkCredential credentials = new NetworkCredential(emailSettings.Email, emailSettings.Password);
-                smtpClient.Credentials = credentials;
-                smtpClient.EnableSsl = true;
-
-                await smtpClient.SendMailAsync(myMessage);
-
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-                // // gerar log
-                // return BadRequest(new ResponseErrorViewModel
-                // {
-                //     Status = Constants.Error,
-                //     Errors = new List<object> { Util.ReturnException(ex) }
-                // });
-            }
-        }
-
+        
         [HttpPost, Route("Register"), AllowAnonymous]
         public async Task<IActionResult> RegisterAsync(
             [FromBody] UserRegisterViewModel user)

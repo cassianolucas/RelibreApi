@@ -373,34 +373,27 @@ namespace RelibreApi.Controllers
                             }
                         });
 
-                    // TRAZER LIVROS RELACIONADOS POR CATEGORIA
-                    // var categories = libraryBookDb
-                    //     .Select(x => x.Book.CategoryBooks
-                    //         .Select(x => x.Category.Name)
-                    //             .Distinct().ToArray()).Single();
+                    if (!type.Equals("interesse"))
+                    {
+                        // TRAZER LIVROS RELACIONADOS POR CATEGORIA
+                        // var categories = libraryBookDb
+                        //     .Select(x => x.Book.CategoryBooks
+                        //         .Select(x => x.Category.Name)
+                        //             .Distinct().ToArray()).Single();
 
-                    // var associateds = new List<LibraryBook>();
+                        // var associateds = new List<LibraryBook>();
 
-                    // foreach (var category in categories)
-                    // {
-                    //     var assosiated = await GetByAssociated(category);
+                        // foreach (var category in categories)
+                        // {
+                        //     var assosiated = await GetByAssociated(category);
 
-                    //     associateds.AddRange(assosiated);
-                    // }
+                        //     associateds.AddRange(assosiated);
+                        // }
 
-                    // // adiciona livros associados
-                    // libraryBookDb.AddRange(associateds);
-
-                    if (libraryBookDb.Count <= 0)
-                        return BadRequest(new ResponseErrorViewModel
-                        {
-                            Status = Constants.Error,
-                            Errors = new List<object>
-                            {
-                                new { Message = Constants.LibraryNotFound }
-                            }
-                        });
-
+                        // // adiciona livros associados
+                        // libraryBookDb.AddRange(associateds);
+                    }
+                    
                     var librariesBooksMap = _mapper
                         .Map<ICollection<LibraryBookViewModel>>(libraryBookDb)
                         .Select(x => new
@@ -417,7 +410,7 @@ namespace RelibreApi.Controllers
                             x.Images,
                             x.Types
                         });
-                        // .OrderBy(x => x.Distance);
+                    // .OrderBy(x => x.Distance);
 
                     return Ok(new ResponseViewModel
                     {
@@ -453,6 +446,18 @@ namespace RelibreApi.Controllers
                     Status = Constants.Sucess
                 });
             }
+            catch (ArgumentNullException)
+            {
+                // gerar log
+                return BadRequest(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        new { Message = "Nenhum livro localizado!" }
+                    }
+                });
+            }
             catch (Exception ex)
             {
                 // gerar log
@@ -486,11 +491,11 @@ namespace RelibreApi.Controllers
                     .Map<ICollection<LibraryBookViewModel>>(libraryBooks)
                     .Select(x => new
                     {
-                        Distance = Util.Distance(latitude, longitude, 
-                        (x.Addresses.Count > 0? 
-                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude): 0), 
-                        (x.Addresses.Count > 0?
-                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude): 0)),
+                        Distance = Util.Distance(latitude, longitude,
+                        (x.Addresses.Count > 0 ?
+                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude) : 0),
+                        (x.Addresses.Count > 0 ?
+                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude) : 0)),
                         x.Book,
                         x.Contact,
                         x.id,
@@ -592,6 +597,10 @@ namespace RelibreApi.Controllers
                 idLibraryRequest = (typeDb
                     .Description.ToLower()
                         .Equals("interesse")) ? -1 : idLibraryRequest;
+            }
+            else
+            {
+                typeDb = null;
             }
 
             return await _libraryBookMananger

@@ -54,7 +54,7 @@ namespace RelibreApi.Controllers
             _libraryMananger = libraryMananger;
             _emailVerificationService = emailVerificationService;
         }
-        
+
         [HttpPost, Route("Register"), AllowAnonymous]
         public async Task<IActionResult> RegisterAsync(
             [FromBody] UserRegisterViewModel user)
@@ -299,14 +299,15 @@ namespace RelibreApi.Controllers
                 var userDb = await _userMananger.GetByLogin(userMap.Login);
 
                 // usuario não existe
-                if (userDb == null) return NotFound(new ResponseErrorViewModel
-                {
-                    Status = Constants.Error,
-                    Errors = new List<object>
+                if (userDb == null)
+                    return NotFound(new ResponseErrorViewModel
                     {
-                        new { Message = Constants.UserNotFound}
-                    }
-                });
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserNotFound}
+                        }
+                    });
 
                 // usaurio não foi verificado
                 if (!userMap.IsVerified()) return BadRequest(
@@ -634,6 +635,61 @@ namespace RelibreApi.Controllers
                             Constants.RedirectLogin);
 
                 return Redirect(endPoint);
+            }
+            catch (Exception ex)
+            {
+                // gerar log
+                return BadRequest(new ResponseErrorViewModel
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object> { Util.ReturnException(ex) }
+                });
+            }
+        }
+
+
+        [HttpPost, Route("Rate"), Authorize]
+        public async Task<IActionResult> Rating(
+            [FromForm(Name = "note")] int note,
+            [FromForm(Name = "email")] string email
+        )
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(email))
+                    return NotFound(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserNotFound }
+                        }
+                    });
+
+                if (note < 0)
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.InvalidParameter }
+                        }
+                    });
+
+                var userRate = await _userMananger.GetByLogin(email);
+
+                userRate.TotalCount += 1;
+                userRate.TotalCount += note;
+
+                _userMananger.Update(userRate);
+
+                _uow.Commit();
+
+                return Ok(new ResponseViewModel
+                {
+                    Result = null,
+                    Status = Constants.Sucess
+                });
             }
             catch (Exception ex)
             {

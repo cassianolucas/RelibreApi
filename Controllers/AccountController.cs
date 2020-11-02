@@ -273,15 +273,23 @@ namespace RelibreApi.Controllers
 
             var address = userMap.Person.Addresses
                 .SingleOrDefault(x => x.Master == true);
+            
+            var phones = userMap.Person.Phones
+                .SingleOrDefault(x => x.Master == true);
 
             return Ok(new ResponseViewModel
             {
                 Result = new
                 {
-                    login = userMap.Login,
-                    access_token = access_token,
-                    latitude = address != null ? address.Latitude : null,
-                    longitude = address != null ? address.Longitude : null
+                    Login = userMap.Login,
+                    Name = userMap.Person.Name,
+                    Document = userMap.Person.Document,
+                    BirthDate = userMap.Person.BirthDate,
+                    Address = address != null? address.FullAddress: null,
+                    Phone = phones != null? phones.Number: null,
+                    Access_Token = access_token,
+                    Latitude = address != null ? address.Latitude : null,
+                    Longitude = address != null ? address.Longitude : null
                 },
                 Status = Constants.Sucess
             });

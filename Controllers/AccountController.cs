@@ -273,7 +273,7 @@ namespace RelibreApi.Controllers
 
             var address = userMap.Person.Addresses
                 .SingleOrDefault(x => x.Master == true);
-            
+
             var phones = userMap.Person.Phones
                 .SingleOrDefault(x => x.Master == true);
 
@@ -285,8 +285,8 @@ namespace RelibreApi.Controllers
                     Name = userMap.Person.Name,
                     Document = userMap.Person.Document,
                     BirthDate = userMap.Person.BirthDate,
-                    Address = address != null? address.FullAddress: null,
-                    Phone = phones != null? phones.Number: null,
+                    Address = address != null ? address.FullAddress : null,
+                    Phone = phones != null ? phones.Number : null,
                     Access_Token = access_token,
                     Latitude = address != null ? address.Latitude : null,
                     Longitude = address != null ? address.Longitude : null
@@ -318,7 +318,7 @@ namespace RelibreApi.Controllers
                     });
 
                 // usaurio não foi verificado
-                if (!userMap.IsVerified()) return BadRequest(
+                if (!userDb.IsVerified()) return BadRequest(
                     new ResponseErrorViewModel
                     {
                         Status = Constants.Error,
@@ -329,69 +329,99 @@ namespace RelibreApi.Controllers
                     }
                 );
 
-                userDb.Person.Name = userMap.Person.Name;
-                userDb.Person.LastName = userMap.Person.LastName;
+                if (!string.IsNullOrEmpty(userMap.Person.Name))
+                {
+                    userDb.Person.Name = userMap.Person.Name;
+                }
+
+                if (!string.IsNullOrEmpty(userMap.Person.LastName))
+                {
+                    userDb.Person.LastName = userMap.Person.LastName;
+                }
+
                 userDb.Person.UpdatedAt = Util.CurrentDateTime();
 
+                // phones
                 if (userMap.Person.Phones != null &&
                     userMap.Person.Phones.Count > 0)
                 {
-                    userDb.Person.Phones = userMap.Person.Phones;
-                }
-
-                var addressDb = userDb.Person.Addresses.SingleOrDefault();
-
-                addressDb = (addressDb == null ? new Address() : addressDb);
-
-                // quando não existir endereço, adicionar data de criação
-                addressDb.CreatedAt = (addressDb.CreatedAt.Year.Equals(1) ?
-                    Util.CurrentDateTime() : addressDb.CreatedAt);
-
-                if (userMap.Person.Addresses != null &&
-                    userMap.Person.Addresses.Count > 0)
-                {
-                    // atualizar endereço
-                    var addressMap = userMap.Person.Addresses.SingleOrDefault();
-                    addressDb.Active = addressMap.Active;
-
-                    addressDb.Latitude = addressMap.Latitude;
-                    addressDb.Longitude = addressMap.Longitude;
-                    addressDb.Master = true;
-                    addressDb.NickName = "Principal";
-                    addressDb.UpdatedAt = Util.CurrentDateTime();
-
-                    // realizar chamada para api para buscar endereço
-                    var endPoint = _configuration.GetValue<string>(
-                            Constants.GeolocationApi);
-
-                    if (!string.IsNullOrEmpty(addressDb.Latitude) &&
-                    !string.IsNullOrEmpty(addressDb.Longitude))
+                    foreach (var phone in userMap.Person.Phones)
                     {
-                        var request = Util.HttpRequest(
-                            string.Format(endPoint, addressDb.Latitude,
-                            addressDb.Longitude), Requests.Get);
+                        var numberFormated = Convert
+                            .ToUInt64(phone.Number)
+                                .ToString(@"(##) #####-####");
+                        
+                        var phoneDb = (userDb.Person.Phones != null && 
+                            userDb.Person.Phones.Count > 0)? userDb.Person.Phones
+                            .SingleOrDefault(x => x.Number.Equals(numberFormated)): null;
 
-                        using (var response = request.GetResponse())
+                        if (phoneDb == null)
                         {
-                            var streamData = response.GetResponseStream();
-
-                            var reader = new StreamReader(streamData);
-
-                            object objResponse = reader.ReadToEnd();
-
-                            using (JsonDocument doc = JsonDocument.Parse(objResponse.ToString()))
+                            userDb.Person.Phones.Add(new Phone
                             {
-                                JsonElement root = doc.RootElement;
-                                var results = root.GetProperty("results");
-                                var formatted = results[0].GetProperty("formatted");
-                                addressDb.FullAddress = formatted.ToString();
-
-                                userDb.Person.Addresses.Add(addressDb);
-                            };
-                        };
+                                Number = numberFormated,
+                                Master = false,
+                                Person = userDb.Person,
+                                IdPerson = userDb.Person.Id,
+                                Active = true,
+                                CreatedAt = Util.CurrentDateTime(),
+                                UpdatedAt = Util.CurrentDateTime()
+                            });
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(numberFormated))
+                            {
+                                phoneDb.Number = numberFormated;
+                            }
+                            phoneDb.Active = phone.Active;
+                            phoneDb.UpdatedAt = Util.CurrentDateTime();
+                        }
                     }
                 }
 
+                // addresses
+                if (userMap.Person.Addresses != null && userMap.Person.Addresses.Count > 0)
+                {
+                    foreach (var address in userMap.Person.Addresses)
+                    {
+                        var addressDb = userDb.Person.Addresses
+                            .SingleOrDefault(x => x.Master == true);
+                        
+                        if (addressDb == null)
+                        {
+                            var fullAddress = await Util
+                                .GetAddressByLatitudeLogintude(_configuration, 
+                                    address.Latitude, address.Longitude);
+
+                            userDb.Person.Addresses.Add(new Address
+                            {
+                                Longitude = address.Latitude,
+                                Latitude = address.Longitude,
+                                FullAddress = fullAddress,
+                                Active = true,
+                                CreatedAt = Util.CurrentDateTime(),
+                                UpdatedAt = Util.CurrentDateTime(),
+                                IdPerson = userDb.Person.Id,
+                                Person = userDb.Person,
+                                Master = true,
+                                NickName = "Principal"
+                            });       
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(address.Latitude) &&
+                                !string.IsNullOrEmpty(address.Longitude))
+                            {
+                                addressDb.Latitude = address.Latitude;
+                                addressDb.Longitude = address.Longitude;
+                            }
+
+                            addressDb.UpdatedAt = Util.CurrentDateTime();
+                        }
+                    }
+                }
+                
                 _userMananger.Update(userDb);
 
                 _uow.Commit();

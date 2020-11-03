@@ -10,6 +10,7 @@ using System.Net.Mime;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Amazon;
@@ -113,9 +114,9 @@ namespace RelibreApi.Utils
         {
             if (address1 != null && address2 != null)
             {
-                return Distance(Double.Parse(address1.Latitude), 
-                    Double.Parse(address1.Longitude), 
-                    Double.Parse(address2.Latitude), 
+                return Distance(Double.Parse(address1.Latitude),
+                    Double.Parse(address1.Longitude),
+                    Double.Parse(address2.Latitude),
                     Double.Parse(address2.Longitude));
             }
             return 0;
@@ -172,9 +173,9 @@ namespace RelibreApi.Utils
         public static void SendEmailAsync(IConfiguration configuration, string email, string message, string endpoint)
         {
             var emailSettings = new EmailSettings(configuration);
-                                    
+
             var emailSend = new EmailSend
-            {   
+            {
                 EmailTo = email,
                 Message = message,
                 Subject = "Confirmação de conta",
@@ -185,9 +186,9 @@ namespace RelibreApi.Utils
             var emailSerialize = JsonConvert.SerializeObject(emailSend);
 
             var data = new StringContent(emailSerialize, Encoding.UTF8, "application/json");
-            
+
             HttpClientHandler clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback = 
+            clientHandler.ServerCertificateCustomValidationCallback =
                 (sender, cert, chain, sslPolicyErrors) => { return true; };
 
             var endPoint = "https://ec2-18-229-164-33.sa-east-1.compute.amazonaws.com/api/v1/email";
@@ -197,6 +198,43 @@ namespace RelibreApi.Utils
 
             client.PostAsync(endPoint, data);
         }
+
+        private static HttpClient ClientRequest()
+        {
+            HttpClientHandler clientHandler =
+                new HttpClientHandler();
+
+            clientHandler.ServerCertificateCustomValidationCallback =
+                (sender, cert, chain, sslPolicyErrors) => { return true; };
+
+            HttpClient client = new HttpClient(clientHandler);
+
+            return client;
+        }
+
+        public async static Task<string> GetAddressByLatitudeLogintude(
+                IConfiguration configuration, string latitude, string longitude)
+        {
+            var client = ClientRequest();
+
+            var endPoint = string.Format(configuration.GetValue<string>(
+                             Constants.GeolocationApi), latitude, longitude);
+
+            var result = await client.GetAsync(endPoint);
+
+            var customerJsonString = await result.Content.ReadAsStringAsync();
+
+            var obj = JsonConvert.DeserializeObject(customerJsonString);
+
+            using (JsonDocument doc = JsonDocument.Parse(obj.ToString()))
+            {
+                JsonElement root = doc.RootElement;
+                var results = root.GetProperty("results");
+                var formatted = results[0].GetProperty("formatted");
+                return formatted.ToString();
+            }
+        }
+
 
         public static HttpWebRequest HttpRequest(string endpoint, Requests typeRequest)
         {

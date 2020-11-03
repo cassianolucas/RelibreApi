@@ -24,5 +24,8 @@ namespace RelibreApi.ViewModel
 
         [JsonProperty(PropertyName = "active")]
         public bool Active { get; set; }
+
+        [JsonProperty(PropertyName = "full_address")]
+        public string FullAddress { get; set; }
     }
 }

@@ -313,7 +313,7 @@ namespace RelibreApi.Controllers
                         Status = Constants.Error,
                         Errors = new List<object>
                         {
-                            new { Message = Constants.UserNotFound}
+                            new { Message = Constants.UserNotFound }
                         }
                     });
 
@@ -381,7 +381,8 @@ namespace RelibreApi.Controllers
                 }
 
                 // addresses
-                if (userMap.Person.Addresses != null && userMap.Person.Addresses.Count > 0)
+                if (userMap.Person.Addresses != null && 
+                    userMap.Person.Addresses.Count > 0)
                 {
                     foreach (var address in userMap.Person.Addresses)
                     {
@@ -415,6 +416,12 @@ namespace RelibreApi.Controllers
                             {
                                 addressDb.Latitude = address.Latitude;
                                 addressDb.Longitude = address.Longitude;
+                                
+                                var fullAddress = await Util
+                                .GetAddressByLatitudeLogintude(_configuration, 
+                                    address.Latitude, address.Longitude);
+
+                                addressDb.FullAddress = fullAddress;
                             }
 
                             addressDb.UpdatedAt = Util.CurrentDateTime();
@@ -426,7 +433,7 @@ namespace RelibreApi.Controllers
 
                 _uow.Commit();
 
-                userDb = await _userMananger.GetByLogin(user.Login);
+                userDb = await _userMananger.GetByIdAsync(userDb.IdPerson);
 
                 user = _mapper.Map<UserViewModel>(userDb);
 

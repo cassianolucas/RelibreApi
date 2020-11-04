@@ -343,6 +343,7 @@ namespace RelibreApi.Controllers
                 }
 
                 userDb.Person.UpdatedAt = Util.CurrentDateTime();
+                userDb.Person.BirthDate = userMap.Person.BirthDate;
 
                 // phones
                 if (userMap.Person.Phones != null &&
@@ -352,11 +353,15 @@ namespace RelibreApi.Controllers
                     {
                         if (!string.IsNullOrEmpty(phone.Number))
                         {
-                            var numberFormated = Convert.ToUInt64(phone.Number).ToString();
+                            var numberFormated = phone.Number
+                                .Replace("+", "")
+                                .Replace("(", "")
+                                .Replace(")", "")
+                                .Replace("-", "");
 
                             var phoneDb = (userDb.Person.Phones != null &&
                                 userDb.Person.Phones.Count > 0) ? userDb.Person.Phones
-                                    .SingleOrDefault(x => x.Number.Equals(numberFormated)) : null;
+                                    .SingleOrDefault(x => x.Master == true) : null;
 
                             if (phoneDb == null)
                             {

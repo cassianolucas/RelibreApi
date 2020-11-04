@@ -21,7 +21,7 @@ namespace RelibreApi.ViewModel
         [JsonProperty(PropertyName = "document")]        
         public string Document { get; set; }
         
-        [JsonProperty(PropertyName = "birthday")]
+        [JsonProperty(PropertyName = "birthdate")]
         public DateTime BirthDate { get; set; }
 
         [JsonProperty(PropertyName = "phones")]

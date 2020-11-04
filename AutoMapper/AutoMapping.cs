@@ -12,6 +12,7 @@ namespace RelibreApi.AutoMapper
             CreateMap<UserViewModel, Models.User>()
             .ForPath(x => x.Person.Name, m => m.MapFrom(x => x.Name))
             .ForPath(x => x.Person.LastName, m => m.MapFrom(x => x.LastName))
+            .ForPath(x => x.Person.BirthDate,m => m.MapFrom(x => x.BirthDate))
             .ForPath(x => x.Person.Document, m => m.MapFrom(x => x.Document))
             .ForPath(x => x.Person.Addresses, m => m.MapFrom(x => x.Addresses))
             .ForPath(x => x.Person.Phones, m => m.MapFrom(x => x.Phones))

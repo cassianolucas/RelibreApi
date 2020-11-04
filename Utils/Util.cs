@@ -234,23 +234,7 @@ namespace RelibreApi.Utils
                 return formatted.ToString();
             }
         }
-
-
-        public static HttpWebRequest HttpRequest(string endpoint, Requests typeRequest)
-        {
-            if (string.IsNullOrEmpty(endpoint)) throw new ArgumentNullException();
-
-            var request = WebRequest.CreateHttp(endpoint);
-
-            request.Method = Enum.GetName(typeof(Requests),
-                typeRequest).ToUpper();
-            request.Accept = "application/json";
-            request.UserAgent = "RequisicaoWebDemo";
-            request.ContentType = "application/json";
-
-            return (HttpWebRequest)request;
-        }
-
+        
         public async static Task<bool> UploadImage(IConfiguration configuration, IFormFile file, string name)
         {
             var memoryStream = new MemoryStream();

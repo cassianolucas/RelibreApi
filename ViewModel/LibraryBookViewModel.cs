@@ -15,12 +15,10 @@ namespace RelibreApi.ViewModel
         [JsonProperty(PropertyName = "images")]
         public ICollection<ImageViewModel> Images { get; set; }        
 
-        [JsonProperty(PropertyName = "book")]
-        [Required(ErrorMessage = "Necessário informar o livro!")]
+        [JsonProperty(PropertyName = "book")]        
         public BookViewModel Book { get; set; }
 
-        [JsonProperty(PropertyName = "types")]
-        [Required(ErrorMessage = "Necessário informar o tipo!")]
+        [JsonProperty(PropertyName = "types")]        
         public ICollection<TypeViewModel> Types { get; set; }
 
         // [JsonProperty(PropertyName = "id_library")]

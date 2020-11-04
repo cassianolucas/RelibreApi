@@ -183,6 +183,17 @@ namespace RelibreApi.Controllers
 
                 var userDb = await _userMananger.GetByLogin(login);
 
+                if (userDb.Person.Addresses == null ||
+                    userDb.Person.Addresses.Count <= 0)
+                    return NotFound(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserAddressNotFound }
+                        }
+                    });
+
                 var libraryDb = await _libraryMananger
                     .GetLibraryByPerson(userDb.IdPerson);
 
@@ -197,12 +208,26 @@ namespace RelibreApi.Controllers
                     var typeDb = await _typeMananger
                         .GetByDescriptionAsync(type.Description);
 
-                    libraryBookMap.LibraryBookTypes.Add(new LibraryBookType
+                    if (typeDb != null)
                     {
-                        LibraryBook = libraryBookMap,
-                        Type = typeDb
-                    });
+                        libraryBookMap.LibraryBookTypes.Add(new LibraryBookType
+                        {
+                            LibraryBook = libraryBookMap,
+                            Type = typeDb
+                        });
+                    }
                 }
+
+                // não localizou os tipos
+                if (libraryBookMap.LibraryBookTypes.Count <= 0)
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.InvalidType }
+                        },
+                        Result = Constants.Error
+                    });
 
                 libraryBookMap.Active = true;
                 libraryBookMap.Price = userDb.Person.PersonType.Equals("PF") ? 0 : libraryBookMap.Price;
@@ -376,41 +401,42 @@ namespace RelibreApi.Controllers
                     if (!type.Equals("interesse"))
                     {
                         // TRAZER LIVROS RELACIONADOS POR CATEGORIA
-                        // var categories = libraryBookDb
-                        //     .Select(x => x.Book.CategoryBooks
-                        //         .Select(x => x.Category.Name)
-                        //             .Distinct().ToArray()).Single();
+                        var categories = libraryBookDb
+                            .Select(x => x.Book)
+                                .Select(x => x.CategoryBooks
+                                    .Select(x => x.Category)
+                                        .Select(x => x.Name)
+                                            .Single())
+                                            .Distinct().ToList();
 
-                        // var associateds = new List<LibraryBook>();
+                        var associateds = new List<LibraryBook>();
 
-                        // foreach (var category in categories)
-                        // {
-                        //     var assosiated = await GetByAssociated(category);
+                        foreach (var category in categories)
+                        {
+                            var assosiated = await GetByAssociated(category);
 
-                        //     associateds.AddRange(assosiated);
-                        // }
+                            associateds.AddRange(assosiated);
+                        }
 
-                        // // adiciona livros associados
-                        // libraryBookDb.AddRange(associateds);
+                        // adiciona livros associados
+                        libraryBookDb.AddRange(associateds);
                     }
-                    
+
                     var librariesBooksMap = _mapper
                         .Map<ICollection<LibraryBookViewModel>>(libraryBookDb)
                         .Select(x => new
                         {
-                            // Distance = string.Format("{0:0}",
-                            //     Util.Distance(latitude, longitude,
-                            //     x.Addresses != null && x.Addresses.Count > 0? 
-                            //         Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude): -1,
-                            //     x.Addresses != null && x.Addresses.Count > 0? 
-                            //         Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude): -1)).Substring(0, 4),
+                            Distance = string.Format("{0:0}",
+                                Util.Distance(latitude, longitude,
+                                Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
+                                Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude))).Substring(0, 4),
                             x.Book,
                             x.Contact,
                             x.id,
                             x.Images,
                             x.Types
-                        });
-                    // .OrderBy(x => x.Distance);
+                        })
+                        .OrderBy(x => x.Distance);
 
                     return Ok(new ResponseViewModel
                     {

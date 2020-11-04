@@ -302,9 +302,12 @@ namespace RelibreApi.Controllers
         {
             try
             {
+                var login = Util.GetClaim(_httpContext,
+                    Constants.UserClaimIdentifier);
+
                 var userMap = _mapper.Map<User>(user);
 
-                var userDb = await _userMananger.GetByLogin(userMap.Login);
+                var userDb = await _userMananger.GetByLogin(login);
 
                 // usuario não existe
                 if (userDb == null)
@@ -347,52 +350,53 @@ namespace RelibreApi.Controllers
                 {
                     foreach (var phone in userMap.Person.Phones)
                     {
-                        var numberFormated = Convert
-                            .ToUInt64(phone.Number)
-                                .ToString(@"(##) #####-####");
-                        
-                        var phoneDb = (userDb.Person.Phones != null && 
-                            userDb.Person.Phones.Count > 0)? userDb.Person.Phones
-                            .SingleOrDefault(x => x.Number.Equals(numberFormated)): null;
+                        if (!string.IsNullOrEmpty(phone.Number))
+                        {
+                            var numberFormated = Convert.ToUInt64(phone.Number).ToString();
 
-                        if (phoneDb == null)
-                        {
-                            userDb.Person.Phones.Add(new Phone
+                            var phoneDb = (userDb.Person.Phones != null &&
+                                userDb.Person.Phones.Count > 0) ? userDb.Person.Phones
+                                    .SingleOrDefault(x => x.Number.Equals(numberFormated)) : null;
+
+                            if (phoneDb == null)
                             {
-                                Number = numberFormated,
-                                Master = false,
-                                Person = userDb.Person,
-                                IdPerson = userDb.Person.Id,
-                                Active = true,
-                                CreatedAt = Util.CurrentDateTime(),
-                                UpdatedAt = Util.CurrentDateTime()
-                            });
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrEmpty(numberFormated))
-                            {
-                                phoneDb.Number = numberFormated;
+                                userDb.Person.Phones.Add(new Phone
+                                {
+                                    Number = numberFormated,
+                                    Master = false,
+                                    Person = userDb.Person,
+                                    IdPerson = userDb.Person.Id,
+                                    Active = true,
+                                    CreatedAt = Util.CurrentDateTime(),
+                                    UpdatedAt = Util.CurrentDateTime()
+                                });
                             }
-                            phoneDb.Active = phone.Active;
-                            phoneDb.UpdatedAt = Util.CurrentDateTime();
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(numberFormated))
+                                {
+                                    phoneDb.Number = numberFormated;
+                                }
+                                phoneDb.Active = phone.Active;
+                                phoneDb.UpdatedAt = Util.CurrentDateTime();
+                            }
                         }
                     }
                 }
 
                 // addresses
-                if (userMap.Person.Addresses != null && 
+                if (userMap.Person.Addresses != null &&
                     userMap.Person.Addresses.Count > 0)
                 {
                     foreach (var address in userMap.Person.Addresses)
                     {
                         var addressDb = userDb.Person.Addresses
                             .SingleOrDefault(x => x.Master == true);
-                        
+
                         if (addressDb == null)
                         {
                             var fullAddress = await Util
-                                .GetAddressByLatitudeLogintude(_configuration, 
+                                .GetAddressByLatitudeLogintude(_configuration,
                                     address.Latitude, address.Longitude);
 
                             userDb.Person.Addresses.Add(new Address
@@ -407,7 +411,7 @@ namespace RelibreApi.Controllers
                                 Person = userDb.Person,
                                 Master = true,
                                 NickName = "Principal"
-                            });       
+                            });
                         }
                         else
                         {
@@ -416,9 +420,9 @@ namespace RelibreApi.Controllers
                             {
                                 addressDb.Latitude = address.Latitude;
                                 addressDb.Longitude = address.Longitude;
-                                
+
                                 var fullAddress = await Util
-                                .GetAddressByLatitudeLogintude(_configuration, 
+                                .GetAddressByLatitudeLogintude(_configuration,
                                     address.Latitude, address.Longitude);
 
                                 addressDb.FullAddress = fullAddress;
@@ -428,7 +432,7 @@ namespace RelibreApi.Controllers
                         }
                     }
                 }
-                
+
                 _userMananger.Update(userDb);
 
                 _uow.Commit();

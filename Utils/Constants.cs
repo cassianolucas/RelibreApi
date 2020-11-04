@@ -22,6 +22,7 @@ namespace RelibreApi.Utils
         public const string NotFound = "Não localizado!";
         public const string UserFound = "Usuário existente!";
         public const string UserNotFound = "Usuário não localizado!";
+        public const string UserAddressNotFound = "Necessário cadastrar um endereço!";
         public const string UserInvalidOrPassword = "Usuário ou senha inválidos!";
         public const string UserNotValidate = "Email não verificado!";
         public const string UserPasswordInvalid = "Senha inválida";
@@ -32,6 +33,7 @@ namespace RelibreApi.Utils
         public const string BookNotFound = "Livro não localizado!";
         public const string InvalidImage = "Nenhuma imagem localizada!";
         public const string InvalidNotification = "Notificação não localizada!";
+        public const string InvalidType = "Tipo inválido!";
         public const string SpecialCharacter = @"[^\w\s]|[ºª]";
         public enum Requests { Get, Post, Put };
         public enum Types { Trocar, Doar, Emprestar, Interesse };

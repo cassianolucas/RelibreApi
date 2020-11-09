@@ -27,6 +27,7 @@ namespace RelibreApi.Data
         public DbSet<Notification> Notification { get; set; }
         public DbSet<NotificationPerson> NotificationPerson { get; set; }
         public DbSet<ContactBook> ContactBook { get; set; }
+        public DbSet<Subscription> Subscription { get; set; }
         public RelibreContext(DbContextOptions options) : base(options) { }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -52,6 +53,7 @@ namespace RelibreApi.Data
             modelBuilder.ApplyConfiguration(new NotificationMap());            
             modelBuilder.ApplyConfiguration(new NotificationPersonMap());
             modelBuilder.ApplyConfiguration(new ContactBookMap());
+            modelBuilder.ApplyConfiguration(new SubscriptionMap());
             
             modelBuilder.Seed();
 

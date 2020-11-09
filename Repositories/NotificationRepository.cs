@@ -60,7 +60,7 @@ namespace RelibreApi.Repositories
                 .ToListAsync();
         }
 
-        public void RemoveAsync(long Id)
+        public void RemoveAsync(Notification model)
         {
             throw new System.NotImplementedException();
         }

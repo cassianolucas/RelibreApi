@@ -125,11 +125,13 @@ namespace RelibreApi.Controllers
                     });
 
                 var libraryBookMap = _mapper.Map<LibraryBook>(libraryBook);
-
-                // verificar se já existe livro ativo na biblioteca
-
+                
                 var bookDb = await _bookMananger
                     .GetByCodeIntegration(libraryBookMap.Book.CodeIntegration);
+
+                // verificar se já existe livro ativo na biblioteca
+                
+                
 
                 // realizar validações nos campos do livro quando não existir
                 if (bookDb != null) libraryBookMap.Book = bookDb;
@@ -315,9 +317,18 @@ namespace RelibreApi.Controllers
                 var libraryDb = await _libraryBookMananger.GetByIdAsync(id);
 
                 // não localizou
-                if (libraryDb == null) return NoContent();
+                if (libraryDb == null) return NotFound(new ResponseErrorViewModel
+                {
+                    Errors = new List<object>
+                    {
+                        new { Message = Constants.BookNotFound }
+                    },
+                    Result = Constants.Error
+                });
 
-                _libraryBookMananger.RemoveAsync(id);
+                _libraryBookMananger.RemoveAsync(libraryDb);
+
+                _uow.Commit();
 
                 return Ok(new ResponseViewModel
                 {

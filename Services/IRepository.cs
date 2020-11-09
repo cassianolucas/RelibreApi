@@ -7,7 +7,7 @@ namespace RelibreApi.Services
     {                
         Task CreateAsync(T model);
         void Update(T model);
-        void RemoveAsync(long Id);
+        void RemoveAsync(T model);
         Task<T> GetByIdAsync(long Id);
         Task<T> GetByIdAsyncNoTracking(long Id);
         Task<List<T>> GetAllAsync();

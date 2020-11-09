@@ -96,7 +96,7 @@ namespace RelibreApi.Repositories
                 .SingleOrDefaultAsync();
         }
 
-        public void RemoveAsync(long Id)
+        public void RemoveAsync(Book model)
         {
             throw new System.NotImplementedException();
         }

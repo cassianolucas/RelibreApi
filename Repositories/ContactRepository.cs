@@ -109,7 +109,7 @@ namespace RelibreApi.Repositories
                 .ToListAsync();
         }
 
-        public void RemoveAsync(long Id)
+        public void RemoveAsync(Contact model)
         {
             throw new System.NotImplementedException();
         }

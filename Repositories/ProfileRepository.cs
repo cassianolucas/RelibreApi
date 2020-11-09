@@ -45,7 +45,7 @@ namespace RelibreApi.Repositories
                 .SingleAsync();
         }
 
-        public void RemoveAsync(long Id)
+        public void RemoveAsync(Profile model)
         {
             throw new System.NotImplementedException();
         }

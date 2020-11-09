@@ -101,7 +101,7 @@ namespace RelibreApi.Repositories
             return 0;
         }
 
-        public void RemoveAsync(long Id)
+        public void RemoveAsync(User model)
         {
             throw new System.NotImplementedException();
         }

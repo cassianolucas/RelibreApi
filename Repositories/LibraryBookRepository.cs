@@ -190,14 +190,9 @@ namespace RelibreApi.Repositories
                 .ToListAsync();
         }
 
-        public async void RemoveAsync(long Id)
-        {
-            var libraryBook = await GetByIdAsync(Id);
-
-            if (libraryBook == null) 
-                throw new ArgumentNullException();
-
-            _context.LibraryBook.Remove(libraryBook);
+        public void RemoveAsync(LibraryBook model)
+        {            
+            _context.LibraryBook.Remove(model);
         }
 
         public void Update(LibraryBook model)

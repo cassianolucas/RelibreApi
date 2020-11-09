@@ -61,9 +61,9 @@ namespace RelibreApi.Repositories
                 .SingleOrDefaultAsync();
         }
 
-        public void RemoveAsync(long Id)
-        {
-            throw new System.NotImplementedException();
+        public void RemoveAsync(Library model)
+        {            
+            _context.Library.Remove(model);
         }
 
         public void Update(Library model)

@@ -15,5 +15,6 @@ namespace RelibreApi.Models
         public virtual ICollection<Address> Addresses { get; set; }
         public virtual ICollection<Phone> Phones { get; set; }
         public virtual ICollection<NotificationPerson> NotificationPeople { get; set; }
+        public virtual ICollection<PersonSubscription> PersonSubscriptions { get; set; }
     }
 }

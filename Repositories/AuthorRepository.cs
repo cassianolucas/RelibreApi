@@ -53,7 +53,7 @@ namespace RelibreApi.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public void RemoveAsync(long Id)
+        public void RemoveAsync(Author model)
         {
             throw new System.NotImplementedException();
         }

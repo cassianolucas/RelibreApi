@@ -38,7 +38,7 @@ namespace RelibreApi.Repositories
             throw new System.NotImplementedException();            
         }
         
-        public void RemoveAsync(long Id)
+        public void RemoveAsync(NotificationPerson model)
         {
             throw new System.NotImplementedException();
         }

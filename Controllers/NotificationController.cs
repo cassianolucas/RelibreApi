@@ -38,27 +38,7 @@ namespace RelibreApi.Controllers
             _userMananger = userMananger;
             _notificationPersonMananger = notificationPersonMananger;
         }
-
-        // [HttpPost, Route(""), Authorize(Policy = "adiminstrator")]
-        // public async Task<IActionResult> RegisterAsync(
-        //     [FromBody] NotificationViewModel notification
-        //     )
-        // {
-        //     try
-        //     {
-        //         return Ok();
-        //     }
-        //     catch (Exception ex)
-        //     {                
-        //         return BadRequest(Util.ReturnException(ex));
-        //     }            
-        // }
-
-        /// <summary>
-        /// Método atualiza notificações de acordo com id 
-        /// </summary>
-        /// <param name=""id"">id da notifiação a ser atualizada</param>
-        /// <returns></returns>
+        
         [HttpPut, Route(""), Authorize]
         public async Task<IActionResult> UpdateAsync(
             [FromForm(Name = "id")] long idNotification
@@ -105,31 +85,7 @@ namespace RelibreApi.Controllers
                     }
                 });
             }            
-        }
-
-        // [HttpDelete, Route(""), Authorize(Policy = "administrator")]
-        // public async Task<IActionResult> RemoveAsync(
-        //     [FromQuery(Name = "id")] int id
-        //     )
-        // {
-        //     try
-        //     {
-
-
-        //         return Ok();
-        //     }
-        //     catch (Exception ex)
-        //     {                
-        //         return BadRequest(Util.ReturnException(ex));
-        //     }            
-        // }
-        
-        /// <summary>
-        /// Método retorna a lista de notificações que ainda não foram verificadas do usuario logado
-        /// </summary>
-        /// <param name=""limit"">Parametro limita a quantidade de resultados (Não obrigatório)</param>
-        /// <param name=""offset"">Parametro deve capturar os registros a partir de valor (Não obrigatório)</param>
-        /// <returns></returns>
+        }        
         [HttpGet, Route(""), Authorize]
         public async Task<IActionResult> GetAsync(
             [FromQuery(Name = "limit")] int limit, 

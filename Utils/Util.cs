@@ -29,10 +29,11 @@ namespace RelibreApi.Utils
     {
         public static DateTime CurrentDateTime()
         {
-            return Convert.ToDateTime(
-                DateTime.Now
-                    .ToString(
-                        Constants.FormatDateTimeDefault));
+            return DateTime.Now;
+            // return Convert.ToDateTime(
+            //     DateTime.Now
+            //         .ToString(
+            //             Constants.FormatDateTimeDefault));
         }
         public static string Encrypt(string valor)
         {

@@ -79,7 +79,7 @@ namespace RelibreApi.Utils
             };
 
             var Created = CurrentDateTime();
-            var Expires = Created + TimeSpan.FromSeconds(3600);
+            var Expires = Created.AddHours(1);
 
             var Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(setting.Key));
 

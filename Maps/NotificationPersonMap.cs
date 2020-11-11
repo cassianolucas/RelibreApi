@@ -12,12 +12,11 @@ namespace RelibreApi.Maps
 
             o.HasKey(x => x.Id);
 
-            // o.Property(x => x.Id)
-            //     .HasColumnName("id")
-            //     .UseSerialColumn<long>()
-            //     .HasIdentityOptions(1, 1, 1)
-            //     .ValueGeneratedOnAdd()
-            //     .IsRequired();
+            o.Property(x => x.Id)
+                .HasColumnName("id")
+                // .UseSerialColumn<long>()                
+                .ValueGeneratedOnAdd()
+                .IsRequired();
 
             o.Property(x => x.IdPerson)
                 .HasColumnName("id_person")

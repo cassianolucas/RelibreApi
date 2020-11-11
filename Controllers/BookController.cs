@@ -54,7 +54,7 @@ namespace RelibreApi.Controllers
             _authorMananger = authorMananger;
             _categoryMananger = categoryMananger;
         }
-       
+
         [HttpPost, Route(""), Authorize]
         public async Task<IActionResult> CreateAsync(
             [FromBody] LibraryBookViewModel libraryBook
@@ -74,13 +74,13 @@ namespace RelibreApi.Controllers
                     });
 
                 var libraryBookMap = _mapper.Map<LibraryBook>(libraryBook);
-                
+
                 var bookDb = await _bookMananger
                     .GetByCodeIntegration(libraryBookMap.Book.CodeIntegration);
 
                 // verificar se já existe livro ativo na biblioteca
-                
-                
+
+
 
                 // realizar validações nos campos do livro quando não existir
                 if (bookDb != null) libraryBookMap.Book = bookDb;
@@ -306,7 +306,8 @@ namespace RelibreApi.Controllers
             [FromQuery(Name = "offset")] int offset,
             [FromQuery(Name = "limit")] int limit,
             [FromQuery(Name = "latitude")] int latitude,
-            [FromQuery(Name = "longitude")] int longitude
+            [FromQuery(Name = "longitude")] int longitude,
+            [FromQuery(Name = "id_library")] int idLibrary
             )
         {
             try
@@ -314,6 +315,45 @@ namespace RelibreApi.Controllers
                 // offset é a partir de qual registro você quer
                 // limit é o valor máximo de registros a serem retornados
                 // capturar usuario que realizou a requisição
+                if (idLibrary > 0)
+                {
+                    var books = await _libraryBookMananger
+                        .GetByIdLibrary(idLibrary, offset, limit);
+
+                    if (books.Count <= 0)
+                        return BadRequest(new ResponseErrorViewModel
+                        {
+                            Result = Constants.Error,
+                            Errors = new List<object>
+                            {
+                                new { Message = Constants.BooksNotFound }
+                            }
+                        });
+
+                    var booksMap = _mapper
+                        .Map<ICollection<LibraryBookViewModel>>(books);
+
+                    booksMap.Select(x => new
+                    {
+                        Distance = string.Format("{0:0}",
+                            Util.Distance(latitude, longitude,
+                            Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
+                            Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude))).Substring(0, 4),
+                        x.Book,
+                        x.Contact,
+                        x.id,
+                        x.Images,
+                        x.Types
+                    })
+                    .OrderBy(x => x.Distance);
+
+                    return Ok(new ResponseViewModel
+                    {
+                        Result = booksMap,
+                        Status = Constants.Sucess
+                    });
+                }
+
                 var login = Util
                     .GetClaim(_httpContext,
                         Constants.UserClaimIdentifier);
@@ -415,9 +455,9 @@ namespace RelibreApi.Controllers
                     .Select(x => new
                     {
                         Distance = string.Format("{0:0}",
-                                Util.Distance(latitude, longitude,
-                                Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
-                                Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude))).Substring(0, 4),
+                            Util.Distance(latitude, longitude,
+                            Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
+                            Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude))).Substring(0, 4),
                         x.Book,
                         x.Contact,
                         x.id,
@@ -463,8 +503,8 @@ namespace RelibreApi.Controllers
             [FromQuery(Name = "title")] string title,
             [FromQuery(Name = "offset")] int offset,
             [FromQuery(Name = "limit")] int limit,
-            [FromQuery(Name = "latitude")] int latitude,
-            [FromQuery(Name = "longitude")] int longitude
+            [FromQuery(Name = "latitude")] double latitude,
+            [FromQuery(Name = "longitude")] double longitude
         )
         {
             try
@@ -477,11 +517,12 @@ namespace RelibreApi.Controllers
                     .Map<ICollection<LibraryBookViewModel>>(libraryBooks)
                     .Select(x => new
                     {
-                        Distance = Util.Distance(latitude, longitude,
-                        (x.Addresses.Count > 0 ?
-                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude) : 0),
-                        (x.Addresses.Count > 0 ?
-                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude) : 0)),
+                        Distance = string.Format("{0:0}",
+                            Util.Distance(latitude, longitude,
+                                (x.Addresses.Count > 0 ?
+                                    Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude) : 0),
+                                (x.Addresses.Count > 0 ?
+                                    Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude) : 0))).Substring(0, 4),
                         x.Book,
                         x.Contact,
                         x.id,
@@ -563,13 +604,13 @@ namespace RelibreApi.Controllers
             // TROCAR
             // EMPRESTAR
             // DOAR
-            // VENDER
-            // EMPRESAS
-            // COMBINACOES
-            if (type.ToLower().Equals("business"))
+            // VENDA
+            // EMPRESA
+            // COMBINACAO
+            if (type.ToLower().Equals("venda"))
                 return await _libraryBookMananger.GetByBusiness(offset, limit);
 
-            if (type.ToLower().Equals("combination"))
+            if (type.ToLower().Equals("combinacao"))
                 return await Combination(idLibraryRequest, offset, limit);
 
             var typeDb = new Models.Type();

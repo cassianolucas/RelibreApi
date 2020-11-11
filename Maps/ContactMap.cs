@@ -17,8 +17,7 @@ namespace RelibreApi.Maps
 
             o.Property(x => x.Id)
                 .HasColumnName("id")
-                .UseSerialColumn<long>()
-                .HasIdentityOptions(1, 1, 1)
+                // .UseSerialColumn<long>()                
                 .ValueGeneratedOnAdd()
                 .IsRequired();
 

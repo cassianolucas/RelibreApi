@@ -54,6 +54,7 @@ namespace RelibreApi.Data
             modelBuilder.ApplyConfiguration(new NotificationPersonMap());
             modelBuilder.ApplyConfiguration(new ContactBookMap());
             modelBuilder.ApplyConfiguration(new SubscriptionMap());
+            modelBuilder.ApplyConfiguration(new PersonSubscriptionMap());
             
             modelBuilder.Seed();
 

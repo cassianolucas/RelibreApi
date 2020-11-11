@@ -10,15 +10,15 @@ using RelibreApi.Data;
 namespace RelibreApi.Migrations
 {
     [DbContext(typeof(RelibreContext))]
-    [Migration("20201027051104_SQL_018")]
-    partial class SQL_018
+    [Migration("20201111032514_SQL_001")]
+    partial class SQL_001
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.4")
+                .HasAnnotation("ProductVersion", "3.1.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("RelibreApi.Models.AccessProfile", b =>
@@ -27,8 +27,7 @@ namespace RelibreApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Access")
                         .IsRequired()
@@ -66,8 +65,7 @@ namespace RelibreApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool>("Active")
                         .HasColumnName("active")
@@ -122,8 +120,7 @@ namespace RelibreApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool>("Active")
                         .HasColumnName("active")
@@ -170,8 +167,7 @@ namespace RelibreApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("AverageRating")
                         .HasColumnName("average_rating")
@@ -214,8 +210,7 @@ namespace RelibreApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnName("created_at")
@@ -254,8 +249,7 @@ namespace RelibreApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool>("Active")
                         .HasColumnName("active")
@@ -331,8 +325,7 @@ namespace RelibreApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("CodeVerification")
                         .IsRequired()
@@ -359,8 +352,7 @@ namespace RelibreApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<long>("IdLibraryBook")
                         .HasColumnName("id_library_book")
@@ -384,8 +376,7 @@ namespace RelibreApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool>("Active")
                         .HasColumnName("active")
@@ -415,10 +406,8 @@ namespace RelibreApi.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool>("Active")
                         .HasColumnName("active")
@@ -474,6 +463,7 @@ namespace RelibreApi.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
                         .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
@@ -502,6 +492,7 @@ namespace RelibreApi.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
                         .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
@@ -550,6 +541,10 @@ namespace RelibreApi.Migrations
                         .HasColumnName("created_at")
                         .HasColumnType("timestamp");
 
+                    b.Property<string>("Description")
+                        .HasColumnName("description")
+                        .HasColumnType("varchar(255)");
+
                     b.Property<string>("Document")
                         .HasColumnName("document")
                         .HasColumnType("varchar")
@@ -576,9 +571,53 @@ namespace RelibreApi.Migrations
                         .HasColumnName("updated_at")
                         .HasColumnType("timestamp");
 
+                    b.Property<string>("UrlImage")
+                        .HasColumnName("url_image")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("WebSite")
+                        .HasColumnName("web_site")
+                        .HasColumnType("varchar(255)");
+
                     b.HasKey("Id");
 
                     b.ToTable("person");
+                });
+
+            modelBuilder.Entity("RelibreApi.Models.PersonSubscription", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnName("created_at")
+                        .HasColumnType("timestamp");
+
+                    b.Property<long>("IdPerson")
+                        .HasColumnName("id_person")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IdSubscription")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("PaidAt")
+                        .HasColumnName("paid_at")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("Validate")
+                        .HasColumnName("validate")
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdPerson");
+
+                    b.HasIndex("IdSubscription");
+
+                    b.ToTable("person_subscription");
                 });
 
             modelBuilder.Entity("RelibreApi.Models.Phone", b =>
@@ -587,8 +626,7 @@ namespace RelibreApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool>("Active")
                         .HasColumnName("active")
@@ -628,8 +666,7 @@ namespace RelibreApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool>("Active")
                         .HasColumnName("active")
@@ -657,18 +694,48 @@ namespace RelibreApi.Migrations
                         {
                             Id = 1L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 11, 11, 0, 25, 14, 699, DateTimeKind.Local).AddTicks(9842),
                             Name = "PJ",
-                            UpdatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified)
+                            UpdatedAt = new DateTime(2020, 11, 11, 0, 25, 14, 700, DateTimeKind.Local).AddTicks(5842)
                         },
                         new
                         {
                             Id = 2L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 11, 11, 0, 25, 14, 700, DateTimeKind.Local).AddTicks(6175),
                             Name = "PF",
-                            UpdatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified)
+                            UpdatedAt = new DateTime(2020, 11, 11, 0, 25, 14, 700, DateTimeKind.Local).AddTicks(6185)
                         });
+                });
+
+            modelBuilder.Entity("RelibreApi.Models.Subscription", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnName("created_at")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnName("description")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int>("Period")
+                        .HasColumnName("period")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Value")
+                        .HasColumnName("value")
+                        .HasColumnType("numeric(12,4)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("subscription");
                 });
 
             modelBuilder.Entity("RelibreApi.Models.Type", b =>
@@ -677,8 +744,7 @@ namespace RelibreApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id")
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:IdentitySequenceOptions", "'1', '1', '1', '', 'False', '1'")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool>("Active")
                         .HasColumnType("boolean");
@@ -705,7 +771,7 @@ namespace RelibreApi.Migrations
                         {
                             Id = 1L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 11, 11, 0, 25, 14, 701, DateTimeKind.Local).AddTicks(4785),
                             Description = "Trocar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
@@ -713,7 +779,7 @@ namespace RelibreApi.Migrations
                         {
                             Id = 2L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 11, 11, 0, 25, 14, 701, DateTimeKind.Local).AddTicks(4822),
                             Description = "Doar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
@@ -721,7 +787,7 @@ namespace RelibreApi.Migrations
                         {
                             Id = 3L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 11, 11, 0, 25, 14, 701, DateTimeKind.Local).AddTicks(4824),
                             Description = "Emprestar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
@@ -729,8 +795,16 @@ namespace RelibreApi.Migrations
                         {
                             Id = 4L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 10, 27, 2, 11, 4, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2020, 11, 11, 0, 25, 14, 701, DateTimeKind.Local).AddTicks(4825),
                             Description = "Interesse",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            Active = false,
+                            CreatedAt = new DateTime(2020, 11, 11, 0, 25, 14, 701, DateTimeKind.Local).AddTicks(4826),
+                            Description = "Venda",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
@@ -924,6 +998,23 @@ namespace RelibreApi.Migrations
                         .WithMany("NotificationPeople")
                         .HasForeignKey("IdPerson")
                         .HasConstraintName("fk_notification_person_person_id_person")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("RelibreApi.Models.PersonSubscription", b =>
+                {
+                    b.HasOne("RelibreApi.Models.Person", "Person")
+                        .WithMany("PersonSubscriptions")
+                        .HasForeignKey("IdPerson")
+                        .HasConstraintName("fk_person_subscription_id_person")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RelibreApi.Models.Subscription", "Subscription")
+                        .WithMany("PersonSubscriptions")
+                        .HasForeignKey("IdSubscription")
+                        .HasConstraintName("fk_subscription_subscription_id_subscription")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

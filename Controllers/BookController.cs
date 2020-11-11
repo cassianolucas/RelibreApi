@@ -6,7 +6,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using RelibreApi.Models;
 using RelibreApi.Services;
 using RelibreApi.Utils;
@@ -55,57 +54,7 @@ namespace RelibreApi.Controllers
             _authorMananger = authorMananger;
             _categoryMananger = categoryMananger;
         }
-
-        [HttpPost, Route("Image"), Authorize]
-        public async Task<IActionResult> UploadImage(
-            [FromForm(Name = "file")] IFormFile file,
-            [FromServices] IConfiguration configuration
-        )
-        {
-            try
-            {
-                if (file == null || file.Length <= 0)
-                    return BadRequest(new ResponseErrorViewModel
-                    {
-                        Status = Constants.Error,
-                        Errors = new List<object>
-                            {
-                                new { Message = Constants.InvalidImage }
-                            }
-                    }
-                    );
-
-                var identifier = Util.GenerateGuid();
-
-                await Util.UploadImage(configuration, file, identifier);
-
-                var endPoint = string.Concat(configuration
-                    .GetSection(Constants.EndpointImage).Value,
-                        identifier, ".png");
-
-                return Ok(new ResponseViewModel
-                {
-                    Result = new
-                    {
-                        image = endPoint
-                    },
-                    Status = Constants.Sucess
-                });
-            }
-            catch (Exception ex)
-            {
-                // gerar log
-                return BadRequest(new
-                {
-                    Status = Constants.Error,
-                    Errors = new List<object>
-                    {
-                        Util.ReturnException(ex)
-                    }
-                });
-            }
-        }
-
+       
         [HttpPost, Route(""), Authorize]
         public async Task<IActionResult> CreateAsync(
             [FromBody] LibraryBookViewModel libraryBook
@@ -370,7 +319,7 @@ namespace RelibreApi.Controllers
                         Constants.UserClaimIdentifier);
 
                 var user = await _userMananger
-                    .GetByLoginOrDocumentNoTracking(login, "");
+                    .GetByLogin(login);
 
                 // retorna livros da biblioteca do usuario
                 if (string.IsNullOrEmpty(type) &&

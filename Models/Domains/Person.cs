@@ -9,6 +9,9 @@ namespace RelibreApi.Models
         public string LastName { get; set; }
         public string Document { get; set; }
         public string PersonType { get; set; }
+        public string WebSite { get; set; }
+        public string Description { get; set; }
+        public string UrlImage { get; set; }
         public DateTime BirthDate { get; set; }
         public virtual Library Library { get; set; }
         public virtual ICollection<User> Users { get; set; }

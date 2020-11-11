@@ -1,15 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Mail;
-using System.Net.Mime;
-using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +11,6 @@ using RelibreApi.Models;
 using RelibreApi.Services;
 using RelibreApi.Utils;
 using RelibreApi.ViewModel;
-using static RelibreApi.Utils.Constants;
 
 namespace RelibreApi.Controllers
 {
@@ -33,7 +26,6 @@ namespace RelibreApi.Controllers
         private readonly IProfile _profileMananger;
         private readonly ILibrary _libraryMananger;
         private readonly IEmailVerification _emailVerificationService;
-
         public AccountController(
             [FromServices] IUnitOfWork uow,
             [FromServices] IMapper mapper,
@@ -148,27 +140,57 @@ namespace RelibreApi.Controllers
         )
         {
             try
-            {
+            {                
                 var userMap = _mapper.Map<User>(user);
 
-                var userDb = await _userMananger.GetByLogin(userMap.Login);
+                // verificar se campos estão preenchidos
+                if (string.IsNullOrEmpty(userMap.Person.Document))
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Result = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserDocumentInvalid }
+                        }
+                    });
+
+                if (string.IsNullOrEmpty(userMap.Login))
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Result = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserLoginInvalid }
+                        }
+                    });
+
+                var userDb = await _userMananger
+                    .GetByLoginOrDocumentNoTracking(userMap.Login,
+                        userMap.Person.Document);
 
                 // captura perfil de usuario padrão
-                var profileDb = await _profileMananger.GetByIdAsync(1);
+                var profileDb = await _profileMananger
+                    .GetByIdAsync(1);
 
                 // usuario já existe
-                if (userDb != null) return Conflict(new ResponseErrorViewModel
-                {
-                    Status = Constants.Error,
-                    Errors = new List<object> { new { Message = Constants.UserFound } }
-                });
+                if (userDb != null)
+                    return Conflict(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object> { new { Message = Constants.UserFound } }
+                    });
 
-                var newPhone = userMap.Person.Phones.FirstOrDefault(x => x.Number.Equals(user.Phone));
+                var newPhone = userMap.Person.Phones
+                    .FirstOrDefault(x => x.Number.Equals(user.Phone));
                 newPhone.Active = true;
                 newPhone.Master = true;
                 newPhone.CreatedAt = Util.CurrentDateTime();
                 newPhone.UpdatedAt = newPhone.CreatedAt;
 
+                userMap.Person.Document
+                    .Replace(".", "")
+                    .Replace("/", "")
+                    .Replace("-", "");
                 userMap.LoginVerified = false;
                 userMap.Profile = profileDb;
                 userMap.Password = Util.Encrypt(userMap.Password);
@@ -208,8 +230,43 @@ namespace RelibreApi.Controllers
                 _uow.Commit();
 
                 return Created(new Uri(Url
-                    .ActionLink("RegisterBusinessAsync", "Account")),
-                new ResponseViewModel
+                    .ActionLink("RegisterBusiness", "Account")),
+                    new ResponseViewModel
+                    {
+                        Result = null,
+                        Status = Constants.Sucess
+                    });
+            }
+            catch (Exception ex)
+            {
+                // gerar log
+                return BadRequest(new ResponseErrorViewModel
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object> { Util.ReturnException(ex) }
+                });
+            }
+        }
+
+        [HttpPost, Route("Deactivate/Bussiness"), Authorize]
+        public async Task<IActionResult> DeactivateAccount()
+        {
+            try
+            {
+                var login = Util.GetClaim(_httpContext,
+                    Constants.UserClaimIdentifier);
+
+                var userDb = await _userMananger
+                    .GetByLogin(login);
+
+                userDb.Person.Active = false;
+                userDb.Person.UpdatedAt = Util.CurrentDateTime();
+
+                _userMananger.Update(userDb);
+
+                _uow.Commit();
+
+                return Ok(new ResponseViewModel
                 {
                     Result = null,
                     Status = Constants.Sucess
@@ -293,6 +350,176 @@ namespace RelibreApi.Controllers
                 },
                 Status = Constants.Sucess
             });
+        }
+
+        [HttpPut, Route("Bussiness"), Authorize]
+        public async Task<IActionResult> UpdateAsync(
+            [FromBody] UserBusinessViewModel user)
+        {
+            try
+            {
+                var login = Util.GetClaim(_httpContext,
+                    Constants.UserClaimIdentifier);
+
+                var userMap = _mapper.Map<User>(user);
+
+                var userDb = await _userMananger
+                    .GetByLogin(login);
+
+                // usuario não existe
+                if (userDb == null)
+                    return NotFound(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserNotFound }
+                        }
+                    });
+
+                // usaurio não foi verificado
+                if (!userDb.IsVerified()) return BadRequest(
+                    new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                        new { Message = Constants.UserNotValidate }
+                        }
+                    }
+                );
+
+                if (!string.IsNullOrEmpty(userMap.Person.Name))
+                {
+                    userDb.Person.Name = userMap.Person.Name;
+                }
+
+                if (!string.IsNullOrEmpty(userMap.Person.LastName))
+                {
+                    userDb.Person.LastName = userMap.Person.LastName;
+                }
+
+                userDb.Person.UrlImage = userMap.Person.UrlImage;
+                userDb.Person.WebSite = userMap.Person.WebSite;
+                userDb.Person.UpdatedAt = Util.CurrentDateTime();
+
+                // phones
+                if (userMap.Person.Phones != null &&
+                    userMap.Person.Phones.Count > 0)
+                {
+                    foreach (var phone in userMap.Person.Phones)
+                    {
+                        if (!string.IsNullOrEmpty(phone.Number))
+                        {
+                            var numberFormated = phone.Number
+                                .Replace("+", "")
+                                .Replace("(", "")
+                                .Replace(")", "")
+                                .Replace("-", "");
+
+                            var phoneDb = (userDb.Person.Phones != null &&
+                                userDb.Person.Phones.Count > 0) ? userDb.Person.Phones
+                                    .SingleOrDefault(x => x.Master == true) : null;
+
+                            if (phoneDb == null)
+                            {
+                                userDb.Person.Phones.Add(new Phone
+                                {
+                                    Number = numberFormated,
+                                    Master = false,
+                                    Person = userDb.Person,
+                                    IdPerson = userDb.Person.Id,
+                                    Active = true,
+                                    CreatedAt = Util.CurrentDateTime(),
+                                    UpdatedAt = Util.CurrentDateTime()
+                                });
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(numberFormated))
+                                {
+                                    phoneDb.Number = numberFormated;
+                                }
+                                phoneDb.Active = phone.Active;
+                                phoneDb.UpdatedAt = Util.CurrentDateTime();
+                            }
+                        }
+                    }
+                }
+
+                // addresses
+                if (userMap.Person.Addresses != null &&
+                    userMap.Person.Addresses.Count > 0)
+                {
+                    foreach (var address in userMap.Person.Addresses)
+                    {
+                        var addressDb = userDb.Person.Addresses
+                            .SingleOrDefault(x => x.Master == true);
+
+                        if (addressDb == null)
+                        {
+                            var fullAddress = await Util
+                                .GetAddressByLatitudeLogintude(_configuration,
+                                    address.Latitude, address.Longitude);
+
+                            userDb.Person.Addresses.Add(new Address
+                            {
+                                Longitude = address.Latitude,
+                                Latitude = address.Longitude,
+                                FullAddress = fullAddress,
+                                Active = true,
+                                CreatedAt = Util.CurrentDateTime(),
+                                UpdatedAt = Util.CurrentDateTime(),
+                                IdPerson = userDb.Person.Id,
+                                Person = userDb.Person,
+                                Master = true,
+                                NickName = "Principal"
+                            });
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(address.Latitude) &&
+                                !string.IsNullOrEmpty(address.Longitude))
+                            {
+                                addressDb.Latitude = address.Latitude;
+                                addressDb.Longitude = address.Longitude;
+
+                                var fullAddress = await Util
+                                .GetAddressByLatitudeLogintude(_configuration,
+                                    address.Latitude, address.Longitude);
+
+                                addressDb.FullAddress = fullAddress;
+                            }
+
+                            addressDb.UpdatedAt = Util.CurrentDateTime();
+                        }
+                    }
+                }
+
+                _userMananger.Update(userDb);
+
+                _uow.Commit();
+
+                userDb = await _userMananger
+                    .GetByIdAsync(userDb.IdPerson);
+
+                user = _mapper.Map<UserBusinessViewModel>(userDb);
+
+                return Ok(new ResponseViewModel
+                {
+                    Result = user,
+                    Status = Constants.Sucess
+                });
+            }
+            catch (Exception ex)
+            {                
+                // gerar log
+                return BadRequest(new ResponseErrorViewModel
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object> { Util.ReturnException(ex) }
+                });
+            }
         }
 
         [HttpPut, Route(""), Authorize]
@@ -442,13 +669,45 @@ namespace RelibreApi.Controllers
 
                 _uow.Commit();
 
-                userDb = await _userMananger.GetByIdAsync(userDb.IdPerson);
+                userDb = await _userMananger
+                    .GetByIdAsync(userDb.IdPerson);
 
                 user = _mapper.Map<UserViewModel>(userDb);
 
                 return Ok(new ResponseViewModel
                 {
                     Result = user,
+                    Status = Constants.Sucess
+                });
+            }
+            catch (Exception ex)
+            {
+                // gerar log
+                return BadRequest(new ResponseErrorViewModel
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object> { Util.ReturnException(ex) }
+                });
+            }
+        }
+
+        [HttpGet, Route("Bussiness"), Authorize]
+        public async Task<IActionResult> GetBussiness()
+        {
+            try
+            {
+                var login = Util.GetClaim(_httpContext,
+                    Constants.UserClaimIdentifier);
+
+                var userDb = await _userMananger
+                    .GetByLogin(login);
+
+                var profiles = _userMananger
+                    .GetAllBusiness(userDb.IdPerson);
+
+                return Ok(new ResponseViewModel
+                {
+                    Result = profiles,
                     Status = Constants.Sucess
                 });
             }

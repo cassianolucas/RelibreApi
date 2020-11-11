@@ -33,6 +33,10 @@ namespace RelibreApi.AutoMapper
 
             CreateMap<UserBusinessViewModel, Models.User>()
             .ForPath(x => x.Person.Name, m => m.MapFrom(x => x.Name))
+            .ForPath(x => x.Person.LastName, m => m.MapFrom(x => x.LastName))
+            .ForPath(x => x.Person.WebSite, m => m.MapFrom(x => x.WebSite))
+            .ForPath(x => x.Person.UrlImage, m => m.MapFrom(x => x.UrlImage))
+            .ForPath(x => x.Person.Description, m => m.MapFrom(x => x.Description))
             .ForPath(x => x.Person.Document, m => m.MapFrom(x => x.Document))
             .AfterMap((src, dest) =>
             {

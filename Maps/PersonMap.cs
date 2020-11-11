@@ -27,12 +27,27 @@ namespace RelibreApi.Maps
             o.Property(x => x.LastName)
                 .HasColumnName("last_name")
                 .HasColumnType("varchar")
-                .HasMaxLength(255);        
+                .HasMaxLength(255);
             
             o.Property(x => x.Document)
                 .HasColumnName("document")
                 .HasColumnType("varchar")
                 .HasMaxLength(18);
+
+            o.Property(x => x.WebSite)
+                .HasColumnName("web_site")
+                .HasColumnType("varchar(255)")
+                .IsRequired(false);
+
+            o.Property(x => x.Description)
+                .HasColumnName("description")
+                .HasColumnType("varchar(255)")
+                .IsRequired(false);
+
+            o.Property(x => x.UrlImage)
+                .HasColumnName("url_image")
+                .HasColumnType("varchar(255)")
+                .IsRequired(false);
 
             o.Property(x => x.PersonType)
                 .HasColumnName("type_person")

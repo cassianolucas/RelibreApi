@@ -25,13 +25,25 @@ namespace RelibreApi.Repositories
         }
 
         public Address GetAddressByLogin(string login)
-        {            
+        {
             throw new NotImplementedException();
         }
 
         public Task<List<User>> GetAllAsync()
         {
             throw new System.NotImplementedException();
+        }
+
+        public Task<List<User>> GetAllBusiness(long idPerson)
+        {
+            return _context.User
+                .Include(x => x.Person)
+                .Include(x => x.Person.Phones)
+                .Include(x => x.Person.Addresses)
+                .Include(x => x.Profile)
+                .Include(x => x.Person.Library)
+                .Where(x => x.IdPerson != idPerson)
+                .ToListAsync();
         }
 
         public Task<User> GetByIdAsync(long Id)

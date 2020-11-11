@@ -26,6 +26,8 @@ namespace RelibreApi.Utils
         public const string UserInvalidOrPassword = "Usuário ou senha inválidos!";
         public const string UserNotValidate = "Email não verificado!";
         public const string UserPasswordInvalid = "Senha inválida";
+        public const string UserDocumentInvalid = "Documento inválido";
+        public const string UserLoginInvalid = "Email inválido";
         public const string Error = "Erro!";
         public const string CodeInvalid = "Código não válido!";
         public const string InvalidParameter = "Parametro não informado!";

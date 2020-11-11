@@ -60,9 +60,7 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Images)
                 .Where(x => x.Id >= 0 && x.IdLibrary != idLibraryRequest && 
                     string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(title) && 
-                    Util.RemoveSpecialCharacter(
-                        x.Book.Title.ToLower())
-                        .Contains(title.ToLower()))
+                        x.Book.Title.ToLower().Contains(title.ToLower()))
                 .AsNoTracking()
                 .Take((limit > 0? limit: 30))
                 .Skip((offset > 0? offset: 0))
@@ -120,8 +118,8 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Library.Person.Addresses)
                 .Include(x => x.Images)
                 .Where(x => x.IdLibrary == IdLibrary)
-                .Take(offset > 0? offset : 30)
-                .Skip(limit > 0? limit : 0)
+                .Take(limit > 0? limit : 30)
+                .Skip(offset > 0? offset : 0)
                 .ToListAsync();
         }
 

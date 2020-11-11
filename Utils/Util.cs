@@ -95,21 +95,28 @@ namespace RelibreApi.Utils
         }
         public static double Distance(double lat1, double lon1, double lat2, double lon2)
         {
-            double theta = lon1 - lon2;
+            try
+            {
+                double theta = lon1 - lon2;
 
-            double dist = Math.Sin(Deg2Rad(lat1))
-                * Math.Sin(Deg2Rad(lat2)) + Math.Cos(Deg2Rad(lat1))
-                * Math.Cos(Deg2Rad(lat2)) * Math.Cos(Deg2Rad(theta));
+                double dist = Math.Sin(Deg2Rad(lat1))
+                    * Math.Sin(Deg2Rad(lat2)) + Math.Cos(Deg2Rad(lat1))
+                    * Math.Cos(Deg2Rad(lat2)) * Math.Cos(Deg2Rad(theta));
 
-            dist = Math.Acos(dist);
+                dist = Math.Acos(dist);
 
-            dist = Rad2Deg(dist);
+                dist = Rad2Deg(dist);
 
-            dist = dist * 60 * 1.1515;
+                dist = dist * 60 * 1.1515;
 
-            dist = dist * 1.609344;
+                dist = dist * 1.609344;
 
-            return (dist);
+                return (dist);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
         }
         public static double Distance(Address address1, Address address2)
         {
@@ -235,7 +242,7 @@ namespace RelibreApi.Utils
                 return formatted.ToString();
             }
         }
-        
+
         public async static Task<bool> UploadImage(IConfiguration configuration, IFormFile file, string name)
         {
             var memoryStream = new MemoryStream();

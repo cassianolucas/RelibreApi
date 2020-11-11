@@ -55,7 +55,7 @@ namespace RelibreApi.Repositories
                 .Include(x => x.LibraryBookTypes)
                     .ThenInclude(x => x.Type)
                 .Include(x => x.Library)
-                .Include(x => x.Library.Person)
+                .Include(x => x.Library.Person)                
                 .Include(x => x.Library.Person.Addresses)
                 .Include(x => x.Images)
                 .Where(x => x.Id >= 0 && x.IdLibrary != idLibraryRequest && 

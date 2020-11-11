@@ -516,13 +516,9 @@ namespace RelibreApi.Controllers
                 var libraryBooksMaps = _mapper
                     .Map<ICollection<LibraryBookViewModel>>(libraryBooks)
                     .Select(x => new
-                    {
-                        Distance = string.Format("{0:0}",
-                            Util.Distance(latitude, longitude,
-                                (x.Addresses.Count > 0 ?
-                                    Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude) : 0),
-                                (x.Addresses.Count > 0 ?
-                                    Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude) : 0))).Substring(0, 4),
+                    {                        
+                        Distance = Util.Distance(Double.Parse(x.Addresses.Single().Latitude), 
+                            Double.Parse(x.Addresses.Single().Longitude), latitude, longitude),
                         x.Book,
                         x.Contact,
                         x.id,

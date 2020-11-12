@@ -103,7 +103,7 @@ namespace RelibreApi.Repositories
                 .SingleOrDefaultAsync();
         }
 
-        public Task<List<LibraryBook>> GetByIdLibrary(long IdLibrary, int offset, int limit)
+        public Task<List<LibraryBook>> GetByIdLibrary(long IdLibrary, string title, int offset, int limit)
         {
             return _context.LibraryBook
                 .Include(x => x.Book)
@@ -117,7 +117,9 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Library.Person)
                 .Include(x => x.Library.Person.Addresses)
                 .Include(x => x.Images)
-                .Where(x => x.IdLibrary == IdLibrary)
+                .Where(x => x.IdLibrary == IdLibrary && 
+                    (string.IsNullOrEmpty(title) || (!string.IsNullOrEmpty(title) && 
+                        x.Book.Title.ToLower().Contains(title.ToLower()))))
                 .Take(limit > 0? limit : 30)
                 .Skip(offset > 0? offset : 0)
                 .ToListAsync();

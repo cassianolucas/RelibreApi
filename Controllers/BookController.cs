@@ -88,7 +88,7 @@ namespace RelibreApi.Controllers
                 // quando livro não existir criar 
                 if (bookDb == null)
                 {
-                    bookDb = new Book();                    
+                    bookDb = new Book();
 
                     // verificar se existe autores
                     var authors = new List<Author>();
@@ -97,15 +97,27 @@ namespace RelibreApi.Controllers
                         var authorDb = await _authorMananger
                             .GetByName(authorMap.Author.Name);
 
-                        if (authorDb != null)
-                        {                            
-                            bookDb.AuthorBooks.Add(
+                        if (authorDb == null)
+                        {
+                            authorDb = new Author
+                            {
+                                Name = authorMap.Author.Name,
+                                Active = true,
+                                CreatedAt = Util.CurrentDateTime(),
+                                UpdatedAt = Util.CurrentDateTime()
+                            };
+                        }
+
+                        if (bookDb.AuthorBooks == null)
+                            bookDb.AuthorBooks = new List<AuthorBook>();
+                        
+                        bookDb.AuthorBooks.Add(
                             new AuthorBook
                             {
                                 Author = authorDb,
                                 Book = bookDb
-                            });
-                        }
+                            }
+                        );
                     }
 
                     // verificar se existe categorias
@@ -114,15 +126,25 @@ namespace RelibreApi.Controllers
                         var categoryDb = await _categoryMananger
                             .GetByName(categoryMap.Category.Name);
 
-                        if (categoryDb != null)
+                        if (categoryDb == null)
                         {
-                            bookDb.CategoryBooks.Add(
+                            categoryDb = new Category
+                            {
+                                Name = categoryMap.Category.Name,
+                                CreatedAt = Util.CurrentDateTime()
+                            };
+                        }
+
+                        if (bookDb.CategoryBooks == null)
+                            bookDb.CategoryBooks = new List<CategoryBook>();
+
+                        bookDb.CategoryBooks.Add(
                             new CategoryBook
                             {
                                 Category = categoryDb,
                                 Book = bookDb
-                            });
-                        }
+                            }
+                        );
                     }
 
                     bookDb.Description = libraryBookMap.Book.Description;
@@ -131,7 +153,7 @@ namespace RelibreApi.Controllers
                     bookDb.Isbn13 = libraryBookMap.Book.Isbn13;
                     bookDb.Title = libraryBookMap.Book.Title;
                     bookDb.MaturityRating = libraryBookMap.Book.MaturityRating;
-                    bookDb.CreatedAt = Util.CurrentDateTime();                    
+                    bookDb.CreatedAt = Util.CurrentDateTime();
                 }
 
                 // capturar do cadastro
@@ -323,11 +345,12 @@ namespace RelibreApi.Controllers
             {
                 // offset é a partir de qual registro você quer
                 // limit é o valor máximo de registros a serem retornados
-                // capturar usuario que realizou a requisição
+
+                // buscar por id de biblioteca
                 if (idLibrary > 0)
                 {
                     var books = await _libraryBookMananger
-                        .GetByIdLibrary(idLibrary, offset, limit);
+                        .GetByIdLibrary(idLibrary, title, offset, limit);
 
                     if (books.Count <= 0)
                         return BadRequest(new ResponseErrorViewModel
@@ -378,8 +401,8 @@ namespace RelibreApi.Controllers
                     var library = await _libraryMananger
                         .GetLibraryByPerson(user.Person.Id);
 
-                    var libraryBookDb = await
-                        GetByIdLibrary(library.Id, offset, limit);
+                    var libraryBookDb = await _libraryBookMananger
+                        .GetByIdLibrary(library.Id, title, offset, limit);
 
                     var librariesBooksMap = _mapper
                         .Map<ICollection<LibraryBookViewModel>>(libraryBookDb);
@@ -478,7 +501,7 @@ namespace RelibreApi.Controllers
                     .Map<ICollection<LibraryBookViewModel>>(libraryBooks)
                     .Select(x => new
                     {
-                        Distance = 
+                        Distance =
                             Util.Distance(
                                 Double.Parse(x.Addresses.Single(x => x.Master == true).Latitude),
                                 Double.Parse(x.Addresses.Single(x => x.Master == true).Longitude),
@@ -559,7 +582,7 @@ namespace RelibreApi.Controllers
                     {
                         Distance = Util.Distance(
                             Double.Parse(x.Addresses.Single(x => x.Master == true).Latitude),
-                            Double.Parse(x.Addresses.Single(x => x.Master == true).Longitude), 
+                            Double.Parse(x.Addresses.Single(x => x.Master == true).Longitude),
                             latitude, longitude),
                         x.Book,
                         x.Contact,
@@ -628,10 +651,6 @@ namespace RelibreApi.Controllers
             // gerar notificações quando houver combinações
             return libraryBooksCombination;
         }
-        private Task<List<LibraryBook>> GetByIdLibrary(long idLibrary, int offset, int limit)
-        {
-            return _libraryBookMananger.GetByIdLibrary(idLibrary, offset, limit);
-        }
         private Task<List<LibraryBook>> GetByBookTitle(string title, long idLibraryRequest, Models.Type type, int offset, int limit)
         {
             return _libraryBookMananger
@@ -676,6 +695,24 @@ namespace RelibreApi.Controllers
         {
             return _libraryBookMananger
                 .GetByAssociated(category);
+        }
+
+        private List<object> CalculateDistance(ICollection<LibraryBookViewModel> notCalculate, double latitude, double longitude)
+        {
+            return (List<object>)notCalculate
+            .Select(x => new
+            {
+                Distance = Util.Distance(
+                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
+                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude),
+                            latitude, longitude),
+                x.Book,
+                x.Contact,
+                x.id,
+                x.Images,
+                x.Types,
+                x.Name
+            });
         }
 
     }

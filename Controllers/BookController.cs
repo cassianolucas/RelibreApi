@@ -131,9 +131,7 @@ namespace RelibreApi.Controllers
                     bookDb.Isbn13 = libraryBookMap.Book.Isbn13;
                     bookDb.Title = libraryBookMap.Book.Title;
                     bookDb.MaturityRating = libraryBookMap.Book.MaturityRating;
-                    bookDb.CreatedAt = Util.CurrentDateTime();
-
-                    await _bookMananger.CreateAsync(bookDb);
+                    bookDb.CreatedAt = Util.CurrentDateTime();                    
                 }
 
                 // capturar do cadastro

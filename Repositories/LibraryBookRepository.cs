@@ -43,7 +43,7 @@ namespace RelibreApi.Repositories
                 .ToListAsync();
         }
 
-        public Task<List<LibraryBook>> GetByBookTitle(string title, long idLibraryRequest, int offset, int limit)
+        public Task<List<LibraryBook>> GetByBookTitle(string title, long idLibraryRequest, Models.Type type, int offset, int limit)
         {
             return _context.LibraryBook
                 .Include(x => x.Book)
@@ -58,9 +58,9 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Library.Person)                
                 .Include(x => x.Library.Person.Addresses)
                 .Include(x => x.Images)
-                .Where(x => x.Id >= 0 && x.IdLibrary != idLibraryRequest && 
-                    string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(title) && 
-                        x.Book.Title.ToLower().Contains(title.ToLower()))
+                .Where(x => x.LibraryBookTypes.Any(x => x.IdType == type.Id) && 
+                    (string.IsNullOrEmpty(title) || (!string.IsNullOrEmpty(title) 
+                        && x.Book.Title.ToLower().Contains(title.ToLower()))))
                 .AsNoTracking()
                 .Take((limit > 0? limit: 30))
                 .Skip((offset > 0? offset: 0))
@@ -138,9 +138,9 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Library.Person.Addresses)
                 .Include(x => x.Images)
                 .AsNoTracking()
-                .Where(x => ((type != null && 
-                    x.LibraryBookTypes.Any(x => x.IdType == type.Id)) || 
-                        (type == null) )  && x.IdLibrary != idLibraryRequest)
+                .Where(x => (type != null && 
+                    x.LibraryBookTypes.Any(x => x.IdType == type.Id)) && 
+                        x.IdLibrary != idLibraryRequest)
                 .Take(offset > 0? offset : 30)
                 .Skip(limit > 0? limit : 0)
                 .ToListAsync();

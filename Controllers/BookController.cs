@@ -188,8 +188,10 @@ namespace RelibreApi.Controllers
                         Result = Constants.Error
                     });
 
+                libraryBookMap.Book = bookDb;
                 libraryBookMap.Active = true;
-                libraryBookMap.Price = userDb.Person.PersonType.Equals("PF") ? 0 : libraryBookMap.Price;
+                libraryBookMap.Price = userDb.Person.PersonType
+                    .Equals("PF") ? 0 : libraryBookMap.Price;
                 libraryBookMap.CreatedAt = Util.CurrentDateTime();
                 libraryBookMap.UpdatedAt = libraryBookMap.CreatedAt;
 
@@ -372,7 +374,7 @@ namespace RelibreApi.Controllers
                     .GetByLogin(login);
 
                 // retorna livros da biblioteca do usuario
-                if (string.IsNullOrEmpty(type) &&
+                if (string.IsNullOrEmpty(type) ||
                     string.IsNullOrEmpty(title))
                 {
                     var library = await _libraryMananger
@@ -404,7 +406,7 @@ namespace RelibreApi.Controllers
                             Status = Constants.Error,
                             Errors = new List<object>
                             {
-                                new { Message = Constants.LibraryNotFound }
+                                new { Message = Constants.BooksNotFound }
                             }
                         });
 
@@ -457,8 +459,21 @@ namespace RelibreApi.Controllers
                 }
 
                 // retorna todos os livros de todas as bibliotecas de acordo com título
+                var typeDb = await _typeMananger
+                    .GetByDescriptionAsync(type);
+
+                if (typeDb == null)
+                    return NotFound(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = "Tipo não localizado!" }
+                        }
+                    });
+
                 var libraryBooks = await
-                    GetByBookTitle(title, user.Person.Library.Id, offset, limit);
+                    GetByBookTitle(title, user.Person.Library.Id, typeDb, offset, limit);
 
                 // verificar, não está mapeando os autores, categorias, e tipos
                 var libraryBooksMaps = _mapper
@@ -517,13 +532,27 @@ namespace RelibreApi.Controllers
             [FromQuery(Name = "offset")] int offset,
             [FromQuery(Name = "limit")] int limit,
             [FromQuery(Name = "latitude")] double latitude,
-            [FromQuery(Name = "longitude")] double longitude
+            [FromQuery(Name = "longitude")] double longitude,
+            [FromQuery(Name = "type")] string type
         )
         {
             try
             {
+                var typeDb = await _typeMananger
+                    .GetByDescriptionAsync(type);
+
+                if (typeDb == null)
+                    return NotFound(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = "Tipo não localizado!" }
+                        }
+                    });
+
                 var libraryBooks = await
-                    GetByBookTitle(title, -1, offset, limit);
+                    GetByBookTitle(title, -1, typeDb, offset, limit);
 
                 // verificar, não está mapeando os autores, categorias, e tipos
                 var libraryBooksMaps = _mapper
@@ -605,11 +634,11 @@ namespace RelibreApi.Controllers
         {
             return _libraryBookMananger.GetByIdLibrary(idLibrary, offset, limit);
         }
-        private Task<List<LibraryBook>> GetByBookTitle(string title, long idLibraryRequest, int offset, int limit)
+        private Task<List<LibraryBook>> GetByBookTitle(string title, long idLibraryRequest, Models.Type type, int offset, int limit)
         {
             return _libraryBookMananger
                 .GetByBookTitle(
-                    Util.RemoveSpecialCharacter(title), idLibraryRequest, offset, limit);
+                    Util.RemoveSpecialCharacter(title), idLibraryRequest, type, offset, limit);
         }
         private async Task<List<LibraryBook>> GetByType(string type, long idLibraryRequest, int offset, int limit)
         {
@@ -619,8 +648,8 @@ namespace RelibreApi.Controllers
             // VENDA
             // EMPRESA
             // COMBINACAO
-            if (type.ToLower().Equals("venda"))
-                return await _libraryBookMananger.GetByBusiness(offset, limit);
+            // if (type.ToLower().Equals("venda"))
+            //     return await _libraryBookMananger.GetByBusiness(offset, limit);
 
             if (type.ToLower().Equals("combinacao"))
                 return await Combination(idLibraryRequest, offset, limit);

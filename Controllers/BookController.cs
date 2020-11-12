@@ -308,8 +308,8 @@ namespace RelibreApi.Controllers
             [FromQuery(Name = "title")] string title,
             [FromQuery(Name = "offset")] int offset,
             [FromQuery(Name = "limit")] int limit,
-            [FromQuery(Name = "latitude")] int latitude,
-            [FromQuery(Name = "longitude")] int longitude,
+            [FromQuery(Name = "latitude")] double latitude,
+            [FromQuery(Name = "longitude")] double longitude,
             [FromQuery(Name = "id_library")] int idLibrary
             )
         {

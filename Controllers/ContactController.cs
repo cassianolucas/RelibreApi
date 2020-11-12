@@ -289,7 +289,7 @@ namespace RelibreApi.Controllers
             }
         }
 
-        [HttpPost, Route(""), AllowAnonymous]
+        [HttpPost, Route("Public"), AllowAnonymous]
         public async Task<IActionResult> CreatePublicAsync(
             [FromForm(Name = "email")] string email,
             [FromForm(Name = "name")] string name,
@@ -299,25 +299,137 @@ namespace RelibreApi.Controllers
         {
             try
             {
-                // validar os dados
-                if (string.IsNullOrEmpty(email) || 
-                    string.IsNullOrEmpty(name) || 
-                     string.IsNullOrEmpty(phone))
-                        return NotFound(new ResponseErrorViewModel
-                        {
-                            Result = Constants.Error,
-                            Errors = new List<object>
-                            {
-                                string.IsNullOrEmpty(email)? new { Message = Constants.UserLoginInvalid }: null,
-                                string.IsNullOrEmpty(name)? new { Message = Constants.UserNameInvalid }: null,
-                                string.IsNullOrEmpty(phone)? new { Message = Constants.UserPhoneInvalid }: null
-                            }
-                        });
+                var errors = new List<object>();
 
-                return Ok();
+                var libraryBookDb = new LibraryBook();
+
+                // validar os dados
+                if (string.IsNullOrEmpty(email))
+                    errors.Add(new { Message = Constants.UserLoginInvalid });
+
+                if (string.IsNullOrEmpty(name))
+                    errors.Add(new { Message = Constants.UserNameInvalid });
+
+                if (string.IsNullOrEmpty(phone))
+                    errors.Add(new { Message = Constants.UserPhoneInvalid });
+
+                if (idBook <= 0)
+                {
+                    errors.Add(new { Message = "Livro inválido!" });
+                }
+                else
+                {
+                    // buscar biblioteca com livro
+                    libraryBookDb = await _libraryBookMananger
+                        .GetByIdAsync(idBook);
+
+                    if (libraryBookDb == null)
+                        errors.Add(new { Message = Constants.BookNotFound });
+                }
+
+                if (errors.Count > 0)
+                    return NotFound(new ResponseErrorViewModel
+                    {
+                        Result = Constants.Error,
+                        Errors = errors
+                    });
+
+                var contactDbRequest = await _contactMananger
+                    .GetByEmail(email);
+
+                // criar contato caso não exista
+                if (contactDbRequest == null)
+                {
+                    contactDbRequest = new Contact
+                    {
+                        Email = email,
+                        Name = name,
+                        Phone = phone
+                            .Replace("(", "")
+                            .Replace(")", "")
+                            .Replace("-", "")
+                            .Replace(" ", "")
+                            .Trim(),
+                        Active = true,
+                        CreatedAt = Util.CurrentDateTime()
+                    };
+                }
+                else
+                {
+                    // atualiza ultima alteração
+                    contactDbRequest.UpdatedAt = Util.CurrentDateTime();
+                }
+
+                var userDb = await _userMananger
+                    .GetByIdAsync(libraryBookDb.Library.Person.Id);
+
+                var contactDbOwner = await _contactMananger
+                    .GetByEmail(userDb.Login);
+                
+                if (contactDbOwner == null)
+                {
+                    contactDbOwner = new Contact
+                    {
+                        Email = userDb.Login,
+                        Name = userDb.Person.Name,
+                        Phone = userDb.Person.Phones
+                            .Single(x => x.Master == true).Number,
+                        Active = true,
+                        CreatedAt = Util.CurrentDateTime()
+                    };
+                }
+                else
+                {
+                    // atualiza ultima alteração
+                    contactDbOwner.UpdatedAt = Util.CurrentDateTime();
+                }
+
+                // cria novo registro de contato
+                var contactBook = new ContactBook
+                {
+                    ContactOwner = contactDbOwner,
+                    ContactRequest = contactDbRequest,
+                    LibraryBook = libraryBookDb,
+                    Approved = false,
+                    Denied = false
+                };
+
+                contactDbOwner
+                    .ContactBooksOwner.Add(contactBook);
+
+                // gerar notificação
+                var notification = new Notification
+                {
+                    Name = "Você tem uma solicitação de contado!",
+                    Description = "Entre em seu perfil e verifique os contatos!",
+                    CreatedAt = Util.CurrentDateTime()
+                };
+
+                await _notificationMananger.CreateAsync(notification);
+
+                var personNotification = new NotificationPerson
+                {
+                    Notification = notification,
+                    Person = libraryBookDb.Library.Person,
+                    Active = true,
+                    CreatedAt = Util.CurrentDateTime()
+                };
+
+                await _notificationPersonMananger
+                    .CreateAsync(personNotification);
+                
+                _uow.Commit();
+                
+                return Created(
+                    new Uri(Url.ActionLink("CreatePublic", "Contact")), 
+                    new ResponseViewModel
+                    {
+                        Result = null,
+                        Status = Constants.Sucess
+                    });
             }
             catch (Exception ex)
-            {                
+            {
                 // gerar log
                 return BadRequest(new
                 {
@@ -382,16 +494,16 @@ namespace RelibreApi.Controllers
 
                 var addressDb = userDb.Person.Addresses
                     .SingleOrDefault(x => x.Master == true);
-                               
+
                 // trazer todos os dados quando approved for = true                
                 if (approved)
                 {
                     var contacsMap = _mapper
                         .Map<List<ContactBookApprovedViewModel>>(contactsDb)
-                        .Select(x => new 
+                        .Select(x => new
                         {
                             Denied = x.Denied,
-                            Distance = Util.Distance(addressDb, 
+                            Distance = Util.Distance(addressDb,
                                 _userMananger.GetByLogin(x.Email)
                                     .Result.Person.Addresses.SingleOrDefault(x => x.Master == true)),
                             Email = x.Email,
@@ -413,10 +525,10 @@ namespace RelibreApi.Controllers
                 {
                     var contacsMap = _mapper
                         .Map<List<ContactBookViewModel>>(contactsDb)
-                        .Select(x => new 
+                        .Select(x => new
                         {
                             Denied = x.Denied,
-                            Distance = Util.Distance(addressDb, 
+                            Distance = Util.Distance(addressDb,
                                 _userMananger.GetByLogin(x.Email)
                                     .Result.Person.Addresses.SingleOrDefault(x => x.Master == true)),
                             FullName = x.FullName,
@@ -442,6 +554,6 @@ namespace RelibreApi.Controllers
                     Errors = new List<object> { Util.ReturnException(ex) }
                 });
             }
-        }        
+        }
     }
 }

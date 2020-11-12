@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using RelibreApi.Models;
 
 namespace RelibreApi.ViewModel
 {
-    public class BookViewModel : BaseModel
+    public class BookViewModel : BaseCreatedViewModel
     {                
         [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }

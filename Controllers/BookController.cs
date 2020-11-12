@@ -393,10 +393,9 @@ namespace RelibreApi.Controllers
 
                 var user = await _userMananger
                     .GetByLogin(login);
-
+                
                 // retorna livros da biblioteca do usuario
-                if (string.IsNullOrEmpty(type) ||
-                    string.IsNullOrEmpty(title))
+                if (string.IsNullOrEmpty(type) && idLibrary == 0)
                 {
                     var library = await _libraryMananger
                         .GetLibraryByPerson(user.Person.Id);
@@ -419,10 +418,10 @@ namespace RelibreApi.Controllers
                     // retorna todos os livros de todas as bibliotecas que 
                     // forem diferente do usuario da requisição de acordo com tipo 
                     var libraryBookDb = await
-                        GetByType(type, user.Person.Library.Id, offset, limit);
+                        GetByType(type, user.Person.Library.Id, title, offset, limit);
 
                     if (libraryBookDb.Count <= 0)
-                        return BadRequest(new ResponseErrorViewModel
+                        return NotFound(new ResponseErrorViewModel
                         {
                             Status = Constants.Error,
                             Errors = new List<object>
@@ -617,13 +616,13 @@ namespace RelibreApi.Controllers
         {
             // trazer todos os livros de todos os tipos para realizar validação
             var libraryBooks = await
-                GetByType("all", idLibraryRequest, offset, limit);
+                GetByType("all", idLibraryRequest, "", offset, limit);
 
             if (libraryBooks.Count <= 0)
                 throw new ArgumentNullException();
 
             var libraryBooksInteresses = await
-                GetByType("interesse", idLibraryRequest, offset, limit);
+                GetByType("interesse", idLibraryRequest, "", offset, limit);
 
             if (libraryBooksInteresses.Count <= 0)
                 throw new ArgumentNullException();
@@ -657,7 +656,7 @@ namespace RelibreApi.Controllers
                 .GetByBookTitle(
                     Util.RemoveSpecialCharacter(title), idLibraryRequest, type, offset, limit);
         }
-        private async Task<List<LibraryBook>> GetByType(string type, long idLibraryRequest, int offset, int limit)
+        private async Task<List<LibraryBook>> GetByType(string type, long idLibraryRequest, string title, int offset, int limit)
         {
             // TROCAR
             // EMPRESTAR

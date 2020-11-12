@@ -529,7 +529,8 @@ namespace RelibreApi.Controllers
                         x.Contact,
                         x.id,
                         x.Images,
-                        x.Types
+                        x.Types,
+                        x.Name
                     })
                     .OrderBy(x => x.Distance);
 

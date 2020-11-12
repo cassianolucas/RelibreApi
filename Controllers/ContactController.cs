@@ -289,6 +289,47 @@ namespace RelibreApi.Controllers
             }
         }
 
+        [HttpPost, Route(""), AllowAnonymous]
+        public async Task<IActionResult> CreatePublicAsync(
+            [FromForm(Name = "email")] string email,
+            [FromForm(Name = "name")] string name,
+            [FromForm(Name = "phone")] string phone,
+            [FromForm(Name = "id_book")] long idBook
+        )
+        {
+            try
+            {
+                // validar os dados
+                if (string.IsNullOrEmpty(email) || 
+                    string.IsNullOrEmpty(name) || 
+                     string.IsNullOrEmpty(phone))
+                        return NotFound(new ResponseErrorViewModel
+                        {
+                            Result = Constants.Error,
+                            Errors = new List<object>
+                            {
+                                string.IsNullOrEmpty(email)? new { Message = Constants.UserLoginInvalid }: null,
+                                string.IsNullOrEmpty(name)? new { Message = Constants.UserNameInvalid }: null,
+                                string.IsNullOrEmpty(phone)? new { Message = Constants.UserPhoneInvalid }: null
+                            }
+                        });
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {                
+                // gerar log
+                return BadRequest(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        Util.ReturnException(ex)
+                    }
+                });
+            }
+        }
+
         [HttpGet, Route(""), Authorize]
         public async Task<IActionResult> GetAsync(
             [FromQuery(Name = "type")] string type,
@@ -401,6 +442,6 @@ namespace RelibreApi.Controllers
                     Errors = new List<object> { Util.ReturnException(ex) }
                 });
             }
-        }
+        }        
     }
 }

@@ -21,13 +21,15 @@ namespace RelibreApi.Utils
         public const string Sucess = "Sucesso";
         public const string NotFound = "Não localizado!";
         public const string UserFound = "Usuário existente!";
-        public const string UserNotFound = "Usuário não localizado!";
+        public const string UserNotFound = "Usuário não localizado!";        
         public const string UserAddressNotFound = "Necessário cadastrar um endereço!";
         public const string UserInvalidOrPassword = "Usuário ou senha inválidos!";
         public const string UserNotValidate = "Email não verificado!";
         public const string UserPasswordInvalid = "Senha inválida";
         public const string UserDocumentInvalid = "Documento inválido";
         public const string UserLoginInvalid = "Email inválido";
+        public const string UserNameInvalid = "Nome inválido";
+        public const string UserPhoneInvalid = "Telefone inválido";
         public const string Error = "Erro!";
         public const string CodeInvalid = "Código não válido!";
         public const string InvalidParameter = "Parametro não informado!";

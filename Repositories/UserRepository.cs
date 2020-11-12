@@ -21,7 +21,8 @@ namespace RelibreApi.Repositories
         }
         public Task CreateAsync(User model)
         {
-            return Task.Run(() => _context.User.AddAsync(model));
+            return Task.Run(() => 
+                _context.User.AddAsync(model));
         }
 
         public Address GetAddressByLogin(string login)
@@ -49,12 +50,12 @@ namespace RelibreApi.Repositories
         public Task<User> GetByIdAsync(long Id)
         {
             return _context.User
+                .Include(x => x.Profile)
+                .Where(x => x.Person.Id == Id)
+                .Include(x => x.Person)
                 .Include(x => x.Person.Phones)
                 .Include(x => x.Person.Addresses)
-                .Include(x => x.Profile)                
-                // .Include(x => x.Person.Library)
-                .Include(x => x.Person)
-                .Where(x => x.Person.Id == Id)
+                .Include(x => x.Person.Library)
                 .SingleOrDefaultAsync();
         }
 

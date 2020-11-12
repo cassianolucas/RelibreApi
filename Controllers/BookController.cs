@@ -88,7 +88,7 @@ namespace RelibreApi.Controllers
                 // quando livro não existir criar 
                 if (bookDb == null)
                 {
-                    bookDb = new Book();
+                    bookDb = new Book();                    
 
                     // verificar se existe autores
                     var authors = new List<Author>();
@@ -125,7 +125,13 @@ namespace RelibreApi.Controllers
                         }
                     }
 
-                    bookDb.CreatedAt = Util.CurrentDateTime();                    
+                    bookDb.Description = libraryBookMap.Book.Description;
+                    bookDb.AverageRating = libraryBookMap.Book.AverageRating;
+                    bookDb.CodeIntegration = libraryBookMap.Book.CodeIntegration;
+                    bookDb.Isbn13 = libraryBookMap.Book.Isbn13;
+                    bookDb.Title = libraryBookMap.Book.Title;
+                    bookDb.MaturityRating = libraryBookMap.Book.MaturityRating;
+                    bookDb.CreatedAt = Util.CurrentDateTime();
 
                     await _bookMananger.CreateAsync(bookDb);
                 }
@@ -346,7 +352,8 @@ namespace RelibreApi.Controllers
                         x.Contact,
                         x.id,
                         x.Images,
-                        x.Types                        
+                        x.Types,
+                        x.Name
                     })
                     .OrderBy(x => x.Distance);
 
@@ -437,7 +444,8 @@ namespace RelibreApi.Controllers
                             x.Contact,
                             x.id,
                             x.Images,
-                            x.Types
+                            x.Types,
+                            x.Name
                         })
                         .OrderBy(x => x.Distance);
 
@@ -466,7 +474,8 @@ namespace RelibreApi.Controllers
                         x.Contact,
                         x.id,
                         x.Images,
-                        x.Types
+                        x.Types,
+                        x.Name
                     })
                     .OrderBy(x => x.Distance);
 

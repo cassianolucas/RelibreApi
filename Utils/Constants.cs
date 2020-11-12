@@ -36,6 +36,7 @@ namespace RelibreApi.Utils
         public const string LibraryNotFound = "Biblioteca não localizada!";
         public const string BookNotFound = "Livro não localizado!";
         public const string BooksNotFound = "Nenhum livro localizado!";
+        public const string BookInvalid = "Não é possível adicionar o livro da sua biblioteca!";
         public const string InvalidImage = "Nenhuma imagem localizada!";
         public const string InvalidNotification = "Notificação não localizada!";
         public const string InvalidType = "Tipo inválido!";

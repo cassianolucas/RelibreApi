@@ -133,7 +133,7 @@ namespace RelibreApi.Controllers
                         Status = Constants.Error,
                         Errors = new List<object>
                         {
-                            new { Message = "Não é possível adicionar o livro da sua biblioteca!" }
+                            new { Message = Constants.BookInvalid }
                         }
                     });
 
@@ -226,7 +226,6 @@ namespace RelibreApi.Controllers
                 });
             }
         }
-
 
         [HttpPost, Route("Approve"), Authorize]
         public async Task<IActionResult> ApproveAsync(
@@ -361,7 +360,7 @@ namespace RelibreApi.Controllers
                 }
 
                 var userDb = await _userMananger
-                    .GetByIdAsync(libraryBookDb.Library.Person.Id);
+                    .GetByIdAsync(libraryBookDb.Library.Person.Id);                
 
                 var contactDbOwner = await _contactMananger
                     .GetByEmail(userDb.Login);
@@ -374,6 +373,7 @@ namespace RelibreApi.Controllers
                         Name = userDb.Person.Name,
                         Phone = userDb.Person.Phones
                             .Single(x => x.Master == true).Number,
+                        ContactBooksOwner = new List<ContactBook>(),
                         Active = true,
                         CreatedAt = Util.CurrentDateTime()
                     };
@@ -396,6 +396,16 @@ namespace RelibreApi.Controllers
 
                 contactDbOwner
                     .ContactBooksOwner.Add(contactBook);
+
+                if (contactDbOwner.Id > 0)
+                {
+                    _contactMananger.Update(contactDbOwner);
+                }
+                else
+                {
+                    await _contactMananger
+                        .CreateAsync(contactDbOwner);
+                }
 
                 // gerar notificação
                 var notification = new Notification

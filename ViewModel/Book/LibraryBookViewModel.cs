@@ -6,7 +6,7 @@ namespace RelibreApi.ViewModel
 {
     public class LibraryBookViewModel : BaseViewModel
     {   
-        [JsonIgnore]
+        [JsonIgnore]        
         public ICollection<AddressViewModel> Addresses { get; set; }
 
         [JsonProperty(PropertyName = "contact")]
@@ -21,7 +21,11 @@ namespace RelibreApi.ViewModel
         [JsonProperty(PropertyName = "types")]        
         public ICollection<TypeViewModel> Types { get; set; }
 
-        // [JsonProperty(PropertyName = "id_library")]
-        // public long IdLibrary { get; set; }        
+        [JsonProperty(PropertyName = "price")]
+        public double Price { get; set; }
+
+        [JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+
     }
 }

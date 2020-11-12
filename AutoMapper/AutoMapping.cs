@@ -38,6 +38,7 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Person.UrlImage, m => m.MapFrom(x => x.UrlImage))
             .ForPath(x => x.Person.Description, m => m.MapFrom(x => x.Description))
             .ForPath(x => x.Person.Document, m => m.MapFrom(x => x.Document))
+            .ForPath(x => x.Person.Addresses, m => m.MapFrom(x => x.Addresses))
             .AfterMap((src, dest) =>
             {
                 dest.Person.Phones = new List<Models.Phone>();
@@ -45,7 +46,7 @@ namespace RelibreApi.AutoMapper
                 dest.Person.Phones.Add(new Models.Phone
                 {
                     Number = src.Phone
-                });
+                });                                
             })
             .ReverseMap();
 
@@ -86,6 +87,7 @@ namespace RelibreApi.AutoMapper
             CreateMap<LibraryBookViewModel, Models.LibraryBook>()
             .ForPath(x => x.LibraryBookTypes, m => m.MapFrom(x => x.Types))
             .ForPath(x => x.Library.Person.Addresses, m => m.MapFrom(x => x.Addresses))
+            .ForPath(x => x.Library.Person.Name, m => m.MapFrom(x => x.Name))
             .ReverseMap();
 
             CreateMap<ContactViewModel, Models.Contact>()

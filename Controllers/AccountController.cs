@@ -140,7 +140,7 @@ namespace RelibreApi.Controllers
         )
         {
             try
-            {                
+            {
                 var userMap = _mapper.Map<User>(user);
 
                 // verificar se campos estão preenchidos
@@ -164,9 +164,15 @@ namespace RelibreApi.Controllers
                         }
                     });
 
+                var document = userMap.Person.Document
+                    .Replace(".", "")
+                    .Replace("/", "")
+                    .Replace("-", "")
+                    .Trim();
+
                 var userDb = await _userMananger
                     .GetByLoginOrDocumentNoTracking(userMap.Login,
-                        userMap.Person.Document);
+                        document);
 
                 // captura perfil de usuario padrão
                 var profileDb = await _profileMananger
@@ -187,10 +193,7 @@ namespace RelibreApi.Controllers
                 newPhone.CreatedAt = Util.CurrentDateTime();
                 newPhone.UpdatedAt = newPhone.CreatedAt;
 
-                userMap.Person.Document
-                    .Replace(".", "")
-                    .Replace("/", "")
-                    .Replace("-", "");
+                userMap.Person.Document = document;
                 userMap.LoginVerified = false;
                 userMap.Profile = profileDb;
                 userMap.Password = Util.Encrypt(userMap.Password);
@@ -398,7 +401,7 @@ namespace RelibreApi.Controllers
                 {
                     userDb.Person.LastName = userMap.Person.LastName;
                 }
-
+                userDb.Person.Description = userMap.Person.Description;
                 userDb.Person.UrlImage = userMap.Person.UrlImage;
                 userDb.Person.WebSite = userMap.Person.WebSite;
                 userDb.Person.UpdatedAt = Util.CurrentDateTime();
@@ -409,13 +412,16 @@ namespace RelibreApi.Controllers
                 {
                     foreach (var phone in userMap.Person.Phones)
                     {
-                        if (!string.IsNullOrEmpty(phone.Number))
+                        var numberFormated = phone.Number
+                            .Replace("+", "")
+                            .Replace("(", "")
+                            .Replace(")", "")
+                            .Replace("-", "")
+                            .Replace(" ", "")
+                            .Trim();
+
+                        if (!string.IsNullOrEmpty(numberFormated))
                         {
-                            var numberFormated = phone.Number
-                                .Replace("+", "")
-                                .Replace("(", "")
-                                .Replace(")", "")
-                                .Replace("-", "");
 
                             var phoneDb = (userDb.Person.Phones != null &&
                                 userDb.Person.Phones.Count > 0) ? userDb.Person.Phones
@@ -512,7 +518,7 @@ namespace RelibreApi.Controllers
                 });
             }
             catch (Exception ex)
-            {                
+            {
                 // gerar log
                 return BadRequest(new ResponseErrorViewModel
                 {

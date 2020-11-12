@@ -138,25 +138,20 @@ namespace RelibreApi.Utils
             return (rad * 180 / Math.PI);
         }
         public static object ReturnException(Exception ex)
-        {
-            return new
+        {            
+            var environment = Environment
+                .GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
+
+            if (environment.ToString().Contains("RelibreDevelopment"))
             {
-                Message = ex.Message,
-                Error = ex.GetBaseException()
-            };
-            // var environment = Environment
-            //     .GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
+                return new
+                {
+                    Message = ex.Message,
+                    Error = ex.GetBaseException()
+                };
+            }
 
-            // if (environment.ToString().Contains("RelibreDevelopment"))
-            // {
-            //     return new
-            //     {
-            //         Message = ex.Message,
-            //         Error = ex.GetBaseException()
-            //     };
-            // }
-
-            // return new { Message = Constants.MessageExceptionDefault };
+            return new { Message = Constants.MessageExceptionDefault };
         }
         public static string RemoveSpecialCharacter(string valor)
         {

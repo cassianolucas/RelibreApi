@@ -98,11 +98,12 @@ namespace RelibreApi.Controllers
                             .GetByName(authorMap.Author.Name);
 
                         if (authorDb != null)
-                        {
-                            libraryBookMap.Book.AuthorBooks.Add(new AuthorBook
+                        {                            
+                            bookDb.AuthorBooks.Add(
+                            new AuthorBook
                             {
                                 Author = authorDb,
-                                Book = libraryBookMap.Book
+                                Book = bookDb
                             });
                         }
                     }
@@ -115,17 +116,18 @@ namespace RelibreApi.Controllers
 
                         if (categoryDb != null)
                         {
-                            libraryBookMap.Book.CategoryBooks.Add(new CategoryBook
+                            bookDb.CategoryBooks.Add(
+                            new CategoryBook
                             {
                                 Category = categoryDb,
-                                Book = libraryBookMap.Book
+                                Book = bookDb
                             });
                         }
                     }
 
-                    bookDb.CreatedAt = Util.CurrentDateTime();
+                    bookDb.CreatedAt = Util.CurrentDateTime();                    
 
-                    await _bookMananger.CreateAsync(libraryBookMap.Book);
+                    await _bookMananger.CreateAsync(bookDb);
                 }
 
                 // capturar do cadastro
@@ -191,12 +193,13 @@ namespace RelibreApi.Controllers
 
                 var libraryBookCreated = _mapper.Map<LibraryBookViewModel>(libraryBookMap);
 
-                return Created(new Uri(Url.ActionLink("Create", "Book")),
-                new ResponseViewModel
-                {
-                    Result = libraryBookCreated,
-                    Status = Constants.Sucess
-                });
+                return Created(
+                    new Uri(Url.ActionLink("Create", "Book")),
+                        new ResponseViewModel
+                        {
+                            Result = libraryBookCreated,
+                            Status = Constants.Sucess
+                        });
             }
             catch (Exception ex)
             {
@@ -335,15 +338,15 @@ namespace RelibreApi.Controllers
 
                     booksMap.Select(x => new
                     {
-                        Distance = string.Format("{0:0}",
-                            Util.Distance(latitude, longitude,
-                            Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
-                            Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude))).Substring(0, 4),
+                        Distance = Util.Distance(
+                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
+                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude),
+                            latitude, longitude),
                         x.Book,
                         x.Contact,
                         x.id,
                         x.Images,
-                        x.Types
+                        x.Types                        
                     })
                     .OrderBy(x => x.Distance);
 
@@ -426,10 +429,10 @@ namespace RelibreApi.Controllers
                         .Map<ICollection<LibraryBookViewModel>>(libraryBookDb)
                         .Select(x => new
                         {
-                            Distance = string.Format("{0:0}",
-                                Util.Distance(latitude, longitude,
-                                Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
-                                Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude))).Substring(0, 4),
+                            Distance = Util.Distance(
+                                Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
+                                Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude),
+                                latitude, longitude),
                             x.Book,
                             x.Contact,
                             x.id,
@@ -454,10 +457,11 @@ namespace RelibreApi.Controllers
                     .Map<ICollection<LibraryBookViewModel>>(libraryBooks)
                     .Select(x => new
                     {
-                        Distance = string.Format("{0:0}",
-                            Util.Distance(latitude, longitude,
-                            Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
-                            Convert.ToDouble(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude))).Substring(0, 4),
+                        Distance = 
+                            Util.Distance(
+                                Double.Parse(x.Addresses.Single(x => x.Master == true).Latitude),
+                                Double.Parse(x.Addresses.Single(x => x.Master == true).Longitude),
+                                latitude, longitude),
                         x.Book,
                         x.Contact,
                         x.id,
@@ -516,9 +520,11 @@ namespace RelibreApi.Controllers
                 var libraryBooksMaps = _mapper
                     .Map<ICollection<LibraryBookViewModel>>(libraryBooks)
                     .Select(x => new
-                    {                        
-                        Distance = Util.Distance(Double.Parse(x.Addresses.Single().Latitude), 
-                            Double.Parse(x.Addresses.Single().Longitude), latitude, longitude),
+                    {
+                        Distance = Util.Distance(
+                            Double.Parse(x.Addresses.Single(x => x.Master == true).Latitude),
+                            Double.Parse(x.Addresses.Single(x => x.Master == true).Longitude), 
+                            latitude, longitude),
                         x.Book,
                         x.Contact,
                         x.id,

@@ -523,7 +523,7 @@ namespace RelibreApi.Controllers
             catch (ArgumentNullException)
             {
                 // gerar log
-                return BadRequest(new
+                return NotFound(new
                 {
                     Status = Constants.Error,
                     Errors = new List<object>
@@ -663,9 +663,7 @@ namespace RelibreApi.Controllers
             // DOAR
             // VENDA
             // EMPRESA
-            // COMBINACAO
-            // if (type.ToLower().Equals("venda"))
-            //     return await _libraryBookMananger.GetByBusiness(offset, limit);
+            // COMBINACAO            
 
             if (type.ToLower().Equals("combinacao"))
                 return await Combination(idLibraryRequest, offset, limit);
@@ -676,11 +674,11 @@ namespace RelibreApi.Controllers
             {
                 typeDb = await _typeMananger.GetByDescriptionAsync(type);
 
-                if (type == null) throw new ArgumentNullException();
+                if (typeDb == null) throw new ArgumentNullException();
 
                 idLibraryRequest = (typeDb
                     .Description.ToLower()
-                        .Equals("interesse")) ? -1 : idLibraryRequest;
+                        .Equals("interesse")) ? idLibraryRequest: -1;
             }
             else
             {

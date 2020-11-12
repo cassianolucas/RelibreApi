@@ -119,7 +119,8 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Images)
                 .Where(x => x.IdLibrary == IdLibrary && 
                     (string.IsNullOrEmpty(title) || (!string.IsNullOrEmpty(title) && 
-                        x.Book.Title.ToLower().Contains(title.ToLower()))))
+                        x.Book.Title.ToLower().Contains(title.ToLower()))) && 
+                            x.LibraryBookTypes.Any(x => x.IdType != 4))
                 .Take(limit > 0? limit : 30)
                 .Skip(offset > 0? offset : 0)
                 .ToListAsync();
@@ -142,7 +143,7 @@ namespace RelibreApi.Repositories
                 .AsNoTracking()
                 .Where(x => (type != null && 
                     x.LibraryBookTypes.Any(x => x.IdType == type.Id)) && 
-                        x.IdLibrary != idLibraryRequest)
+                        x.IdLibrary == idLibraryRequest)
                 .Take(offset > 0? offset : 30)
                 .Skip(limit > 0? limit : 0)
                 .ToListAsync();

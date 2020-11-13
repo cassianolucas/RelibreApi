@@ -374,10 +374,10 @@ namespace RelibreApi.Controllers
                     booksMap = await
                         GetByType(type, user.Person.Library.Id, title, offset, limit);
 
-                // if (type != null && type.ToLower().Contains("trocar") ||
+                // if (!string.IsNullOrEmpty(type) && type.ToLower().Contains("trocar") ||
                 //     type.ToLower().Contains("emprestar") ||
                 //         type.ToLower().Contains("doar"))
-                //     booksMap.AddRange(await GetSuggestion());
+                //     booksMap.AddRange(await GetSuggestion(booksMap, type, user.Person.Library.Id));
 
                 if (booksMap == null || booksMap.Count <= 0)
                     throw new ArgumentNullException(Constants.BooksNotFound);
@@ -512,6 +512,9 @@ namespace RelibreApi.Controllers
             if (type.ToLower().Equals("combinacao"))
                 return await GetByCombination(idLibraryRequest);
 
+            if (!type.ToLower().Equals("interesse"))
+                return await GetByTypeOnAllLibrary(type, idLibraryRequest, title, offset, limit);
+
             var typeDb = await _typeMananger.GetByDescriptionAsync(type);
 
             if (!type.ToLower().Equals("all") && typeDb == null)
@@ -582,38 +585,59 @@ namespace RelibreApi.Controllers
             return _mapper
                 .Map<List<LibraryBookViewModel>>(booksDb);
         }
-        private async Task<List<LibraryBookViewModel>> GetSuggestion()
+        private async Task<List<LibraryBookViewModel>> GetByTypeOnAllLibrary(string type, long idLibraryRequest, string title, int offset, int limit)
         {
-            // if (!type.Equals("interesse"))
-            // {
-            //     // TRAZER LIVROS RELACIONADOS POR CATEGORIA
-            //     var categories = libraryBookDb
-            //         .Select(x => x.Book)
-            //             .Select(x => x.CategoryBooks
-            //                 .Select(x => x.Category)
-            //                     .Select(x => x.Name)
-            //                         .Single())
-            //                         .Distinct().ToList();
+            var typeDb = await _typeMananger.GetByDescriptionAsync(type);
 
-            //     var associateds = new List<LibraryBook>();
+            if (typeDb == null)
+                throw new ArgumentNullException(Constants.BooksNotFound);
 
-            //     foreach (var category in categories)
-            //     {
-            //         var assosiated = await GetByAssociated(category);
+            var booksDb = await _libraryBookMananger
+                .GetByTypeOnAllLibraryNoTracking(typeDb, idLibraryRequest, title, offset, limit);
 
-            //         associateds.AddRange(assosiated);
-            //     }
-
-            //     // adiciona livros associados
-            //     libraryBookDb.AddRange(associateds);
-            // }
-
-            return new List<LibraryBookViewModel>();
+            return _mapper
+                .Map<List<LibraryBookViewModel>>(booksDb);
         }
-        private Task<List<LibraryBook>> GetByAssociated(string category)
+        private async Task<List<LibraryBookViewModel>> GetSuggestion(List<LibraryBookViewModel> books, string type, long idLibraryRequest)
+        {            
+            // retorna livroz relacionados de acordo com as categorias e o tipo
+            var categories = books
+                .Select(x => x.Book)
+                    .Select(x => x.Categories
+                        .Select(x => x.Name)
+                            .SingleOrDefault())
+                                .Distinct()
+                                    .ToList();
+
+            var associateds = new List<LibraryBook>();
+
+            var typeDb = await _typeMananger.GetByDescriptionAsync(type);
+
+            // quando não informar o tipo, retornar vazio
+            if (typeDb == null)
+                return new List<LibraryBookViewModel>();
+
+            foreach (var category in categories)
+            {
+                if (category != null)
+                {
+                    var assosiated = await GetByAssociated(category, typeDb, idLibraryRequest);
+
+                    associateds.AddRange(assosiated);
+                }
+            }
+
+            var associatedsMap = _mapper
+                .Map<List<LibraryBookViewModel>>(associateds);
+
+            books.AddRange(associatedsMap);
+            
+            return books;
+        }
+        private Task<List<LibraryBook>> GetByAssociated(string category, Models.Type type, long idLibraryRequest)
         {
             return _libraryBookMananger
-                .GetByAssociatedNoTracking(category);
+                .GetByAssociatedNoTracking(category, type, idLibraryRequest);
         }
         private IEnumerable<LibraryBookViewModel> ResponseLibraryBook(
             ICollection<LibraryBookViewModel> notCalculate,

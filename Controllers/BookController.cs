@@ -110,7 +110,7 @@ namespace RelibreApi.Controllers
 
                         if (bookDb.AuthorBooks == null)
                             bookDb.AuthorBooks = new List<AuthorBook>();
-                        
+
                         bookDb.AuthorBooks.Add(
                             new AuthorBook
                             {
@@ -345,7 +345,7 @@ namespace RelibreApi.Controllers
             {
                 // offset é a partir de qual registro você quer
                 // limit é o valor máximo de registros a serem retornados
-
+                                
                 // buscar por id de biblioteca
                 if (idLibrary > 0)
                 {
@@ -393,7 +393,7 @@ namespace RelibreApi.Controllers
 
                 var user = await _userMananger
                     .GetByLogin(login);
-                
+
                 // retorna livros da biblioteca do usuario
                 if (string.IsNullOrEmpty(type) && idLibrary == 0)
                 {
@@ -429,30 +429,6 @@ namespace RelibreApi.Controllers
                                 new { Message = Constants.BooksNotFound }
                             }
                         });
-
-                    if (!type.Equals("interesse"))
-                    {
-                        // TRAZER LIVROS RELACIONADOS POR CATEGORIA
-                        var categories = libraryBookDb
-                            .Select(x => x.Book)
-                                .Select(x => x.CategoryBooks
-                                    .Select(x => x.Category)
-                                        .Select(x => x.Name)
-                                            .Single())
-                                            .Distinct().ToList();
-
-                        var associateds = new List<LibraryBook>();
-
-                        foreach (var category in categories)
-                        {
-                            var assosiated = await GetByAssociated(category);
-
-                            associateds.AddRange(assosiated);
-                        }
-
-                        // adiciona livros associados
-                        libraryBookDb.AddRange(associateds);
-                    }
 
                     var librariesBooksMap = _mapper
                         .Map<ICollection<LibraryBookViewModel>>(libraryBookDb)
@@ -513,6 +489,8 @@ namespace RelibreApi.Controllers
                         x.Name
                     })
                     .OrderBy(x => x.Distance);
+
+                // ResponseBook(); 
 
                 return Ok(new ResponseViewModel
                 {
@@ -668,22 +646,10 @@ namespace RelibreApi.Controllers
             if (type.ToLower().Equals("combinacao"))
                 return await Combination(idLibraryRequest, offset, limit);
 
-            var typeDb = new Models.Type();
+            var typeDb = await _typeMananger.GetByDescriptionAsync(type);
 
-            if (!type.ToLower().Equals("all"))
-            {
-                typeDb = await _typeMananger.GetByDescriptionAsync(type);
-
-                if (typeDb == null) throw new ArgumentNullException();
-
-                idLibraryRequest = (typeDb
-                    .Description.ToLower()
-                        .Equals("interesse")) ? idLibraryRequest: -1;
-            }
-            else
-            {
-                typeDb = null;
-            }
+            if (!type.ToLower().Equals("all") && typeDb == null)
+                throw new ArgumentNullException();
 
             return await _libraryBookMananger
                 .GetByTypeNoTracking(typeDb, idLibraryRequest, offset, limit);
@@ -711,6 +677,37 @@ namespace RelibreApi.Controllers
                 x.Name
             });
         }
+
+        
+        private ICollection<LibraryBookViewModel> ResponseBook(List<LibraryBook> libraryBookDb, double latitude, double longitude)
+        {
+            return _mapper
+                .Map<ICollection<LibraryBookViewModel>>(libraryBookDb);
+        }
+
+        // if (!type.Equals("interesse"))
+        // {
+        //     // TRAZER LIVROS RELACIONADOS POR CATEGORIA
+        //     var categories = libraryBookDb
+        //         .Select(x => x.Book)
+        //             .Select(x => x.CategoryBooks
+        //                 .Select(x => x.Category)
+        //                     .Select(x => x.Name)
+        //                         .Single())
+        //                         .Distinct().ToList();
+
+        //     var associateds = new List<LibraryBook>();
+
+        //     foreach (var category in categories)
+        //     {
+        //         var assosiated = await GetByAssociated(category);
+
+        //         associateds.AddRange(assosiated);
+        //     }
+
+        //     // adiciona livros associados
+        //     libraryBookDb.AddRange(associateds);
+        // }
 
     }
 }

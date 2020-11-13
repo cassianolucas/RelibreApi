@@ -33,8 +33,7 @@ namespace RelibreApi.Utils
         public const string Error = "Erro!";
         public const string CodeInvalid = "Código não válido!";
         public const string InvalidParameter = "Parametro não informado!";
-        public const string LibraryNotFound = "Biblioteca não localizada!";
-        public const string BookNotFound = "Livro não localizado!";
+        public const string LibraryNotFound = "Biblioteca não localizada!";        
         public const string BooksNotFound = "Nenhum livro localizado!";
         public const string BookInvalid = "Não é possível adicionar o livro da sua biblioteca!";
         public const string InvalidImage = "Nenhuma imagem localizada!";

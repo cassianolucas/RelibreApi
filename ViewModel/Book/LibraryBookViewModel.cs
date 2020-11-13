@@ -27,5 +27,8 @@ namespace RelibreApi.ViewModel
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
+        [JsonProperty(PropertyName = "distance")]
+        public decimal Distance { get; set; }
+
     }
 }

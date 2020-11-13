@@ -93,7 +93,7 @@ namespace RelibreApi.Utils
 
             return access_token;
         }
-        public static double Distance(double lat1, double lon1, double lat2, double lon2)
+        public static decimal Distance(double lat1, double lon1, double lat2, double lon2)
         {
             try
             {
@@ -111,14 +111,16 @@ namespace RelibreApi.Utils
 
                 dist = dist * 1.609344;
 
-                return (dist);
+                // var mt = (dist / 1000);
+                
+                return Decimal.Parse(dist.ToString("F"));
             }
             catch (Exception)
             {
                 return 0;
             }
         }
-        public static double Distance(Address address1, Address address2)
+        public static decimal  Distance(Address address1, Address address2)
         {
             if (address1 != null && address2 != null)
             {

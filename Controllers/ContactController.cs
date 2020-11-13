@@ -118,7 +118,7 @@ namespace RelibreApi.Controllers
                         Status = Constants.Error,
                         Errors = new List<object>
                         {
-                            new { Message = Constants.BookNotFound }
+                            new { Message = Constants.BooksNotFound }
                         }
                     });
 
@@ -323,7 +323,7 @@ namespace RelibreApi.Controllers
                         .GetByIdAsync(idBook);
 
                     if (libraryBookDb == null)
-                        errors.Add(new { Message = Constants.BookNotFound });
+                        errors.Add(new { Message = Constants.BooksNotFound });
                 }
 
                 if (errors.Count > 0)

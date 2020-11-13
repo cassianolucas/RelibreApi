@@ -301,7 +301,7 @@ namespace RelibreApi.Controllers
                 {
                     Errors = new List<object>
                     {
-                        new { Message = Constants.BookNotFound }
+                        new { Message = Constants.BooksNotFound }
                     },
                     Result = Constants.Error
                 });
@@ -345,160 +345,53 @@ namespace RelibreApi.Controllers
             {
                 // offset é a partir de qual registro você quer
                 // limit é o valor máximo de registros a serem retornados
-                                
-                // buscar por id de biblioteca
+                var books = new List<LibraryBook>();
+
+                var booksMap = new List<LibraryBookViewModel>();
+
+                // buscar por biblioteca
                 if (idLibrary > 0)
-                {
-                    var books = await _libraryBookMananger
-                        .GetByIdLibrary(idLibrary, title, offset, limit);
+                    booksMap = await
+                        GetByIdLibrary(idLibrary, title, offset, limit);
 
-                    if (books.Count <= 0)
-                        return BadRequest(new ResponseErrorViewModel
-                        {
-                            Result = Constants.Error,
-                            Errors = new List<object>
-                            {
-                                new { Message = Constants.BooksNotFound }
-                            }
-                        });
-
-                    var booksMap = _mapper
-                        .Map<ICollection<LibraryBookViewModel>>(books);
-
-                    booksMap.Select(x => new
-                    {
-                        Distance = Util.Distance(
-                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
-                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude),
-                            latitude, longitude),
-                        x.Book,
-                        x.Contact,
-                        x.id,
-                        x.Images,
-                        x.Types,
-                        x.Name
-                    })
-                    .OrderBy(x => x.Distance);
-
-                    return Ok(new ResponseViewModel
-                    {
-                        Result = booksMap,
-                        Status = Constants.Sucess
-                    });
-                }
-
+                // captura login de usuario logado
                 var login = Util
                     .GetClaim(_httpContext,
                         Constants.UserClaimIdentifier);
 
+                // busca dados do usuario logado
                 var user = await _userMananger
                     .GetByLogin(login);
 
-                // retorna livros da biblioteca do usuario
-                if (string.IsNullOrEmpty(type) && idLibrary == 0)
-                {
-                    var library = await _libraryMananger
-                        .GetLibraryByPerson(user.Person.Id);
+                // buscar livros do usuario 
+                if (string.IsNullOrEmpty(type) && idLibrary == 0 &&
+                    longitude == 0 && longitude == 0)
+                    booksMap = await
+                        GetMyBooks(user.Person.Id, title, offset, limit);
 
-                    var libraryBookDb = await _libraryBookMananger
-                        .GetByIdLibrary(library.Id, title, offset, limit);
-
-                    var librariesBooksMap = _mapper
-                        .Map<ICollection<LibraryBookViewModel>>(libraryBookDb);
-
-                    return Ok(new ResponseViewModel
-                    {
-                        Result = librariesBooksMap,
-                        Status = Constants.Sucess
-                    });
-                }
-
+                // buscar livros de acordo com tipo
                 if (!string.IsNullOrEmpty(type))
-                {
-                    // retorna todos os livros de todas as bibliotecas que 
-                    // forem diferente do usuario da requisição de acordo com tipo 
-                    var libraryBookDb = await
+                    booksMap = await
                         GetByType(type, user.Person.Library.Id, title, offset, limit);
 
-                    if (libraryBookDb.Count <= 0)
-                        return NotFound(new ResponseErrorViewModel
-                        {
-                            Status = Constants.Error,
-                            Errors = new List<object>
-                            {
-                                new { Message = Constants.BooksNotFound }
-                            }
-                        });
+                if (type.ToLower().Contains("trocar") ||
+                    type.ToLower().Contains("emprestar") ||
+                        type.ToLower().Contains("doar"))
+                    booksMap.AddRange(await GetSuggestion());
 
-                    var librariesBooksMap = _mapper
-                        .Map<ICollection<LibraryBookViewModel>>(libraryBookDb)
-                        .Select(x => new
-                        {
-                            Distance = Util.Distance(
-                                Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
-                                Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude),
-                                latitude, longitude),
-                            x.Book,
-                            x.Contact,
-                            x.id,
-                            x.Images,
-                            x.Types,
-                            x.Name
-                        })
-                        .OrderBy(x => x.Distance);
+                if (booksMap == null || booksMap.Count <= 0)
+                    throw new ArgumentNullException(Constants.BooksNotFound);
 
-                    return Ok(new ResponseViewModel
-                    {
-                        Result = librariesBooksMap,
-                        Status = Constants.Sucess
-                    });
-                }
-
-                // retorna todos os livros de todas as bibliotecas de acordo com título
-                var typeDb = await _typeMananger
-                    .GetByDescriptionAsync(type);
-
-                if (typeDb == null)
-                    return NotFound(new ResponseErrorViewModel
-                    {
-                        Status = Constants.Error,
-                        Errors = new List<object>
-                        {
-                            new { Message = "Tipo não localizado!" }
-                        }
-                    });
-
-                var libraryBooks = await
-                    GetByBookTitle(title, user.Person.Library.Id, typeDb, offset, limit);
-
-                // verificar, não está mapeando os autores, categorias, e tipos
-                var libraryBooksMaps = _mapper
-                    .Map<ICollection<LibraryBookViewModel>>(libraryBooks)
-                    .Select(x => new
-                    {
-                        Distance =
-                            Util.Distance(
-                                Double.Parse(x.Addresses.Single(x => x.Master == true).Latitude),
-                                Double.Parse(x.Addresses.Single(x => x.Master == true).Longitude),
-                                latitude, longitude),
-                        x.Book,
-                        x.Contact,
-                        x.id,
-                        x.Images,
-                        x.Types,
-                        x.Name
-                    })
-                    .OrderBy(x => x.Distance);
-
-                // ResponseBook(); 
+                // retorna resultados
+                var response = ResponseLibraryBook(booksMap, latitude, longitude);
 
                 return Ok(new ResponseViewModel
                 {
-                    Result = libraryBooksMaps,
+                    Result = response,
                     Status = Constants.Sucess
                 });
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException ex)
             {
                 // gerar log
                 return NotFound(new
@@ -506,7 +399,9 @@ namespace RelibreApi.Controllers
                     Status = Constants.Error,
                     Errors = new List<object>
                     {
-                        new { Message = "Nenhum livro localizado!" }
+                        new { Message = string.IsNullOrEmpty(ex.ParamName)?
+                            Constants.BooksNotFound:
+                            ex.ParamName }
                     }
                 });
             }
@@ -536,44 +431,31 @@ namespace RelibreApi.Controllers
         {
             try
             {
-                var typeDb = await _typeMananger
-                    .GetByDescriptionAsync(type);
+                // busca livros de acordo com tipo e titulo
+                var booksMap =
+                    await GetByTitle(type, title, offset, limit);
 
-                if (typeDb == null)
-                    return NotFound(new ResponseErrorViewModel
-                    {
-                        Status = Constants.Error,
-                        Errors = new List<object>
-                        {
-                            new { Message = "Tipo não localizado!" }
-                        }
-                    });
-
-                var libraryBooks = await
-                    GetByBookTitle(title, -1, typeDb, offset, limit);
-
-                // verificar, não está mapeando os autores, categorias, e tipos
-                var libraryBooksMaps = _mapper
-                    .Map<ICollection<LibraryBookViewModel>>(libraryBooks)
-                    .Select(x => new
-                    {
-                        Distance = Util.Distance(
-                            Double.Parse(x.Addresses.Single(x => x.Master == true).Latitude),
-                            Double.Parse(x.Addresses.Single(x => x.Master == true).Longitude),
-                            latitude, longitude),
-                        x.Book,
-                        x.Contact,
-                        x.id,
-                        x.Images,
-                        x.Types,
-                        x.Name
-                    })
-                    .OrderBy(x => x.Distance);
+                // retorna resultados
+                var response = ResponseLibraryBook(booksMap, latitude, longitude);
 
                 return Ok(new ResponseViewModel
                 {
-                    Result = libraryBooksMaps,
+                    Result = response,
                     Status = Constants.Sucess
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                // gerar log
+                return NotFound(new
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        new { Message = string.IsNullOrEmpty(ex.ParamName)?
+                            Constants.BooksNotFound:
+                            ex.ParamName }
+                    }
                 });
             }
             catch (Exception ex)
@@ -590,27 +472,80 @@ namespace RelibreApi.Controllers
             }
         }
 
-        private async Task<List<LibraryBook>> Combination(long idLibraryRequest, int offset, int limit)
+        // [HttpGet, Route("calculo"), AllowAnonymous]
+        // public IActionResult CalculoTeste(
+        //     [FromQuery(Name = "latitude")] double latitude,
+        //     [FromQuery(Name = "longitude")] double longitude,
+        //     [FromQuery(Name = "latitude_1")] double latitude1,
+        //     [FromQuery(Name = "longitude_1")] double longitude1
+        // )
+        // {            
+        //     return Ok(Double.Parse(Util.Distance(latitude, longitude, latitude1, longitude1).ToString("N3")));
+        // }
+
+        public async Task<List<LibraryBookViewModel>> GetByIdLibrary(long idLibrary, string title, int offset, int limit)
         {
-            // trazer todos os livros de todos os tipos para realizar validação
-            var libraryBooks = await
-                GetByType("all", idLibraryRequest, "", offset, limit);
+            var booksDb = await _libraryBookMananger
+                .GetByIdLibrary(idLibrary, title, offset, limit);
 
-            if (libraryBooks.Count <= 0)
-                throw new ArgumentNullException();
+            if (booksDb == null || booksDb.Count <= 0)
+                throw new ArgumentNullException(Constants.BooksNotFound);
 
-            var libraryBooksInteresses = await
-                GetByType("interesse", idLibraryRequest, "", offset, limit);
+            return _mapper
+                .Map<List<LibraryBookViewModel>>(booksDb);
+        }
+        public async Task<List<LibraryBookViewModel>> GetMyBooks(long idPerson, string title, int offset, int limit)
+        {
+            // busca biblioteca do usuario
+            var libraryDb = await _libraryMananger
+                .GetLibraryByPerson(idPerson);
 
-            if (libraryBooksInteresses.Count <= 0)
-                throw new ArgumentNullException();
+            return await GetByIdLibrary(libraryDb.Id, title, offset, limit);
+        }
+        private async Task<List<LibraryBookViewModel>> GetByType(string type, long idLibraryRequest, string title, int offset, int limit)
+        {
+            // TROCAR
+            // EMPRESTAR
+            // DOAR
+            // VENDA            
+            // COMBINACAO 
+            if (type.ToLower().Equals("combinacao"))
+                return await GetByCombination(idLibraryRequest);
 
-            var libraryBooksCombination = new List<LibraryBook>();
+            var typeDb = await _typeMananger.GetByDescriptionAsync(type);
 
-            foreach (var libraryBookInteresse in libraryBooksInteresses)
+            if (!type.ToLower().Equals("all") && typeDb == null)
+                throw new ArgumentNullException(Constants.BooksNotFound);
+
+            var booksDb = await _libraryBookMananger
+                .GetByTypeNoTracking(typeDb, idLibraryRequest, title, offset, limit);
+
+            return _mapper
+                .Map<List<LibraryBookViewModel>>(booksDb);
+        }
+        private async Task<List<LibraryBookViewModel>> GetByCombination(long idLibraryRequest)
+        {
+            // trazer todos os livros de todos os tipos para realizar combinação
+            var allBooks =
+                await _libraryBookMananger.GetAll();
+
+            if (allBooks == null || allBooks.Count <= 0)
+                throw new ArgumentNullException(Constants.BooksNotFound);
+
+            var typeDb = await _typeMananger.GetByDescriptionAsync("interesse");
+
+            var booksInteresse = await _libraryBookMananger
+                .GetByTypeNoTracking(typeDb, idLibraryRequest, "", 0, 9999);
+
+            if (booksInteresse == null || booksInteresse.Count <= 0)
+                throw new ArgumentNullException(Constants.BooksNotFound);
+
+            var booksCombination = new List<LibraryBook>();
+
+            foreach (var libraryBookInteresse in booksInteresse)
             {
                 var libraryBook =
-                    libraryBooks.Where(x =>
+                    allBooks.Where(x =>
                         x.Book.CodeIntegration
                             .Equals(libraryBookInteresse.Book.CodeIntegration) &&
                             x.LibraryBookTypes.Any(
@@ -618,96 +553,87 @@ namespace RelibreApi.Controllers
 
                 if (libraryBook != null)
                 {
-                    libraryBooksCombination.Add(libraryBookInteresse);
+                    booksCombination.Add(libraryBookInteresse);
                 }
             }
 
-            if (libraryBooksCombination.Count <= 0)
-                throw new ArgumentNullException();
+            if (booksCombination.Count <= 0)
+                throw new ArgumentNullException(Constants.BooksNotFound);
 
             // gerar notificações quando houver combinações
-            return libraryBooksCombination;
+            return _mapper
+                .Map<List<LibraryBookViewModel>>(booksCombination);
         }
-        private Task<List<LibraryBook>> GetByBookTitle(string title, long idLibraryRequest, Models.Type type, int offset, int limit)
+        private async Task<List<LibraryBookViewModel>> GetByTitle(string type, string title, int offset, int limit)
         {
-            return _libraryBookMananger
-                .GetByBookTitle(
-                    Util.RemoveSpecialCharacter(title), idLibraryRequest, type, offset, limit);
+            if (string.IsNullOrEmpty(type))
+                throw new ArgumentNullException(Constants.BooksNotFound);
+
+            var typeDb = await _typeMananger
+                .GetByDescriptionAsync(type);
+
+            if (typeDb == null)
+                throw new ArgumentNullException(Constants.NotFound);
+
+
+            var booksDb = await _libraryBookMananger
+                .GetByTitleAndTypeNoTracking(title, typeDb, offset, limit);
+
+            return _mapper
+                .Map<List<LibraryBookViewModel>>(booksDb);
         }
-        private async Task<List<LibraryBook>> GetByType(string type, long idLibraryRequest, string title, int offset, int limit)
+        private async Task<List<LibraryBookViewModel>> GetSuggestion()
         {
-            // TROCAR
-            // EMPRESTAR
-            // DOAR
-            // VENDA
-            // EMPRESA
-            // COMBINACAO            
+            // if (!type.Equals("interesse"))
+            // {
+            //     // TRAZER LIVROS RELACIONADOS POR CATEGORIA
+            //     var categories = libraryBookDb
+            //         .Select(x => x.Book)
+            //             .Select(x => x.CategoryBooks
+            //                 .Select(x => x.Category)
+            //                     .Select(x => x.Name)
+            //                         .Single())
+            //                         .Distinct().ToList();
 
-            if (type.ToLower().Equals("combinacao"))
-                return await Combination(idLibraryRequest, offset, limit);
+            //     var associateds = new List<LibraryBook>();
 
-            var typeDb = await _typeMananger.GetByDescriptionAsync(type);
+            //     foreach (var category in categories)
+            //     {
+            //         var assosiated = await GetByAssociated(category);
 
-            if (!type.ToLower().Equals("all") && typeDb == null)
-                throw new ArgumentNullException();
+            //         associateds.AddRange(assosiated);
+            //     }
 
-            return await _libraryBookMananger
-                .GetByTypeNoTracking(typeDb, idLibraryRequest, offset, limit);
+            //     // adiciona livros associados
+            //     libraryBookDb.AddRange(associateds);
+            // }
+
+            return new List<LibraryBookViewModel>();
         }
         private Task<List<LibraryBook>> GetByAssociated(string category)
         {
             return _libraryBookMananger
-                .GetByAssociated(category);
+                .GetByAssociatedNoTracking(category);
         }
-
-        private List<object> CalculateDistance(ICollection<LibraryBookViewModel> notCalculate, double latitude, double longitude)
+        private IEnumerable<LibraryBookViewModel> ResponseLibraryBook(
+            ICollection<LibraryBookViewModel> notCalculate,
+            double latitude, double longitude)
         {
-            return (List<object>)notCalculate
-            .Select(x => new
+            return notCalculate.Select(x =>
+            new LibraryBookViewModel
             {
+                id = x.id,
                 Distance = Util.Distance(
-                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
-                            Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude),
-                            latitude, longitude),
-                x.Book,
-                x.Contact,
-                x.id,
-                x.Images,
-                x.Types,
-                x.Name
-            });
+                    Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
+                    Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude),
+                    latitude, longitude),
+                Book = x.Book,
+                Contact = x.Contact,
+                Images = x.Images,
+                Types = x.Types,
+                Name = x.Name
+            })
+            .OrderBy(x => x.Distance);
         }
-
-        
-        private ICollection<LibraryBookViewModel> ResponseBook(List<LibraryBook> libraryBookDb, double latitude, double longitude)
-        {
-            return _mapper
-                .Map<ICollection<LibraryBookViewModel>>(libraryBookDb);
-        }
-
-        // if (!type.Equals("interesse"))
-        // {
-        //     // TRAZER LIVROS RELACIONADOS POR CATEGORIA
-        //     var categories = libraryBookDb
-        //         .Select(x => x.Book)
-        //             .Select(x => x.CategoryBooks
-        //                 .Select(x => x.Category)
-        //                     .Select(x => x.Name)
-        //                         .Single())
-        //                         .Distinct().ToList();
-
-        //     var associateds = new List<LibraryBook>();
-
-        //     foreach (var category in categories)
-        //     {
-        //         var assosiated = await GetByAssociated(category);
-
-        //         associateds.AddRange(assosiated);
-        //     }
-
-        //     // adiciona livros associados
-        //     libraryBookDb.AddRange(associateds);
-        // }
-
     }
 }

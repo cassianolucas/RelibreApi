@@ -226,7 +226,7 @@ namespace RelibreApi
             app.UseRouting();
 
             app.UseCors("policy");
-
+            
             app.UseExceptionHandler(x =>
             {
                 x.Run(

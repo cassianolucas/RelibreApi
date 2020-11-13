@@ -483,7 +483,7 @@ namespace RelibreApi.Controllers
         //     return Ok(Double.Parse(Util.Distance(latitude, longitude, latitude1, longitude1).ToString("N3")));
         // }
 
-        public async Task<List<LibraryBookViewModel>> GetByIdLibrary(long idLibrary, string title, int offset, int limit)
+        private async Task<List<LibraryBookViewModel>> GetByIdLibrary(long idLibrary, string title, int offset, int limit)
         {
             var booksDb = await _libraryBookMananger
                 .GetByIdLibrary(idLibrary, title, offset, limit);

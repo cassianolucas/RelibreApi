@@ -374,10 +374,10 @@ namespace RelibreApi.Controllers
                     booksMap = await
                         GetByType(type, user.Person.Library.Id, title, offset, limit);
 
-                if (type.ToLower().Contains("trocar") ||
-                    type.ToLower().Contains("emprestar") ||
-                        type.ToLower().Contains("doar"))
-                    booksMap.AddRange(await GetSuggestion());
+                // if (type != null && type.ToLower().Contains("trocar") ||
+                //     type.ToLower().Contains("emprestar") ||
+                //         type.ToLower().Contains("doar"))
+                //     booksMap.AddRange(await GetSuggestion());
 
                 if (booksMap == null || booksMap.Count <= 0)
                     throw new ArgumentNullException(Constants.BooksNotFound);

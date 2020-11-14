@@ -55,7 +55,8 @@ namespace RelibreApi.Controllers
             {
                 var userMap = _mapper.Map<User>(user);
 
-                var userDb = await _userMananger.GetByLogin(userMap.Login);
+                var userDb = await _userMananger
+                    .GetByLogin(userMap.Login);
 
                 // usuario já existe
                 if (userDb != null) return Conflict(new ResponseErrorViewModel
@@ -432,7 +433,7 @@ namespace RelibreApi.Controllers
                                 userDb.Person.Phones.Add(new Phone
                                 {
                                     Number = numberFormated,
-                                    Master = false,
+                                    Master = true,
                                     Person = userDb.Person,
                                     IdPerson = userDb.Person.Id,
                                     Active = true,
@@ -446,7 +447,7 @@ namespace RelibreApi.Controllers
                                 {
                                     phoneDb.Number = numberFormated;
                                 }
-                                phoneDb.Active = phone.Active;
+                                phoneDb.Active = true;
                                 phoneDb.UpdatedAt = Util.CurrentDateTime();
                             }
                         }

@@ -196,7 +196,7 @@ namespace RelibreApi.Repositories
         {
             _context.LibraryBook.Update(model);
         }
-        public Task<List<LibraryBook>> GetAll()
+        public Task<List<LibraryBook>> GetAll(long idLibraryRequest)
         {
             return _context.LibraryBook
                 .Include(x => x.Book)
@@ -210,7 +210,8 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Library.Person)
                 .Include(x => x.Library.Person.Addresses)
                 .Include(x => x.Images)
-                .Where(x => x.Library.Person.PersonType.Equals("PF"))
+                .Where(x => x.Library.Person.PersonType.Equals("PF") && 
+                    x.IdLibrary != idLibraryRequest)
                 .ToListAsync();
         }
         public Task<List<LibraryBook>> GetByTypeOnAllLibraryNoTracking(Models.Type type, long idLibraryRequest, string title, int offset, int limit)

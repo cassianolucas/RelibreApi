@@ -486,7 +486,7 @@ namespace RelibreApi.Controllers
             return _mapper
                 .Map<List<LibraryBookViewModel>>(booksDb);
         }
-        public async Task<List<LibraryBookViewModel>> GetMyBooks(long idPerson, string title, int offset, int limit)
+        private async Task<List<LibraryBookViewModel>> GetMyBooks(long idPerson, string title, int offset, int limit)
         {
             // busca biblioteca do usuario
             var libraryDb = await _libraryMananger
@@ -522,34 +522,31 @@ namespace RelibreApi.Controllers
         {
             // trazer todos os livros de todos os tipos para realizar combinação
             var allBooks =
-                await _libraryBookMananger.GetAll();
+                await _libraryBookMananger.GetAll(idLibraryRequest);
 
             if (allBooks == null || allBooks.Count <= 0)
                 throw new ArgumentNullException(Constants.BooksNotFound);
-
-            var typeDb = await _typeMananger.GetByDescriptionAsync("interesse");
-
-            var booksInteresse = await _libraryBookMananger
-                .GetByTypeNoTracking(typeDb, idLibraryRequest, "", 0, 9999);
+            
+            var booksInteresse = await 
+                GetByType("interesse", idLibraryRequest, "", 0, 0);
 
             if (booksInteresse == null || booksInteresse.Count <= 0)
                 throw new ArgumentNullException(Constants.BooksNotFound);
 
             var booksCombination = new List<LibraryBook>();
 
+            // percorre lista de interesse e verifica se existe na listagem de todos
             foreach (var libraryBookInteresse in booksInteresse)
-            {
-                var libraryBook =
-                    allBooks.Where(x =>
-                        x.Book.CodeIntegration
-                            .Equals(libraryBookInteresse.Book.CodeIntegration) &&
-                            x.LibraryBookTypes.Any(
-                                    x => x.LibraryBook.Book.Id == libraryBookInteresse.Book.Id));
+            {   
+                var combination = allBooks.SingleOrDefault(x => x.Book.Title
+                    .Trim().ToLower().Equals(
+                            libraryBookInteresse.Book.Title
+                                .Trim().ToLower()));
 
-                if (libraryBook != null)
+                if (combination != null)
                 {
-                    booksCombination.Add(libraryBookInteresse);
-                }
+                    booksCombination.Add(combination);
+                }               
             }
 
             if (booksCombination.Count <= 0)

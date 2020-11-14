@@ -12,6 +12,6 @@ namespace RelibreApi.Services
          Task<List<LibraryBook>> GetByTypeOnAllLibraryNoTracking(Type type, long idLibraryRequest, string title, int offset, int limit);
          Task<List<LibraryBook>> GetByAssociatedNoTracking(string category, Type type, long idLibraryRequest);
          Task<List<LibraryBook>> GetByBusinessNoTracking(int offset, int limit);
-         Task<List<LibraryBook>> GetAll();
+         Task<List<LibraryBook>> GetAll(long idLibraryRequest);
     }
 }

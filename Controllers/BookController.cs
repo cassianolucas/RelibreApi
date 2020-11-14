@@ -374,10 +374,13 @@ namespace RelibreApi.Controllers
                     booksMap = await
                         GetByType(type, user.Person.Library.Id, title, offset, limit);
 
-                // if (!string.IsNullOrEmpty(type) && type.ToLower().Contains("trocar") ||
-                //     type.ToLower().Contains("emprestar") ||
-                //         type.ToLower().Contains("doar"))
-                //     booksMap.AddRange(await GetSuggestion(booksMap, type, user.Person.Library.Id));
+                if (!string.IsNullOrEmpty(type) && type.ToLower().Contains("trocar") ||
+                    type.ToLower().Contains("emprestar") ||
+                        type.ToLower().Contains("doar"))
+                {
+                    booksMap.AddRange(await
+                        GetSuggestion(booksMap, type, user.Person.Library.Id));
+                }
 
                 if (booksMap == null || booksMap.Count <= 0)
                     throw new ArgumentNullException(Constants.BooksNotFound);
@@ -471,18 +474,7 @@ namespace RelibreApi.Controllers
                 });
             }
         }
-
-        // [HttpGet, Route("calculo"), AllowAnonymous]
-        // public IActionResult CalculoTeste(
-        //     [FromQuery(Name = "latitude")] double latitude,
-        //     [FromQuery(Name = "longitude")] double longitude,
-        //     [FromQuery(Name = "latitude_1")] double latitude1,
-        //     [FromQuery(Name = "longitude_1")] double longitude1
-        // )
-        // {            
-        //     return Ok(Double.Parse(Util.Distance(latitude, longitude, latitude1, longitude1).ToString("N3")));
-        // }
-
+        
         private async Task<List<LibraryBookViewModel>> GetByIdLibrary(long idLibrary, string title, int offset, int limit)
         {
             var booksDb = await _libraryBookMananger
@@ -599,7 +591,7 @@ namespace RelibreApi.Controllers
                 .Map<List<LibraryBookViewModel>>(booksDb);
         }
         private async Task<List<LibraryBookViewModel>> GetSuggestion(List<LibraryBookViewModel> books, string type, long idLibraryRequest)
-        {            
+        {
             // retorna livroz relacionados de acordo com as categorias e o tipo
             var categories = books
                 .Select(x => x.Book)
@@ -609,7 +601,13 @@ namespace RelibreApi.Controllers
                                 .Distinct()
                                     .ToList();
 
+            var codesIntegration = books
+                .Select(x => x.Book.CodeIntegration)
+                    .ToList()
+                        .ToArray();
+
             var associateds = new List<LibraryBook>();
+            var associatedsMap = new List<LibraryBookViewModel>();
 
             var typeDb = await _typeMananger.GetByDescriptionAsync(type);
 
@@ -621,18 +619,21 @@ namespace RelibreApi.Controllers
             {
                 if (category != null)
                 {
-                    var assosiated = await GetByAssociated(category, typeDb, idLibraryRequest);
+                    var assosiated = await
+                        GetByAssociated(category, typeDb, idLibraryRequest);
 
-                    associateds.AddRange(assosiated);
+                    if (assosiated.Any(x => !codesIntegration.Contains(x.Book.CodeIntegration)))
+                        associateds.AddRange(assosiated);
                 }
             }
 
-            var associatedsMap = _mapper
-                .Map<List<LibraryBookViewModel>>(associateds);
+            if (associateds.Count > 0)
+            {
+                associatedsMap = _mapper
+                    .Map<List<LibraryBookViewModel>>(associateds);                
+            }
 
-            books.AddRange(associatedsMap);
-            
-            return books;
+            return associatedsMap;
         }
         private Task<List<LibraryBook>> GetByAssociated(string category, Models.Type type, long idLibraryRequest)
         {

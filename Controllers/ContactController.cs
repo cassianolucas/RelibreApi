@@ -290,10 +290,7 @@ namespace RelibreApi.Controllers
 
         [HttpPost, Route("Public"), AllowAnonymous]
         public async Task<IActionResult> CreatePublicAsync(
-            [FromForm(Name = "email")] string email,
-            [FromForm(Name = "name")] string name,
-            [FromForm(Name = "phone")] string phone,
-            [FromForm(Name = "id_book")] long idBook
+            [FromBody] CreateContactPublicViewModel contact            
         )
         {
             try
@@ -303,16 +300,16 @@ namespace RelibreApi.Controllers
                 var libraryBookDb = new LibraryBook();
 
                 // validar os dados
-                if (string.IsNullOrEmpty(email))
+                if (string.IsNullOrEmpty(contact.Email))
                     errors.Add(new { Message = Constants.UserLoginInvalid });
 
-                if (string.IsNullOrEmpty(name))
+                if (string.IsNullOrEmpty(contact.Name))
                     errors.Add(new { Message = Constants.UserNameInvalid });
 
-                if (string.IsNullOrEmpty(phone))
+                if (string.IsNullOrEmpty(contact.Phone))
                     errors.Add(new { Message = Constants.UserPhoneInvalid });
 
-                if (idBook <= 0)
+                if (contact.IdBook <= 0)
                 {
                     errors.Add(new { Message = "Livro inválido!" });
                 }
@@ -320,7 +317,7 @@ namespace RelibreApi.Controllers
                 {
                     // buscar biblioteca com livro
                     libraryBookDb = await _libraryBookMananger
-                        .GetByIdAsync(idBook);
+                        .GetByIdAsync(contact.IdBook);
 
                     if (libraryBookDb == null)
                         errors.Add(new { Message = Constants.BooksNotFound });
@@ -334,16 +331,16 @@ namespace RelibreApi.Controllers
                     });
 
                 var contactDbRequest = await _contactMananger
-                    .GetByEmail(email);
+                    .GetByEmail(contact.Email);
 
                 // criar contato caso não exista
                 if (contactDbRequest == null)
                 {
                     contactDbRequest = new Contact
                     {
-                        Email = email,
-                        Name = name,
-                        Phone = phone
+                        Email = contact.Email,
+                        Name = contact.Name,
+                        Phone = contact.Phone
                             .Replace("(", "")
                             .Replace(")", "")
                             .Replace("-", "")

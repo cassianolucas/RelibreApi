@@ -8,7 +8,7 @@ namespace RelibreApi.ViewModel
         [JsonProperty(PropertyName = "id_contact")]
         public long IdContact { get; set; }
 
-        [JsonProperty(PropertyName = "id_library_book")]
+        [JsonProperty(PropertyName = "id_book")]
         public long IdLibraryBook { get; set; }
 
         [JsonProperty(PropertyName = "email")]

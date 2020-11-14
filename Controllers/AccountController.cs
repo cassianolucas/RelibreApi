@@ -423,7 +423,6 @@ namespace RelibreApi.Controllers
 
                         if (!string.IsNullOrEmpty(numberFormated))
                         {
-
                             var phoneDb = (userDb.Person.Phones != null &&
                                 userDb.Person.Phones.Count > 0) ? userDb.Person.Phones
                                     .SingleOrDefault(x => x.Master == true) : null;

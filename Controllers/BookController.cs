@@ -385,9 +385,58 @@ namespace RelibreApi.Controllers
                 if (booksMap == null || booksMap.Count <= 0)
                     throw new ArgumentNullException(Constants.BooksNotFound);
 
-                // retorna resultados
+                // acerta calculo para retornar 
                 var response = ResponseLibraryBook(booksMap, latitude, longitude);
 
+                // quando for dos tipos informados a baixo, alterar response
+                if (!string.IsNullOrEmpty(type) && (type.ToLower().Equals("trocar") ||
+                    type.ToLower().Equals("emprestar") ||
+                        type.ToLower().Equals("doar")))
+                {
+                    try
+                    {
+                        var responseCombination = (IEnumerable<LibraryBookViewModel>)
+                            await GetByType("combinacao", user.Person.Library.Id, "", 9999, 0);
+
+                        List<LibraryBookViewModel> booksResponse = new List<LibraryBookViewModel>();
+
+                        // percorrer resultado para remover os livros que já existem nas combinações
+                        if (responseCombination != null && 
+                            responseCombination.Count() > 0)
+                        {
+                            foreach (var result in response)
+                            {
+                                if (!responseCombination
+                                    .Any(x => x.Book.CodeIntegration
+                                        .Equals(result.Book.CodeIntegration)))
+                                            booksResponse.Add(result);
+                            }
+                        }
+
+                        return Ok(new ResponseViewModel
+                        {
+                            Result = new ResponseTypesViewModel
+                            {
+                                Books = booksResponse,
+                                Matches = responseCombination
+                            },
+                            Status = Constants.Sucess
+                        });
+                    }
+                    catch (ArgumentNullException)
+                    {
+                        return Ok(new ResponseViewModel
+                        {
+                            Result = new ResponseTypesViewModel
+                            {
+                                Books = response,
+                                Matches = new List<LibraryBookViewModel>()
+                            },
+                            Status = Constants.Sucess
+                        });
+                    }
+                }
+                
                 return Ok(new ResponseViewModel
                 {
                     Result = response,
@@ -474,7 +523,7 @@ namespace RelibreApi.Controllers
                 });
             }
         }
-        
+
         private async Task<List<LibraryBookViewModel>> GetByIdLibrary(long idLibrary, string title, int offset, int limit)
         {
             var booksDb = await _libraryBookMananger
@@ -526,8 +575,8 @@ namespace RelibreApi.Controllers
 
             if (allBooks == null || allBooks.Count <= 0)
                 throw new ArgumentNullException(Constants.BooksNotFound);
-            
-            var booksInteresse = await 
+
+            var booksInteresse = await
                 GetByType("interesse", idLibraryRequest, "", 0, 0);
 
             if (booksInteresse == null || booksInteresse.Count <= 0)
@@ -537,7 +586,7 @@ namespace RelibreApi.Controllers
 
             // percorre lista de interesse e verifica se existe na listagem de todos
             foreach (var libraryBookInteresse in booksInteresse)
-            {   
+            {
                 var combination = allBooks.SingleOrDefault(x => x.Book.Title
                     .Trim().ToLower().Equals(
                             libraryBookInteresse.Book.Title
@@ -546,7 +595,7 @@ namespace RelibreApi.Controllers
                 if (combination != null)
                 {
                     booksCombination.Add(combination);
-                }               
+                }
             }
 
             if (booksCombination.Count <= 0)
@@ -627,7 +676,7 @@ namespace RelibreApi.Controllers
             if (associateds.Count > 0)
             {
                 associatedsMap = _mapper
-                    .Map<List<LibraryBookViewModel>>(associateds);                
+                    .Map<List<LibraryBookViewModel>>(associateds);
             }
 
             return associatedsMap;

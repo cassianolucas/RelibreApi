@@ -241,9 +241,7 @@ namespace RelibreApi
                         var exception = context.Features.Get<IExceptionHandlerFeature>();
 
                         if (exception != null)
-                        {
-                            Util.ReturnException((Exception)exception);
-
+                        {                            
                             await context.Response.WriteAsync(
                                 Util.ReturnException((Exception)exception).ToString())
                                 .ConfigureAwait(false);

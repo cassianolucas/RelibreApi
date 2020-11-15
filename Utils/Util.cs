@@ -147,7 +147,8 @@ namespace RelibreApi.Utils
             var environment = Environment
                 .GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
 
-            if (environment.ToString().Contains("RelibreDevelopment"))
+            // if (environment.ToString().Contains("RelibreDevelopment"))
+            if (true)
             {
                 return new
                 {

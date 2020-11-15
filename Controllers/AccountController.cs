@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -950,6 +951,16 @@ namespace RelibreApi.Controllers
                     Errors = new List<object> { Util.ReturnException(ex) }
                 });
             }
+        }
+
+        
+        [HttpGet, Route("teste"), AllowAnonymous]
+        public IActionResult Teste()
+        {
+            string defaultDirectory =
+                    Directory.GetCurrentDirectory();
+            
+            return Ok(defaultDirectory);
         }
 
 

@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
+using HtmlAgilityPack;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -112,7 +113,7 @@ namespace RelibreApi.Utils
                 dist = dist * 1.609344;
 
                 // var mt = (dist / 1000);
-                
+
                 return Decimal.Parse(dist.ToString("F"));
             }
             catch (Exception)
@@ -120,7 +121,7 @@ namespace RelibreApi.Utils
                 return 0;
             }
         }
-        public static decimal  Distance(Address address1, Address address2)
+        public static decimal Distance(Address address1, Address address2)
         {
             if (address1 != null && address2 != null)
             {
@@ -140,7 +141,7 @@ namespace RelibreApi.Utils
             return (rad * 180 / Math.PI);
         }
         public static object ReturnException(Exception ex)
-        {            
+        {
             var environment = Environment
                 .GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
 
@@ -178,6 +179,34 @@ namespace RelibreApi.Utils
             strBody.AppendLine("</html>");
 
             return strBody.ToString();
+        }
+
+        public static void LoadBseHtml()
+        {
+            HtmlDocument doc = new HtmlDocument();
+
+            var arquivo = new FileStream("C:\\Users\\Usuario\\Downloads\\example.html", FileMode.Open);
+
+            doc.Load(arquivo);            
+
+            doc.DocumentNode.InnerHtml.Replace(@"href=""", @"href=""www.google.com.br""");
+
+            var elemento = doc.GetElementbyId("idUrl");
+
+            elemento.SetAttributeValue("href", "www.google.com.br");
+
+            elemento.SetAttributeValue("data-saferedirecturl", "www.google.com.br");
+
+            elemento = doc.GetElementbyId("idNome");
+
+                                                
+            System.Console.WriteLine(elemento.InnerText);
+
+            // doc.DocumentNode.OuterHtml
+
+                                    
+            doc.Save(new FileStream("C:\\Users\\Usuario\\Downloads\\example1.html", FileMode.Create));
+
         }
 
         public static void SendEmailAsync(IConfiguration configuration, string email, string message, string endpoint)

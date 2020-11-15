@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using RelibreApi.Utils;
 
 namespace RelibreApi
 {
@@ -13,6 +14,8 @@ namespace RelibreApi
     {
         public static void Main(string[] args)
         {
+            // Util.LoadBseHtml();
+
             CreateHostBuilder(args).Build().Run();
         }
 

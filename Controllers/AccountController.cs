@@ -757,7 +757,7 @@ namespace RelibreApi.Controllers
             }
         }
 
-        [HttpPost, Route("EmailVerification"), AllowAnonymous]
+        [HttpGet, Route("EmailVerification"), AllowAnonymous]
         public async Task<IActionResult> EmailConfirmation(
             [FromQuery(Name = "verification_code")] string verificationCode
         )

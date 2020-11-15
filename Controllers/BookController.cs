@@ -338,7 +338,8 @@ namespace RelibreApi.Controllers
             [FromQuery(Name = "limit")] int limit,
             [FromQuery(Name = "latitude")] double latitude,
             [FromQuery(Name = "longitude")] double longitude,
-            [FromQuery(Name = "id_library")] int idLibrary
+            [FromQuery(Name = "id_library")] int idLibrary,
+            [FromQuery(Name = "id_book")] long idBook
             )
         {
             try
@@ -348,6 +349,19 @@ namespace RelibreApi.Controllers
                 var books = new List<LibraryBook>();
 
                 var booksMap = new List<LibraryBookViewModel>();
+
+                // buscar apenas livro de acordo com id
+                if (idBook > 0)
+                {
+                    var bookDb = await 
+                        GetByBook(idBook);
+                    
+                    return Ok(new ResponseViewModel
+                    {
+                        Result = bookDb,
+                        Status = Constants.Sucess
+                    });
+                }                    
 
                 // buscar por biblioteca
                 if (idLibrary > 0)
@@ -685,6 +699,18 @@ namespace RelibreApi.Controllers
         {
             return _libraryBookMananger
                 .GetByAssociatedNoTracking(category, type, idLibraryRequest);
+        }
+        private async Task<LibraryBookViewModel> GetByBook(long IdBook)
+        {
+            // busca apenas livro de acordo com id
+            var bookDb = await _libraryBookMananger
+                .GetByIdAsyncNoTracking(IdBook);
+
+            if (bookDb == null)
+                throw new ArgumentNullException(Constants.BooksNotFound);
+
+            return _mapper
+                .Map<LibraryBookViewModel>(bookDb);
         }
         private IEnumerable<LibraryBookViewModel> ResponseLibraryBook(
             ICollection<LibraryBookViewModel> notCalculate,

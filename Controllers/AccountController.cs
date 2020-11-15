@@ -957,8 +957,10 @@ namespace RelibreApi.Controllers
         [HttpGet, Route("teste"), AllowAnonymous]
         public IActionResult Teste()
         {
-            string defaultDirectory =
-                    Directory.GetCurrentDirectory();
+            // string defaultDirectory =
+            //         Directory.GetCurrentDirectory();
+
+            var defaultDirectory = Path.GetFullPath("example.html");
             
             return Ok(defaultDirectory);
         }

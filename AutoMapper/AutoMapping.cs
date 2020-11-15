@@ -88,6 +88,7 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.LibraryBookTypes, m => m.MapFrom(x => x.Types))
             .ForPath(x => x.Library.Person.Addresses, m => m.MapFrom(x => x.Addresses))
             .ForPath(x => x.Library.Person.Name, m => m.MapFrom(x => x.Name))
+            .ForPath(x => x.Description, m => m.MapFrom(x => x.Book.Description))
             .ReverseMap();
 
             CreateMap<ContactViewModel, Models.Contact>()

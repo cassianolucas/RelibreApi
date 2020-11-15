@@ -41,7 +41,7 @@ namespace RelibreApi
             _env = env;
 
             // Util.SendEmailAsync(configuration, "teste", 
-                // "lucas_cassiano@live.com", "Lucas", HtmlEmailType.NewAccount);
+            //     "lucas_cassiano@live.com", "Lucas", HtmlEmailType.NewAccount);
         }
         public void ConfigureServices(IServiceCollection services)
         {

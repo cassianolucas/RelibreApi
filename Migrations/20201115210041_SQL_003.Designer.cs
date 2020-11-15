@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RelibreApi.Data;
@@ -9,9 +10,10 @@ using RelibreApi.Data;
 namespace RelibreApi.Migrations
 {
     [DbContext(typeof(RelibreContext))]
-    partial class RelibreContextModelSnapshot : ModelSnapshot
+    [Migration("20201115210041_SQL_003")]
+    partial class SQL_003
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -692,17 +694,17 @@ namespace RelibreApi.Migrations
                         {
                             Id = 1L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 11, 15, 18, 3, 3, 794, DateTimeKind.Local).AddTicks(7562),
+                            CreatedAt = new DateTime(2020, 11, 15, 18, 0, 41, 299, DateTimeKind.Local).AddTicks(7451),
                             Name = "PJ",
-                            UpdatedAt = new DateTime(2020, 11, 15, 18, 3, 3, 795, DateTimeKind.Local).AddTicks(3336)
+                            UpdatedAt = new DateTime(2020, 11, 15, 18, 0, 41, 300, DateTimeKind.Local).AddTicks(3340)
                         },
                         new
                         {
                             Id = 2L,
                             Active = true,
-                            CreatedAt = new DateTime(2020, 11, 15, 18, 3, 3, 795, DateTimeKind.Local).AddTicks(3666),
+                            CreatedAt = new DateTime(2020, 11, 15, 18, 0, 41, 300, DateTimeKind.Local).AddTicks(3671),
                             Name = "PF",
-                            UpdatedAt = new DateTime(2020, 11, 15, 18, 3, 3, 795, DateTimeKind.Local).AddTicks(3677)
+                            UpdatedAt = new DateTime(2020, 11, 15, 18, 0, 41, 300, DateTimeKind.Local).AddTicks(3681)
                         });
                 });
 
@@ -769,7 +771,7 @@ namespace RelibreApi.Migrations
                         {
                             Id = 1L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 11, 15, 18, 3, 3, 796, DateTimeKind.Local).AddTicks(2210),
+                            CreatedAt = new DateTime(2020, 11, 15, 18, 0, 41, 301, DateTimeKind.Local).AddTicks(2281),
                             Description = "Trocar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
@@ -777,7 +779,7 @@ namespace RelibreApi.Migrations
                         {
                             Id = 2L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 11, 15, 18, 3, 3, 796, DateTimeKind.Local).AddTicks(2245),
+                            CreatedAt = new DateTime(2020, 11, 15, 18, 0, 41, 301, DateTimeKind.Local).AddTicks(2323),
                             Description = "Doar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
@@ -785,7 +787,7 @@ namespace RelibreApi.Migrations
                         {
                             Id = 3L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 11, 15, 18, 3, 3, 796, DateTimeKind.Local).AddTicks(2247),
+                            CreatedAt = new DateTime(2020, 11, 15, 18, 0, 41, 301, DateTimeKind.Local).AddTicks(2325),
                             Description = "Emprestar",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
@@ -793,7 +795,7 @@ namespace RelibreApi.Migrations
                         {
                             Id = 4L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 11, 15, 18, 3, 3, 796, DateTimeKind.Local).AddTicks(2249),
+                            CreatedAt = new DateTime(2020, 11, 15, 18, 0, 41, 301, DateTimeKind.Local).AddTicks(2327),
                             Description = "Interesse",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
@@ -801,7 +803,7 @@ namespace RelibreApi.Migrations
                         {
                             Id = 5L,
                             Active = false,
-                            CreatedAt = new DateTime(2020, 11, 15, 18, 3, 3, 796, DateTimeKind.Local).AddTicks(2250),
+                            CreatedAt = new DateTime(2020, 11, 15, 18, 0, 41, 301, DateTimeKind.Local).AddTicks(2328),
                             Description = "Venda",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
@@ -972,7 +974,7 @@ namespace RelibreApi.Migrations
                         .WithMany("LibraryBookTypes")
                         .HasForeignKey("IdLibraryBook")
                         .HasConstraintName("fk_library_book_library_book_id_library_book")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("RelibreApi.Models.Type", "Type")

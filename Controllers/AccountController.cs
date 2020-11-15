@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
+using HtmlAgilityPack;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -952,32 +954,7 @@ namespace RelibreApi.Controllers
                 });
             }
         }
-
-        
-        [HttpGet, Route("teste"), AllowAnonymous]
-        public IActionResult Teste()
-        {
-            // string defaultDirectory =
-            //         Directory.GetCurrentDirectory();
-
-            var defaultDirectory = Path.GetFullPath("Utils");
-            
-            var exists = System.IO.File.Exists(defaultDirectory + "\\example.html");
-
-            var arquivo = new FileStream(defaultDirectory + "\\example.html", FileMode.Open);
-
-            var name = arquivo.Name;            
-
-            arquivo.Close();
-                        
-            return Ok(new {
-                defaultDirectory,
-                exists,
-                name
-            });
-        }
-
-
+                
         [HttpPost, Route("Rate"), Authorize]
         public async Task<IActionResult> Rating(
             [FromForm(Name = "note")] int note,

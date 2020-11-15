@@ -169,6 +169,11 @@ namespace RelibreApi.Utils
         }    
         public static string LoadHtmlBase(IConfiguration configuration, string name, string codeVerification, HtmlEmailType type)
         {
+            var httpClient = new HttpClient();
+
+            var html = httpClient
+                .GetStringAsync("https://relibre.s3-sa-east-1.amazonaws.com/example.html").Result;
+
             var settings = new HtmlSettings();
 
             var emailSettings = new EmailSettings(configuration);
@@ -177,17 +182,11 @@ namespace RelibreApi.Utils
                 .GetSection(Constants.HtmlSettings).Bind(settings);
             
             string htmlFile = Path.GetFullPath(settings.IdetifierHtmlFile);
-
-            // não localizou o arquivo
-            if (!File.Exists(htmlFile))
-                throw new ArgumentNullException("Arquivo base " + Constants.NotFound);
-
-            var arquivo = new FileStream(htmlFile, FileMode.Open);
-
+                        
             HtmlDocument doc = new HtmlDocument();
 
             // abrir arquivo
-            doc.Load(arquivo);
+            doc.LoadHtml(html);
 
             // capturara elemento nome
             var elemento = doc.GetElementbyId(settings.IdentifierName);
@@ -226,9 +225,7 @@ namespace RelibreApi.Utils
                 settings.RedirectLinkPassword: settings.RedirectLinkAccount), codeVerification));
 
             var result = doc.DocumentNode.OuterHtml;
-
-            arquivo.Close();
-
+            
             return result;            
         }
         private static void ReplaceTextHtml(HtmlNode elemento, string newText)

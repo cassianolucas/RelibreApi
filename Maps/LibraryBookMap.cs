@@ -12,11 +12,10 @@ namespace RelibreApi.Maps
 
             o.HasKey(x => x.Id);
 
-            // o.Property(x => x.Id)
-            //     .HasColumnName("id")
-            //     .UseSerialColumn<long>()                
-            //     .ValueGeneratedOnAdd()
-            //     .IsRequired();
+            o.Property(x => x.Id)
+                .HasColumnName("id")
+                .ValueGeneratedOnAdd()
+                .IsRequired();
 
             o.Property(x => x.IdLibrary)
                 .HasColumnName("id_library")
@@ -33,7 +32,7 @@ namespace RelibreApi.Maps
                 .WithOne(x => x.LibraryBook)
                 .HasForeignKey(x => x.IdLibraryBook)
                 .HasConstraintName("fk_library_book_image_id_library_book")
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
             
             o.Property(x => x.IdBook)
                 .HasColumnName("id_book")
@@ -45,6 +44,10 @@ namespace RelibreApi.Maps
                 .HasForeignKey(x => x.IdBook)
                 .HasConstraintName("fk_library_book_book_id_book")
                 .OnDelete(DeleteBehavior.Restrict);
+
+            o.Property(x => x.Description)
+                .HasColumnName("description")
+                .HasColumnType("varchar(255)");                
 
             o.Property(x => x.Price)
                 .HasColumnName("price")

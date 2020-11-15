@@ -17,12 +17,7 @@ namespace RelibreApi.Maps
                 // .UseSerialColumn<long>()                
                 .ValueGeneratedOnAdd()
                 .IsRequired();
-
-            o.Property(x => x.Description)
-                .HasColumnName("description")
-                .HasColumnType("text")
-                .IsRequired();
-            
+                        
             o.Property(x => x.CodeIntegration)
                 .HasColumnName("code_integration")
                 .HasColumnType("varchar(255)")

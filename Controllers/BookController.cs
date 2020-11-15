@@ -146,8 +146,7 @@ namespace RelibreApi.Controllers
                             }
                         );
                     }
-
-                    bookDb.Description = libraryBookMap.Book.Description;
+                    
                     bookDb.AverageRating = libraryBookMap.Book.AverageRating;
                     bookDb.CodeIntegration = libraryBookMap.Book.CodeIntegration;
                     bookDb.Isbn13 = libraryBookMap.Book.Isbn13;
@@ -207,7 +206,7 @@ namespace RelibreApi.Controllers
                         },
                         Result = Constants.Error
                     });
-
+                libraryBookMap.Description = libraryBook.Book.Description;
                 libraryBookMap.Book = bookDb;
                 libraryBookMap.Active = true;
                 libraryBookMap.Price = userDb.Person.PersonType
@@ -250,7 +249,8 @@ namespace RelibreApi.Controllers
         {
             try
             {
-                var libraryDb = await _libraryBookMananger.GetByIdAsync(library.id);
+                var libraryDb = await _libraryBookMananger
+                    .GetByIdAsync(library.id);
 
                 // não localizou
                 if (libraryDb == null)
@@ -263,9 +263,30 @@ namespace RelibreApi.Controllers
                         }
                     });
 
-                libraryDb.UpdatedAt = Util.CurrentDateTime();
+                var libraryBookMap = _mapper.Map<LibraryBook>(library);
+                
+                // captura objetos que estão no banco
+                var typesDb = libraryDb.LibraryBookTypes.ToArray();
 
+                if (libraryBookMap.LibraryBookTypes.Count > 0)
+                {                    
+                    // percorrer tipos dos livros cadastrados
+                    foreach (var type in typesDb)
+                    {   
+                        // verificar se existe no objeto enviado
+                        if (!libraryBookMap.LibraryBookTypes
+                            .Any(x => x.Type.Description.Equals(type.Type.Description)))
+                        {
+                            libraryDb.LibraryBookTypes.Remove(type);
+                        }
+                    }
+                }
+
+                libraryDb.UpdatedAt = Util.CurrentDateTime();
+                libraryDb.Description = libraryBookMap.Description;
                 _libraryBookMananger.Update(libraryDb);
+
+                _uow.Commit();
 
                 return Ok(new ResponseViewModel
                 {
@@ -294,10 +315,12 @@ namespace RelibreApi.Controllers
         {
             try
             {
-                var libraryDb = await _libraryBookMananger.GetByIdAsync(id);
+                var libraryDb = await _libraryBookMananger
+                    .GetByIdAsync(id);
 
                 // não localizou
-                if (libraryDb == null) return NotFound(new ResponseErrorViewModel
+                if (libraryDb == null) return NotFound(
+                new ResponseErrorViewModel
                 {
                     Errors = new List<object>
                     {
@@ -353,15 +376,15 @@ namespace RelibreApi.Controllers
                 // buscar apenas livro de acordo com id
                 if (idBook > 0)
                 {
-                    var bookDb = await 
+                    var bookDb = await
                         GetByBook(idBook);
-                    
+
                     return Ok(new ResponseViewModel
                     {
                         Result = bookDb,
                         Status = Constants.Sucess
                     });
-                }                    
+                }
 
                 // buscar por biblioteca
                 if (idLibrary > 0)
@@ -415,7 +438,7 @@ namespace RelibreApi.Controllers
                         List<LibraryBookViewModel> booksResponse = new List<LibraryBookViewModel>();
 
                         // percorrer resultado para remover os livros que já existem nas combinações
-                        if (responseCombination != null && 
+                        if (responseCombination != null &&
                             responseCombination.Count() > 0)
                         {
                             foreach (var result in response)
@@ -423,7 +446,7 @@ namespace RelibreApi.Controllers
                                 if (!responseCombination
                                     .Any(x => x.Book.CodeIntegration
                                         .Equals(result.Book.CodeIntegration)))
-                                            booksResponse.Add(result);
+                                    booksResponse.Add(result);
                             }
                         }
 
@@ -450,7 +473,7 @@ namespace RelibreApi.Controllers
                         });
                     }
                 }
-                
+
                 return Ok(new ResponseViewModel
                 {
                     Result = response,

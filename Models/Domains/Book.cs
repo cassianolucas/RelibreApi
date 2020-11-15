@@ -4,8 +4,7 @@ using System.Collections.Generic;
 namespace RelibreApi.Models
 {
     public class Book : BaseModelSimple
-    {        
-        public string Description { get; set; }
+    {                
         public string CodeIntegration { get; set; }
         public string Isbn13 { get; set; }
         public string Title { get; set; }

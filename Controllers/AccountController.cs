@@ -962,7 +962,13 @@ namespace RelibreApi.Controllers
 
             var defaultDirectory = Path.GetFullPath("example.html");
             
-            return Ok(defaultDirectory);
+            var exists = System.IO.File.Exists(defaultDirectory);
+            
+            
+            return Ok(new {
+                defaultDirectory,
+                exists
+            });
         }
 
 

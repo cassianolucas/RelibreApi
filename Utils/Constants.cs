@@ -9,6 +9,7 @@ namespace RelibreApi.Utils
         public const string UserClaimIdentifier = "email_login";
         public const string GeolocationApi = "GeolocationApi";
         public const string RedirectLogin = "RedirectLogin";
+        public const string RedirectLoginBussiness = "RedirectLoginBussiness";
         public const string RedirectError = "RedirectError";
         public const string RedirectChangePassword = "RedirectChangePassword";
         public const string EndpointImage = "EndpointImage";

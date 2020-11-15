@@ -8,6 +8,6 @@ namespace RelibreApi.Utils
         public string IdentifierButton { get; set; }
         public string IdetifierHtmlFile { get; set; }
         public string RedirectLinkPassword { get; set; }
-        public string RedirectLinkAccount { get; set; }
+        public string RedirectLinkAccount { get; set; }        
     }
 }

@@ -335,10 +335,10 @@ namespace RelibreApi.Controllers
             );
 
             // tentar logar com usuario PJ na platatorma PF
-            if (!(userMap.Person.PersonType.Equals("PF") && 
-                user.Platform.ToLower().Equals("personal")) || 
+            if (!((userMap.Person.PersonType.Equals("PF") && 
+                user.Platform.ToLower().Equals("personal")) ||
                 (userMap.Person.PersonType.Equals("PJ") && 
-                user.Platform.ToLower().Equals("business")))
+                user.Platform.ToLower().Equals("business"))) )
             {
                 return BadRequest(
                 new ResponseErrorViewModel
@@ -349,7 +349,7 @@ namespace RelibreApi.Controllers
                         new { Message = Constants.UserInvalidOrPassword }
                     }
                 });
-            }
+            }   
 
             var access_token = Util.CreateToken(_configuration, userMap);
 
@@ -784,7 +784,9 @@ namespace RelibreApi.Controllers
 
                 // redirecionar para login
                 var endPoint = _configuration.GetValue<string>(
-                            Constants.RedirectLogin);
+                        (userDb.Person.PersonType.Equals("PJ")? 
+                            Constants.RedirectLoginBussiness:
+                            Constants.RedirectLogin));
 
                 return Redirect(endPoint);
             }
@@ -797,75 +799,7 @@ namespace RelibreApi.Controllers
                 return Redirect(endPointError);
             }
         }
-
-        [HttpPost, Route("ForgotPassword"), AllowAnonymous]
-        public async Task<IActionResult> ForgotPassword(
-            [FromQuery(Name = "login")] string login
-        )
-        {
-            try
-            {
-                // não informou login
-                if (string.IsNullOrEmpty(login))
-                    return BadRequest(new ResponseErrorViewModel
-                    {
-                        Status = Constants.Error,
-                        Errors = new List<object>
-                        {
-                            new { Message = Constants.InvalidParameter }
-                        }
-                    });
-
-                var userDb = await _userMananger
-                    .GetByLogin(login);
-
-                // não existe usuario
-                if (userDb == null)
-                    return BadRequest(new ResponseErrorViewModel
-                    {
-                        Status = Constants.Error,
-                        Errors = new List<object>
-                        {
-                            new { Message = Constants.UserNotFound }
-                        }
-                    });
-
-                // gerar email onde link deve redirecionar para nova senha
-                var emailVerification = new EmailVerification
-                {
-                    Login = userDb.Login,
-                    CreatedAt = Util.CurrentDateTime(),
-                    CodeVerification = Util.GenerateGuid()
-                };
-
-                await _emailVerificationService
-                    .CreateAsync(emailVerification);
-
-                var redirect = _configuration
-                    .GetSection(Constants.RedirectChangePassword).Value;
-
-                // verificar para redirecionar para url do front 
-                Util.SendEmailAsync(_configuration, emailVerification.CodeVerification, 
-                    userDb.Login, userDb.Person.Name, 
-                        HtmlEmailType.NewAccount);
-
-                return Ok(new ResponseViewModel
-                {
-                    Result = null,
-                    Status = Constants.Sucess
-                });
-            }
-            catch (Exception ex)
-            {
-                // gerar log
-                return BadRequest(new ResponseErrorViewModel
-                {
-                    Status = Constants.Error,
-                    Errors = new List<object> { Util.ReturnException(ex) }
-                });
-            }
-        }
-
+        
         /// <summary>
         /// Método realiza alteração da senha de acordo com código gerado
         /// </summary>
@@ -874,12 +808,16 @@ namespace RelibreApi.Controllers
 
         [HttpPost, Route("ForgotPassword"), AllowAnonymous]
         public async Task<IActionResult> ForgotPassword(
+            [FromQuery(Name = "login")] string login,
             [FromQuery(Name = "verification_code")] string verificationCode,
             [FromForm(Name = "new_password")] string newPassword
         )
         {
             try
             {
+                if (!string.IsNullOrEmpty(login))
+                    return await ForgotPassword(login);
+
                 // senha sem valor
                 if (string.IsNullOrEmpty(newPassword))
                     return BadRequest(new ResponseErrorViewModel
@@ -991,6 +929,71 @@ namespace RelibreApi.Controllers
                 _userMananger.Update(userRate);
 
                 _uow.Commit();
+
+                return Ok(new ResponseViewModel
+                {
+                    Result = null,
+                    Status = Constants.Sucess
+                });
+            }
+            catch (Exception ex)
+            {
+                // gerar log
+                return BadRequest(new ResponseErrorViewModel
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object> { Util.ReturnException(ex) }
+                });
+            }
+        }
+    
+        private async Task<IActionResult> ForgotPassword(string login)
+        {
+            try
+            {
+                // não informou login
+                if (string.IsNullOrEmpty(login))
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.InvalidParameter }
+                        }
+                    });
+
+                var userDb = await _userMananger
+                    .GetByLogin(login);
+
+                // não existe usuario
+                if (userDb == null)
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserNotFound }
+                        }
+                    });
+
+                // gerar email onde link deve redirecionar para nova senha
+                var emailVerification = new EmailVerification
+                {
+                    Login = userDb.Login,
+                    CreatedAt = Util.CurrentDateTime(),
+                    CodeVerification = Util.GenerateGuid()
+                };
+
+                await _emailVerificationService
+                    .CreateAsync(emailVerification);
+
+                var redirect = _configuration
+                    .GetSection(Constants.RedirectChangePassword).Value;
+
+                // verificar para redirecionar para url do front 
+                Util.SendEmailAsync(_configuration, emailVerification.CodeVerification, 
+                    userDb.Login, userDb.Person.Name, 
+                        HtmlEmailType.NewAccount);
 
                 return Ok(new ResponseViewModel
                 {

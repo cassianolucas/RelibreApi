@@ -960,10 +960,9 @@ namespace RelibreApi.Controllers
             // string defaultDirectory =
             //         Directory.GetCurrentDirectory();
 
-            var defaultDirectory = Path.GetFullPath("example.html");
+            var defaultDirectory = Path.GetFullPath("Utils");
             
-            var exists = System.IO.File.Exists(defaultDirectory);
-            
+            var exists = System.IO.File.Exists(defaultDirectory + "\\example.html");                        
             
             return Ok(new {
                 defaultDirectory,

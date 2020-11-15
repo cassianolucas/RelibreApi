@@ -27,17 +27,18 @@ using RelibreApi.Models;
 using RelibreApi.Repositories;
 using RelibreApi.Services;
 using RelibreApi.Utils;
+using static RelibreApi.Utils.Constants;
 
 namespace RelibreApi
 {
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        private readonly IWebHostEnvironment _env;        
+        private readonly IWebHostEnvironment _env;
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
-            _env = env;            
+            _env = env;
         }
         public void ConfigureServices(IServiceCollection services)
         {
@@ -194,7 +195,7 @@ namespace RelibreApi
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, RelibreContext context)
-        {            
+        {
             // context.Database.Migrate();
 
             // var supportedCultures = "pt-BR";
@@ -226,7 +227,7 @@ namespace RelibreApi
             app.UseRouting();
 
             app.UseCors("policy");
-            
+
             app.UseExceptionHandler(x =>
             {
                 x.Run(
@@ -255,7 +256,7 @@ namespace RelibreApi
             {
                 endpoints.MapControllers();
             });
-        }        
+        }
     }
 
 }

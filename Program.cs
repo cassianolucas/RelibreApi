@@ -13,9 +13,7 @@ namespace RelibreApi
     public class Program
     {
         public static void Main(string[] args)
-        {
-            // Util.LoadBseHtml();
-
+        {            
             CreateHostBuilder(args).Build().Run();
         }
 

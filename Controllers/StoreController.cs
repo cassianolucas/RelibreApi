@@ -29,7 +29,7 @@ namespace RelibreApi.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet, Route(""), Authorize]
+        [HttpGet, Route(""), AllowAnonymous]
         public async Task<IActionResult> GetBussiness(
             [FromQuery(Name = "latitude")] double latidude,
             [FromQuery(Name = "longitude")] double longitude

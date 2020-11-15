@@ -13,12 +13,14 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using RelibreApi.Models;
@@ -163,63 +165,95 @@ namespace RelibreApi.Utils
             var rgx = new Regex(Constants.SpecialCharacter);
 
             return rgx.Replace(valor, "");
-        }
-        public static string CreateButtonEmail(string link, string message)
+        }    
+        public static string LoadHtmlBase(IConfiguration configuration, string name, string codeVerification, HtmlEmailType type)
         {
-            var strBody = new StringBuilder();
-            strBody.AppendLine("<html>");
-            strBody.AppendLine("<head>");
-            strBody.AppendLine(@"<link rel=""stylesheet"" href=""https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"" >");
-            strBody.AppendLine("</head>");
-            strBody.AppendLine("<body>");
-            strBody.AppendLine($"<form action='{link}' method='post' id='frmValidate'> ");
-            strBody.AppendLine($"<button type='submit' class='btn btn-outline-info' >{message}</button>");
-            strBody.AppendLine("</form>");
-            strBody.AppendLine("</body>");
-            strBody.AppendLine("</html>");
+            var settings = new HtmlSettings();
 
-            return strBody.ToString();
-        }
-
-        public static void LoadBseHtml()
-        {
-            HtmlDocument doc = new HtmlDocument();
-
-            var arquivo = new FileStream("C:\\Users\\Usuario\\Downloads\\example.html", FileMode.Open);
-
-            doc.Load(arquivo);            
-
-            doc.DocumentNode.InnerHtml.Replace(@"href=""", @"href=""www.google.com.br""");
-
-            var elemento = doc.GetElementbyId("idUrl");
-
-            elemento.SetAttributeValue("href", "www.google.com.br");
-
-            elemento.SetAttributeValue("data-saferedirecturl", "www.google.com.br");
-
-            elemento = doc.GetElementbyId("idNome");
-
-                                                
-            System.Console.WriteLine(elemento.InnerText);
-
-            // doc.DocumentNode.OuterHtml
-
-                                    
-            doc.Save(new FileStream("C:\\Users\\Usuario\\Downloads\\example1.html", FileMode.Create));
-
-        }
-
-        public static void SendEmailAsync(IConfiguration configuration, string email, string message, string endpoint)
-        {
             var emailSettings = new EmailSettings(configuration);
 
+            configuration
+                .GetSection(Constants.HtmlSettings).Bind(settings);
+
+            string defaultDirectory =
+                    Directory.GetCurrentDirectory();
+
+            string htmlFile = string.Format("{0}\\{1}",
+                defaultDirectory, settings.IdetifierHtmlFile);
+
+            // não localizou o arquivo
+            if (!File.Exists(htmlFile))
+                throw new ArgumentNullException("Arquivo base " + Constants.NotFound);
+
+            var arquivo = new FileStream(htmlFile, FileMode.Open);
+
+            HtmlDocument doc = new HtmlDocument();
+
+            // abrir arquivo
+            doc.Load(arquivo);
+
+            // capturara elemento nome
+            var elemento = doc.GetElementbyId(settings.IdentifierName);
+
+            // alterar nome a ser apresentado
+            ReplaceTextHtml(elemento, string.Format(Constants.HtmlEmailName, name));
+
+            // capturar elemento descricao
+            elemento = doc.GetElementbyId(settings.IdentifierDescription);
+
+            // alterar descrição
+            ReplaceTextHtml(elemento, (type == HtmlEmailType.ForgetPassword ?
+                Constants.HtmlEmailDescriptionPassword :
+                Constants.HtmlEmailDescriptionAccount));
+
+            // capturar elemento informação
+            elemento = doc.GetElementbyId(settings.IdentifierInformation);
+
+            // alterar informação
+            ReplaceTextHtml(elemento, (type == HtmlEmailType.ForgetPassword ?
+                Constants.HtmlEmailInformationPassword :
+                Constants.HtmlEmailInformationAccount));
+
+            // capturar elemento do botão
+            elemento = doc.GetElementbyId(settings.IdentifierButton);
+
+            ReplaceTextHtml(elemento, (type == HtmlEmailType.ForgetPassword ?
+                Constants.HtmlEmailButtonTextPassword :
+                Constants.HtmlEmailButtonTextAccount));            
+
+            // alterar valor de redirecionamento
+            elemento.SetAttributeValue("href", string.Format((type == HtmlEmailType.ForgetPassword ? 
+                settings.RedirectLinkPassword: settings.RedirectLinkAccount), codeVerification));
+            
+            elemento.SetAttributeValue("data-saferedirecturl", string.Format((type == HtmlEmailType.ForgetPassword ? 
+                settings.RedirectLinkPassword: settings.RedirectLinkAccount), codeVerification));
+
+            var result = doc.DocumentNode.OuterHtml;
+
+            arquivo.Close();
+
+            return result;            
+        }
+        private static void ReplaceTextHtml(HtmlNode elemento, string newText)
+        {
+            var textNode = (HtmlTextNode)elemento.SelectSingleNode("text()");
+
+            if (textNode != null)
+            {
+                textNode.Text = newText;
+            }
+        }
+        public static void SendEmailAsync(IConfiguration configuration, string codeVerification, string email, string name, HtmlEmailType type)
+        {            
+            var htmlEmail = LoadHtmlBase(configuration, name, codeVerification, type);
+            
             var emailSend = new EmailSend
             {
                 EmailTo = email,
-                Message = message,
-                Subject = "Confirmação de conta",
-                Body = CreateButtonEmail(string
-                    .Format(emailSettings.RedirectLink, endpoint), message)
+                Message = "",
+                Subject = (type == HtmlEmailType.ForgetPassword? 
+                    "Redefinição de senha": "Confirmação de conta"),
+                Body = htmlEmail
             };
 
             var emailSerialize = JsonConvert.SerializeObject(emailSend);
@@ -237,7 +271,6 @@ namespace RelibreApi.Utils
 
             client.PostAsync(endPoint, data);
         }
-
         private static HttpClient ClientRequest()
         {
             HttpClientHandler clientHandler =
@@ -250,7 +283,6 @@ namespace RelibreApi.Utils
 
             return client;
         }
-
         public async static Task<string> GetAddressByLatitudeLogintude(
                 IConfiguration configuration, string latitude, string longitude)
         {
@@ -273,7 +305,6 @@ namespace RelibreApi.Utils
                 return formatted.ToString();
             }
         }
-
         public async static Task<bool> UploadImage(IConfiguration configuration, IFormFile file, string name)
         {
             var memoryStream = new MemoryStream();

@@ -5,6 +5,7 @@ namespace RelibreApi.Utils
         public const string FormatDateTimeDefault = "dd/MM/yyyy HH:mm:ss";
         public const string Configuration = "Settings";
         public const string EmailSettings = "EmailSettings";
+        public const string HtmlSettings = "HtmlSettings";
         public const string UserClaimIdentifier = "email_login";
         public const string GeolocationApi = "GeolocationApi";
         public const string RedirectLogin = "RedirectLogin";
@@ -15,6 +16,17 @@ namespace RelibreApi.Utils
         public const string SecretKeyS3 = "SecretKeyS3";
         public const string BucketNameS3 = "BucketNameS3";
         public const string DefaultContentType = "application/json";
+        public const string SpecialCharacter = @"[^\w\s]|[ºª]";
+        public const string HtmlEmailName = "Olá, {0}";
+        public const string HtmlEmailDescriptionPassword = "Recebemos uma solicitação para redefinir a senha da sua conta.";
+        public const string HtmlEmailDescriptionAccount = "Seja bem vindo a nossa comunidade!";
+        public const string HtmlEmailInformationPassword = "Para redefinir sua senha, clique no botão abaixo e siga as instruções.";
+        public const string HtmlEmailInformationAccount = "Para confirmar seu cadastro, clique no botão abaixo.";
+        public const string HtmlEmailButtonTextPassword = "Trocar senha";
+        public const string HtmlEmailButtonTextAccount = "Confirmar minha conta";
+        public enum HtmlEmailType { ForgetPassword, NewAccount };
+
+
         public const string MessageExceptionDefault = "Não foi possível completar a requisição";
         public const string MessageExceptionConflict = "{0} Cadastro já existente!";
         public const string MessageExceptionNotAuthorize = "Não autorizado!";
@@ -38,9 +50,6 @@ namespace RelibreApi.Utils
         public const string BookInvalid = "Não é possível adicionar o livro da sua biblioteca!";
         public const string InvalidImage = "Nenhuma imagem localizada!";
         public const string InvalidNotification = "Notificação não localizada!";
-        public const string InvalidType = "Tipo inválido!";
-        public const string SpecialCharacter = @"[^\w\s]|[ºª]";
-        public enum Requests { Get, Post, Put };
-        public enum Types { Trocar, Doar, Emprestar, Interesse };
+        public const string InvalidType = "Tipo inválido!";        
     }
 }

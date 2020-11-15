@@ -11,6 +11,7 @@ using RelibreApi.Models;
 using RelibreApi.Services;
 using RelibreApi.Utils;
 using RelibreApi.ViewModel;
+using static RelibreApi.Utils.Constants;
 
 namespace RelibreApi.Controllers
 {
@@ -84,8 +85,9 @@ namespace RelibreApi.Controllers
                 userMap.Password = Util.Encrypt(userMap.Password);
                 userMap.Person.Active = true;
                 userMap.Person.PersonType = "PF";
+                userMap.Person.BirthDate = user.BirthDate;
                 userMap.Person.CreatedAt = Util.CurrentDateTime();
-                userMap.Person.UpdatedAt = userMap.Person.CreatedAt;
+                userMap.Person.UpdatedAt = userMap.Person.CreatedAt;                
 
                 await _userMananger.CreateAsync(userMap);
 
@@ -111,9 +113,8 @@ namespace RelibreApi.Controllers
 
                 await _emailVerificationService.CreateAsync(emailVerification);
 
-                Util.SendEmailAsync(_configuration, user.Login,
-                    "Confirmação de conta",
-                    $"Account/EmailVerification?verification_code={emailVerification.CodeVerification}");
+                Util.SendEmailAsync(_configuration, emailVerification.CodeVerification, 
+                    user.Login, user.Name, HtmlEmailType.NewAccount);
 
                 _uow.Commit();
 
@@ -201,7 +202,7 @@ namespace RelibreApi.Controllers
                 userMap.Person.Active = true;
                 userMap.Person.PersonType = "PJ";
                 userMap.Person.CreatedAt = Util.CurrentDateTime();
-                userMap.Person.UpdatedAt = userMap.Person.CreatedAt;
+                userMap.Person.UpdatedAt = userMap.Person.CreatedAt;            
 
                 await _userMananger.CreateAsync(userMap);
 
@@ -227,9 +228,8 @@ namespace RelibreApi.Controllers
 
                 await _emailVerificationService.CreateAsync(emailVerification);
 
-                Util.SendEmailAsync(_configuration, user.Login,
-                    "Confirmação de conta",
-                    $"Account/EmailVerification?verification_code={emailVerification.CodeVerification}");
+                Util.SendEmailAsync(_configuration, emailVerification.CodeVerification, 
+                    user.Login, user.Name, HtmlEmailType.NewAccount);
 
                 _uow.Commit();
 
@@ -291,7 +291,8 @@ namespace RelibreApi.Controllers
         public async Task<IActionResult> LoginAsync(
             [FromBody] UserRegisterViewModel user)
         {
-            var userMap = await _userMananger.GetByLogin(user.Login);
+            var userMap = await _userMananger
+                .GetByLogin(user.Login);
 
             // não localizou usuario
             if (userMap == null) return NotFound(
@@ -318,7 +319,7 @@ namespace RelibreApi.Controllers
                 }
             );
 
-            // usaurio não foi verificado
+            // usuario não foi verificado
             if (!userMap.IsVerified()) return BadRequest(
                 new ResponseErrorViewModel
                 {
@@ -329,6 +330,23 @@ namespace RelibreApi.Controllers
                     }
                 }
             );
+
+            // tentar logar com usuario PJ na platatorma PF
+            if (!(userMap.Person.PersonType.Equals("PF") && 
+                user.Platform.ToLower().Equals("personal")) || 
+                (userMap.Person.PersonType.Equals("PJ") && 
+                user.Platform.ToLower().Equals("business")))
+            {
+                return BadRequest(
+                new ResponseErrorViewModel
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object>
+                    {
+                        new { Message = Constants.UserInvalidOrPassword }
+                    }
+                });
+            }
 
             var access_token = Util.CreateToken(_configuration, userMap);
 
@@ -696,38 +714,7 @@ namespace RelibreApi.Controllers
                 });
             }
         }
-
-        [HttpGet, Route("Bussiness"), Authorize]
-        public async Task<IActionResult> GetBussiness()
-        {
-            try
-            {
-                var login = Util.GetClaim(_httpContext,
-                    Constants.UserClaimIdentifier);
-
-                var userDb = await _userMananger
-                    .GetByLogin(login);
-
-                var profiles = _userMananger
-                    .GetAllBusiness(userDb.IdPerson);
-
-                return Ok(new ResponseViewModel
-                {
-                    Result = profiles,
-                    Status = Constants.Sucess
-                });
-            }
-            catch (Exception ex)
-            {
-                // gerar log
-                return BadRequest(new ResponseErrorViewModel
-                {
-                    Status = Constants.Error,
-                    Errors = new List<object> { Util.ReturnException(ex) }
-                });
-            }
-        }
-
+        
         [HttpGet, Route(""), Authorize]
         public async Task<IActionResult> GetAsync()
         {
@@ -774,8 +761,7 @@ namespace RelibreApi.Controllers
                             Constants.RedirectError);
 
                 // não encontrou o código informado para realizar validação
-                if (emailVerificationDb == null)
-                    return Redirect(endPointError);
+                if (emailVerificationDb == null) return Redirect(endPointError);
 
                 var userDb = await _userMananger
                     .GetByLogin(emailVerificationDb.Login);
@@ -856,9 +842,9 @@ namespace RelibreApi.Controllers
                     .GetSection(Constants.RedirectChangePassword).Value;
 
                 // verificar para redirecionar para url do front 
-                Util.SendEmailAsync(_configuration, userDb.Login,
-                    "Redefinição de senha",
-                    $"{redirect}?verification_code={emailVerification.CodeVerification}");
+                Util.SendEmailAsync(_configuration, emailVerification.CodeVerification, 
+                    userDb.Login, userDb.Person.Name, 
+                        HtmlEmailType.NewAccount);
 
                 return Ok(new ResponseViewModel
                 {

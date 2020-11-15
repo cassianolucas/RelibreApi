@@ -19,5 +19,8 @@ namespace RelibreApi.ViewModel
 
         [JsonProperty(PropertyName = "birthdate")]
         public DateTime BirthDate { get; set; }
+        
+        [JsonProperty(PropertyName = "platform")]
+        public string Platform { get; set; }
     }
 }

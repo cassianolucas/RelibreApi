@@ -174,12 +174,8 @@ namespace RelibreApi.Utils
 
             configuration
                 .GetSection(Constants.HtmlSettings).Bind(settings);
-
-            string defaultDirectory =
-                    Directory.GetCurrentDirectory();
-
-            string htmlFile = string.Format("{0}\\{1}",
-                defaultDirectory, settings.IdetifierHtmlFile);
+            
+            string htmlFile = Path.GetFullPath(settings.IdetifierHtmlFile);
 
             // não localizou o arquivo
             if (!File.Exists(htmlFile))

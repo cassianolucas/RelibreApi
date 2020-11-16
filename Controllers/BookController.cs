@@ -607,8 +607,11 @@ namespace RelibreApi.Controllers
         private async Task<List<LibraryBookViewModel>> GetByCombination(long idLibraryRequest)
         {
             // trazer todos os livros de todos os tipos para realizar combinação
+            var typeDb = await _typeMananger
+                .GetByDescriptionAsync("interesse");
+
             var allBooks =
-                await _libraryBookMananger.GetAll(idLibraryRequest);
+                await _libraryBookMananger.GetAllAndTypeDiferentNoTracking(idLibraryRequest, typeDb);
 
             if (allBooks == null || allBooks.Count <= 0)
                 throw new ArgumentNullException(Constants.BooksNotFound);

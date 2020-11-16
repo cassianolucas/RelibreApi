@@ -121,7 +121,8 @@ namespace RelibreApi.Controllers
 
                 _uow.Commit();
 
-                return Created(new Uri(Url.ActionLink("Register", "Account")),
+                return Created(new Uri(
+                        Url.ActionLink("Register", "Account")),
                 new ResponseViewModel
                 {
                     Result = null,
@@ -338,7 +339,7 @@ namespace RelibreApi.Controllers
             if (!((userMap.Person.PersonType.Equals("PF") && 
                 user.Platform.ToLower().Equals("personal")) ||
                 (userMap.Person.PersonType.Equals("PJ") && 
-                user.Platform.ToLower().Equals("business"))) )
+                user.Platform.ToLower().Equals("business"))))
             {
                 return BadRequest(
                 new ResponseErrorViewModel
@@ -349,7 +350,7 @@ namespace RelibreApi.Controllers
                         new { Message = Constants.UserInvalidOrPassword }
                     }
                 });
-            }   
+            }
 
             var access_token = Util.CreateToken(_configuration, userMap);
 
@@ -803,8 +804,10 @@ namespace RelibreApi.Controllers
         /// <summary>
         /// Método realiza alteração da senha de acordo com código gerado
         /// </summary>
-        /// <param name=""new_password""></param>
-        /// <returns>200 para quando der certo</returns>
+        /// <param name="login"></param>
+        /// <param name="verificationCode"></param>
+        /// <param name="newPassword"></param>
+        /// <returns></returns>
 
         [HttpPost, Route("ForgotPassword"), AllowAnonymous]
         public async Task<IActionResult> ForgotPassword(

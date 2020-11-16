@@ -624,15 +624,14 @@ namespace RelibreApi.Controllers
             // percorre lista de interesse e verifica se existe na listagem de todos
             foreach (var libraryBookInteresse in booksInteresse)
             {
-                var combination = allBooks.SingleOrDefault(x => x.Book.Title
+                // ocorre erro pois localiza mais de um livro                
+                var combinations = allBooks.Where(x => x.Book.Title
                     .Trim().ToLower().Equals(
                             libraryBookInteresse.Book.Title
-                                .Trim().ToLower()));
+                                .Trim().ToLower())).ToList();
 
-                if (combination != null)
-                {
-                    booksCombination.Add(combination);
-                }
+                if (combinations != null && combinations.Count > 0)                
+                    booksCombination.AddRange(combinations);
             }
 
             if (booksCombination.Count <= 0)

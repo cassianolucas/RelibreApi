@@ -146,7 +146,7 @@ namespace RelibreApi.Controllers
                             }
                         );
                     }
-                    
+
                     bookDb.AverageRating = libraryBookMap.Book.AverageRating;
                     bookDb.CodeIntegration = libraryBookMap.Book.CodeIntegration;
                     bookDb.Isbn13 = libraryBookMap.Book.Isbn13;
@@ -264,20 +264,39 @@ namespace RelibreApi.Controllers
                     });
 
                 var libraryBookMap = _mapper.Map<LibraryBook>(library);
-                
+
                 // captura objetos que estão no banco
                 var typesDb = libraryDb.LibraryBookTypes.ToArray();
 
                 if (libraryBookMap.LibraryBookTypes.Count > 0)
-                {                    
+                {
                     // percorrer tipos dos livros cadastrados
                     foreach (var type in typesDb)
-                    {   
+                    {
                         // verificar se existe no objeto enviado
                         if (!libraryBookMap.LibraryBookTypes
                             .Any(x => x.Type.Description.Equals(type.Type.Description)))
-                        {
                             libraryDb.LibraryBookTypes.Remove(type);
+                    }
+
+                    // percorrer os novos tipos
+                    foreach (var type in libraryBookMap.LibraryBookTypes)
+                    {
+                        if (typesDb.FirstOrDefault(x => x.Type.Description
+                            .ToLower().Equals(type.Type.Description.ToLower())) == null)
+                        {
+                            var typeDb = await _typeMananger
+                                .GetByDescriptionAsync(type.Type.Description);
+
+                            if (typeDb != null)
+                            {
+                                libraryDb.LibraryBookTypes.Add(
+                                new LibraryBookType
+                                {
+                                    Type = typeDb,
+                                    LibraryBook = libraryDb                                    
+                                });
+                            }
                         }
                     }
                 }
@@ -633,7 +652,7 @@ namespace RelibreApi.Controllers
                             libraryBookInteresse.Book.Title
                                 .Trim().ToLower())).ToList();
 
-                if (combinations != null && combinations.Count > 0)                
+                if (combinations != null && combinations.Count > 0)
                     booksCombination.AddRange(combinations);
             }
 

@@ -13,8 +13,7 @@ namespace RelibreApi.Maps
             o.HasKey(x => x.Id);
 
             o.Property(x => x.Id)
-                .HasColumnName("id")
-                // .UseSerialColumn<long>()                
+                .HasColumnName("id")                
                 .ValueGeneratedOnAdd()
                 .IsRequired();
             
@@ -53,6 +52,41 @@ namespace RelibreApi.Maps
                 .HasColumnName("master")
                 .HasColumnType("boolean")
                 .IsRequired();
+
+            o.Property(x => x.ZipCode)
+                .HasColumnName("zip_code")
+                .HasColumnType("varchar(8)")
+                .IsRequired(false);
+
+            o.Property(x => x.Street)
+                .HasColumnName("street")
+                .HasColumnType("varchar(255)")
+                .IsRequired(false);
+
+            o.Property(x => x.Number)
+                .HasColumnName("number")
+                .HasColumnType("varchar(144)")
+                .IsRequired(false);
+
+            o.Property(x => x.Neighborhood)
+                .HasColumnName("neighborhood")
+                .HasColumnType("varchar(255)")
+                .IsRequired();
+
+            o.Property(x => x.City)
+                .HasColumnName("city")
+                .HasColumnType("varchar(255)")
+                .IsRequired(false);
+
+            o.Property(x => x.State)                
+                .HasColumnName("state")
+                .HasColumnType("varchar(255)")
+                .IsRequired(false);
+
+            o.Property(x => x.Complement)
+                .HasColumnName("complement")
+                .HasColumnType("varchar(255)")
+                .IsRequired(false);
 
             o.Property(x => x.Active)
                 .HasColumnName("active")

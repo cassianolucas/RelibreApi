@@ -27,5 +27,26 @@ namespace RelibreApi.ViewModel
 
         [JsonProperty(PropertyName = "full_address")]
         public string FullAddress { get; set; }
+
+        [JsonProperty(PropertyName = "zip_code")]
+        public string ZipCode { get; set; }
+
+        [JsonProperty(PropertyName = "street")]
+        public string Street { get; set; }
+
+        [JsonProperty(PropertyName = "number")]
+        public string Number { get; set; }
+
+        [JsonProperty(PropertyName = "neighborhood")]
+        public string Neighborhood { get; set; }
+
+        [JsonProperty(PropertyName = "city")]
+        public string City { get; set; }
+
+        [JsonProperty(PropertyName = "state")]
+        public string State { get; set; }
+
+        [JsonProperty(PropertyName = "complement")]
+        public string Complement { get; set; }
     }
 }

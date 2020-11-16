@@ -630,7 +630,8 @@ namespace RelibreApi.Controllers
                 .GetByDescriptionAsync("interesse");
 
             var allBooks =
-                await _libraryBookMananger.GetAllAndTypeDiferentNoTracking(idLibraryRequest, typeDb);
+                await _libraryBookMananger
+                    .GetAllAndTypeDiferentNoTracking(idLibraryRequest, typeDb);
 
             if (allBooks == null || allBooks.Count <= 0)
                 throw new ArgumentNullException(Constants.BooksNotFound);
@@ -646,7 +647,8 @@ namespace RelibreApi.Controllers
             // percorre lista de interesse e verifica se existe na listagem de todos
             foreach (var libraryBookInteresse in booksInteresse)
             {
-                // ocorre erro pois localiza mais de um livro                
+                // adicionar verificação se a pessoa tem interesse em algum livro que voce tem
+
                 var combinations = allBooks.Where(x => x.Book.Title
                     .Trim().ToLower().Equals(
                             libraryBookInteresse.Book.Title

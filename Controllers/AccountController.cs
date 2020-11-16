@@ -63,17 +63,19 @@ namespace RelibreApi.Controllers
                     .GetByLogin(userMap.Login);
 
                 // usuario já existe
-                if (userDb != null) return Conflict(new ResponseErrorViewModel
-                {
-                    Status = Constants.Error,
-                    Errors = new List<object>
+                if (userDb != null) return Conflict(
+                    new ResponseErrorViewModel
                     {
-                        new { Message = Constants.UserFound }
-                    }
-                });
+                        Status = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserFound }
+                        }
+                    });
 
                 // captura perfil de usuario padrão
-                var profileDb = await _profileMananger.GetByIdAsync(2);
+                var profileDb = await _profileMananger
+                    .GetByIdAsync(2);
 
                 var newPhone = userMap.Person.Phones
                     .FirstOrDefault(x => x.Number.Equals(user.Phone));
@@ -160,7 +162,7 @@ namespace RelibreApi.Controllers
                         }
                     });
 
-                if (string.IsNullOrEmpty(userMap.Login))
+                if (string.IsNullOrEmpty(userMap.Login)) 
                     return BadRequest(new ResponseErrorViewModel
                     {
                         Result = Constants.Error,
@@ -185,8 +187,8 @@ namespace RelibreApi.Controllers
                     .GetByIdAsync(1);
 
                 // usuario já existe
-                if (userDb != null)
-                    return Conflict(new ResponseErrorViewModel
+                if (userDb != null) return Conflict(
+                    new ResponseErrorViewModel
                     {
                         Status = Constants.Error,
                         Errors = new List<object> { new { Message = Constants.UserFound } }
@@ -199,6 +201,16 @@ namespace RelibreApi.Controllers
                 newPhone.CreatedAt = Util.CurrentDateTime();
                 newPhone.UpdatedAt = newPhone.CreatedAt;
 
+                // remover caracteres especiais do cep 
+                var address = userMap.Person.Addresses.SingleOrDefault();
+                address.FullAddress = string.Concat(address.Street, ", ", 
+                    address.Neighborhood, ", ", address.City, " - ", 
+                    address.State, ", ", address.ZipCode);
+                address.ZipCode = address.ZipCode
+                    .Trim().Replace("-", "");
+                address.Master = true;
+                address.NickName = "Principal";
+
                 userMap.Person.Document = document;
                 userMap.LoginVerified = false;
                 userMap.Profile = profileDb;
@@ -206,8 +218,8 @@ namespace RelibreApi.Controllers
                 userMap.Person.Active = true;
                 userMap.Person.PersonType = "PJ";
                 userMap.Person.CreatedAt = Util.CurrentDateTime();
-                userMap.Person.UpdatedAt = userMap.Person.CreatedAt;            
-
+                userMap.Person.UpdatedAt = userMap.Person.CreatedAt;
+                
                 await _userMananger.CreateAsync(userMap);
 
                 // create library

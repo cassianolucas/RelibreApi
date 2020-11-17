@@ -774,7 +774,8 @@ namespace RelibreApi.Controllers
                 Contact = x.Contact,
                 Images = x.Images,
                 Types = x.Types,
-                Name = x.Name
+                Name = x.Name,
+                Price = x.Price
             })
             .OrderBy(x => x.Distance);
         }

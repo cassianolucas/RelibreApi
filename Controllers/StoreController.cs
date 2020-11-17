@@ -46,7 +46,8 @@ namespace RelibreApi.Controllers
                 var usersDb = await _userMananger
                     .GetAllBusiness(userDb.Person.Id);
 
-                var usersMap = _mapper.Map<List<UserBusinessViewModel>>(usersDb);
+                var usersMap = _mapper
+                    .Map<List<UserBusinessViewModel>>(usersDb);
 
                 return Ok(new ResponseViewModel
                 {

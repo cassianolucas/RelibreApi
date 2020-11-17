@@ -166,7 +166,7 @@ namespace RelibreApi.Controllers
             }
         }
 
-        [HttpPost, Route("Register/Bussiness"), AllowAnonymous]
+        [HttpPost, Route("Register/Business"), AllowAnonymous]
         public async Task<IActionResult> RegisterBusinessAsync(
             [FromBody] UserBusinessViewModel user
         )
@@ -305,7 +305,7 @@ namespace RelibreApi.Controllers
             }
         }
 
-        [HttpPost, Route("Deactivate/Bussiness"), Authorize]
+        [HttpPost, Route("Deactivate/Business"), Authorize]
         public async Task<IActionResult> DeactivateAccount()
         {
             try
@@ -455,7 +455,7 @@ namespace RelibreApi.Controllers
             }
         }
 
-        [HttpPut, Route("Bussiness"), Authorize]
+        [HttpPut, Route("Business"), Authorize]
         public async Task<IActionResult> UpdateAsync(
             [FromBody] UserBusinessViewModel user)
         {
@@ -504,7 +504,7 @@ namespace RelibreApi.Controllers
                 userDb.Person.Description = userMap.Person.Description;
                 userDb.Person.UrlImage = userMap.Person.UrlImage;
                 userDb.Person.WebSite = userMap.Person.WebSite;
-                userDb.Person.UpdatedAt = Util.CurrentDateTime();
+                userDb.Person.UpdatedAt = Util.CurrentDateTime();                
 
                 // phones
                 if (userMap.Person.Phones != null &&
@@ -572,6 +572,11 @@ namespace RelibreApi.Controllers
                                 Longitude = address.Latitude,
                                 Latitude = address.Longitude,
                                 FullAddress = addressResponse.FullAddress,
+                                City = addressResponse.City,
+                                Complement = address.Complement,
+                                Neighborhood = address.Neighborhood,
+                                Number = address.Number,
+                                ZipCode = address.ZipCode.Trim().Replace("-", ""),
                                 Active = true,
                                 CreatedAt = Util.CurrentDateTime(),
                                 UpdatedAt = Util.CurrentDateTime(),
@@ -585,13 +590,18 @@ namespace RelibreApi.Controllers
                         {
                             if (!string.IsNullOrEmpty(address.Latitude) &&
                                 !string.IsNullOrEmpty(address.Longitude))
-                            {
-                                addressDb.Latitude = address.Latitude;
-                                addressDb.Longitude = address.Longitude;
-
+                            {                                
                                 var addressResponse = await Util
                                 .GetAddressByLatitudeLogintude(_configuration,
                                     address.Latitude, address.Longitude);
+
+                                addressDb.Latitude = address.Latitude;
+                                addressDb.Longitude = address.Longitude;
+                                addressDb.City = addressResponse.City;
+                                addressDb.Complement = address.Complement;
+                                addressDb.Neighborhood = address.Neighborhood;
+                                addressDb.Number = address.Number;
+                                addressDb.ZipCode = address.ZipCode.Trim().Replace("-", "");
 
                                 addressDb.FullAddress = addressResponse.FullAddress;
                             }

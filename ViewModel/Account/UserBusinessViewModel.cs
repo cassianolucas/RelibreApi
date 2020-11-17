@@ -34,5 +34,8 @@ namespace RelibreApi.ViewModel
 
         [JsonProperty(PropertyName = "addresses")]
         public ICollection<AddressViewModel> Addresses { get; set; }
+
+        [JsonProperty(PropertyName = "valid_plan")]
+        public bool ValidPlan { get; set; }
     }
 }

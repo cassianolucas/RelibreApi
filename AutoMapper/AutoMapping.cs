@@ -11,7 +11,7 @@ namespace RelibreApi.AutoMapper
         {
             CreateMap<UserViewModel, Models.User>()
             .ForPath(x => x.Person.Name, m => m.MapFrom(x => x.Name))
-            .ForPath(x => x.Person.LastName, m => m.MapFrom(x => x.LastName))
+            .ForPath(x => x.Person.LastName, m => m.MapFrom(x => x.LastName))            
             .ForPath(x => x.Person.BirthDate,m => m.MapFrom(x => x.BirthDate))
             .ForPath(x => x.Person.Document, m => m.MapFrom(x => x.Document))
             .ForPath(x => x.Person.Addresses, m => m.MapFrom(x => x.Addresses))
@@ -38,7 +38,7 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Person.UrlImage, m => m.MapFrom(x => x.UrlImage))
             .ForPath(x => x.Person.Description, m => m.MapFrom(x => x.Description))
             .ForPath(x => x.Person.Document, m => m.MapFrom(x => x.Document))
-            .ForPath(x => x.Person.Addresses, m => m.MapFrom(x => x.Addresses))
+            .ForPath(x => x.Person.Addresses, m => m.MapFrom(x => x.Addresses))            
             .AfterMap((src, dest) =>
             {
                 dest.Person.Phones = new List<Models.Phone>();
@@ -46,7 +46,12 @@ namespace RelibreApi.AutoMapper
                 dest.Person.Phones.Add(new Models.Phone
                 {
                     Number = src.Phone
-                });                                
+                });
+                
+                // if (dest.Person.PersonSubscriptions != null)
+                // {
+                //     src.ValidPlan = dest.Person.PersonSubscriptions.SingleOrDefault().Validate;
+                // }
             })
             .ReverseMap();
 
@@ -155,7 +160,13 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Description, m => m.MapFrom(x => x.Description))
             .ReverseMap();
 
-            CreateMap<SubscriptionViewModel, Models.PersonSubscription>().ReverseMap();
+            CreateMap<SubscriptionViewModel, Models.PersonSubscription>()
+            .ForPath(x => x.Subscription.Description, m => m.MapFrom(x => x.Description))
+            .ForPath(x => x.Validate, m => m.MapFrom(x => x.Validate))
+            .ForPath(x => x.PaidAt, m => m.MapFrom(x => x.PaidAt))
+            .ForPath(x => x.Subscription.Value, m => m.MapFrom(x => x.Price))
+            .ForPath(x => x.Subscription.Period, m => m.MapFrom(x => x.Period))
+            .ReverseMap();
 
         }
     }

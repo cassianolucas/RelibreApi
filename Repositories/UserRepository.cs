@@ -43,7 +43,9 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Person.Addresses)
                 .Include(x => x.Profile)
                 .Include(x => x.Person.Library)
-                .Where(x => x.IdPerson != idPerson)
+                .Include(x => x.Person.PersonSubscriptions)
+                .Where(x => x.IdPerson != idPerson && 
+                    x.Person.PersonSubscriptions.Any(x => x.Validate == true))
                 .ToListAsync();
         }
 
@@ -56,6 +58,7 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Person.Phones)
                 .Include(x => x.Person.Addresses)
                 .Include(x => x.Person.Library)
+                .Include(x => x.Person.PersonSubscriptions)
                 .SingleOrDefaultAsync();
         }
 
@@ -67,6 +70,7 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Person.Addresses)
                 .Include(x => x.Profile)
                 .Include(x => x.Person.Library)
+                .Include(x => x.Person.PersonSubscriptions)
                 .Where(x => x.IdPerson == Id)
                 .AsNoTracking()
                 .SingleOrDefaultAsync();
@@ -80,6 +84,7 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Person.Addresses)
                 .Include(x => x.Profile)
                 .Include(x => x.Person.Library)
+                .Include(x => x.Person.PersonSubscriptions)
                 .Where(x => x.Login.ToLower().Trim().Equals(login.ToLower().Trim()))
                 .SingleOrDefaultAsync();
         }
@@ -92,6 +97,7 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Person.Addresses)
                 .Include(x => x.Profile)
                 .Include(x => x.Person.Library)
+                .Include(x => x.Person.PersonSubscriptions)
                 .Where(x =>
                     x.Login.ToLower().Trim().Equals(login.ToLower().Trim()) ||
                     x.Person.Document.Trim().Equals(document.Trim()))

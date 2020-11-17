@@ -401,7 +401,7 @@ namespace RelibreApi.Controllers
                 });
             }
 
-            var access_token = Util.CreateToken(_configuration, userMap);
+            var accessToken = Util.CreateToken(_configuration, userMap);
 
             var address = userMap.Person.Addresses
                 .SingleOrDefault(x => x.Master == true);
@@ -411,13 +411,26 @@ namespace RelibreApi.Controllers
 
             if (userMap.Person.PersonType.Equals("PJ"))
             {
-                var userBusinessMap = _mapper.Map<UserBusinessViewModel>(userMap);
+                var userBusinessMap = _mapper
+                    .Map<UserBusinessViewModel>(userMap);
 
-                userBusinessMap.Password = null;
-                
                 return Ok(new ResponseViewModel
                 {
-                    Result = userBusinessMap,
+                    Result = new
+                    {
+                        Name = userBusinessMap.Name,
+                        Legal_Name = userBusinessMap.LastName,
+                        Login = userBusinessMap.Login,
+                        Document = userBusinessMap.Document,
+                        Web_site = userBusinessMap.WebSite,
+                        Url_Image = userBusinessMap.UrlImage,
+                        Description = userBusinessMap.Description,
+                        Addresses = userBusinessMap.Addresses,
+                        Phone = phones != null ? phones.Number : null,
+                        Access_Token = accessToken,
+                        Latitude = address != null ? address.Latitude : null,
+                        Longitude = address != null ? address.Longitude : null                        
+                    },
                     Status = Constants.Sucess
                 });
             }
@@ -433,7 +446,7 @@ namespace RelibreApi.Controllers
                         BirthDate = userMap.Person.BirthDate,
                         Address = address != null ? address.FullAddress : null,
                         Phone = phones != null ? phones.Number : null,
-                        Access_Token = access_token,
+                        Access_Token = accessToken,
                         Latitude = address != null ? address.Latitude : null,
                         Longitude = address != null ? address.Longitude : null
                     },

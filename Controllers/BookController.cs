@@ -250,7 +250,7 @@ namespace RelibreApi.Controllers
             try
             {
                 var libraryDb = await _libraryBookMananger
-                    .GetByIdAsync(library.id);
+                    .GetByIdAsync(library.Id);
 
                 // não localizou
                 if (libraryDb == null)
@@ -765,7 +765,7 @@ namespace RelibreApi.Controllers
             return notCalculate.Select(x =>
             new LibraryBookViewModel
             {
-                id = x.id,
+                Id = x.Id,
                 Distance = Util.Distance(
                     Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
                     Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude),

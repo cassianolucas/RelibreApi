@@ -32,6 +32,7 @@ namespace RelibreApi.AutoMapper
             .ReverseMap();
 
             CreateMap<UserBusinessViewModel, Models.User>()
+            .ForPath(x => x.Person.Id, m => m.MapFrom(x => x.Id))
             .ForPath(x => x.Person.Name, m => m.MapFrom(x => x.Name))
             .ForPath(x => x.Person.LastName, m => m.MapFrom(x => x.LastName))
             .ForPath(x => x.Person.WebSite, m => m.MapFrom(x => x.WebSite))
@@ -85,7 +86,7 @@ namespace RelibreApi.AutoMapper
             .ReverseMap();
 
             CreateMap<TypeViewModel, Models.LibraryBookType>()
-            .ForPath(x => x.Type.Id, m => m.MapFrom(x => x.id))
+            .ForPath(x => x.Type.Id, m => m.MapFrom(x => x.Id))
             .ForPath(x => x.Type.Description, m => m.MapFrom(x => x.Description))
             .ReverseMap();
 

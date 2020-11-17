@@ -10,5 +10,7 @@ namespace RelibreApi.Services
         Task<User> GetByLogin(string login);
         double GetRatingByLogin(string login);        
         Task<List<User>> GetAllBusiness(long idPerson);
+        Task<List<User>> GetAllBusinessNoTracking();
+        Task<User> GetBusinessByPersonNoTracking(long idPerson);
     }
 }

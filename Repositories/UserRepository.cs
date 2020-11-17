@@ -35,6 +35,37 @@ namespace RelibreApi.Repositories
             throw new System.NotImplementedException();
         }
 
+        public Task<List<User>> GetAllBusinessNoTracking()
+        {
+            return _context.User
+                .Include(x => x.Person)
+                .Include(x => x.Person.Phones)
+                .Include(x => x.Person.Addresses)
+                .Include(x => x.Profile)
+                .Include(x => x.Person.Library)
+                .Include(x => x.Person.PersonSubscriptions)
+                .Where(x => x.Person.PersonSubscriptions
+                    .Any(x => x.Validate == true))
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public Task<User> GetBusinessByPersonNoTracking(long idPerson)
+        {
+            return _context.User
+                .Include(x => x.Person)
+                .Include(x => x.Person.Phones)
+                .Include(x => x.Person.Addresses)
+                .Include(x => x.Profile)
+                .Include(x => x.Person.Library)
+                .Include(x => x.Person.PersonSubscriptions)
+                .Where(x => x.Person.PersonSubscriptions
+                    .Any(x => x.Validate == true) && 
+                    x.Person.Id == idPerson)
+                .AsNoTracking()
+                .SingleOrDefaultAsync();
+        }
+
         public Task<List<User>> GetAllBusiness(long idPerson)
         {
             return _context.User
@@ -59,6 +90,7 @@ namespace RelibreApi.Repositories
                 .Include(x => x.Person.Addresses)
                 .Include(x => x.Person.Library)
                 .Include(x => x.Person.PersonSubscriptions)
+                .Where(x => x.Person.Id == Id)
                 .SingleOrDefaultAsync();
         }
 

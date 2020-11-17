@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace RelibreApi.ViewModel
 {
-    public class UserBusinessViewModel
+    public class UserBusinessViewModel : BaseViewModel
     {
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }

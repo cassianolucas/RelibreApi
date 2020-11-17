@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RelibreApi.Models;
 using RelibreApi.Services;
 using RelibreApi.Utils;
 using RelibreApi.ViewModel;
@@ -32,28 +33,56 @@ namespace RelibreApi.Controllers
         [HttpGet, Route(""), AllowAnonymous]
         public async Task<IActionResult> GetBussiness(
             [FromQuery(Name = "latitude")] double latidude,
-            [FromQuery(Name = "longitude")] double longitude
+            [FromQuery(Name = "longitude")] double longitude,
+            [FromQuery(Name = "id")] long id
         )
         {
             try
-            {
-                var login = Util.GetClaim(_httpContext,
-                    Constants.UserClaimIdentifier);
-
-                var userDb = await _userMananger
-                    .GetByLogin(login);
-
-                var usersDb = await _userMananger
-                    .GetAllBusiness(userDb.Person.Id);
-
-                var usersMap = _mapper
-                    .Map<List<UserBusinessViewModel>>(usersDb);
-
-                return Ok(new ResponseViewModel
+            {                
+                if (id > 0)
                 {
-                    Result = usersMap
+                    var userBusinessDb = await _userMananger
+                        .GetBusinessByPersonNoTracking(id);
+
+                    var userMap = _mapper
+                        .Map<UserBusinessViewModel>(userBusinessDb);
+
+                    return Ok(new ResponseViewModel
+                    {
+                        Result = new
+                        {
+                            userMap.Id,
+                            userMap.Name,
+                            Legal_Name = userMap.LastName,
+                            userMap.Login,
+                            userMap.Document,
+                            userMap.WebSite,
+                            userMap.UrlImage,
+                            userMap.Description,
+                            userMap.Addresses,
+                            userMap.Phone,
+                            Distance = Util.Distance(
+                            Double.Parse(userMap.Addresses.Single(x => x.Master = true).Latitude),
+                            Double.Parse(userMap.Addresses.Single(x => x.Master = true).Longitude),
+                            latidude, longitude)
+                        },
+                        Status = Constants.Sucess
+                    });
+                }
+                else
+                {
+                    var usersDb = await _userMananger
+                        .GetAllBusinessNoTracking();
+
+                    var usersMap = _mapper
+                        .Map<List<UserBusinessViewModel>>(usersDb);
+
+                    return Ok(new ResponseViewModel
+                    {
+                        Result = usersMap
                     .Select(x => new
                     {
+                        x.Id,
                         x.Name,
                         x.LastName,
                         x.Document,
@@ -67,8 +96,9 @@ namespace RelibreApi.Controllers
                             Double.Parse(x.Addresses.Single(x => x.Master = true).Longitude),
                         latidude, longitude)
                     }),
-                    Status = Constants.Sucess
-                });
+                        Status = Constants.Sucess
+                    });
+                }
             }
             catch (Exception ex)
             {

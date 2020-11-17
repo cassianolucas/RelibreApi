@@ -277,7 +277,7 @@ namespace RelibreApi.Utils
 
             return client;
         }
-        public async static Task<string> GetAddressByLatitudeLogintude(
+        public async static Task<AddressResponse> GetAddressByLatitudeLogintude(
                 IConfiguration configuration, string latitude, string longitude)
         {
             var client = ClientRequest();
@@ -295,8 +295,16 @@ namespace RelibreApi.Utils
             {
                 JsonElement root = doc.RootElement;
                 var results = root.GetProperty("results");
-                var formatted = results[0].GetProperty("formatted");
-                return formatted.ToString();
+
+                var address = new AddressResponse();
+
+                address = JsonConvert.DeserializeObject<AddressResponse>(
+                        results[0].GetProperty("components").ToString());
+
+                address.FullAddress = string.Concat(address.Road, ", ", 
+                    address.City, " - ", address.State, ", ", address.PostCode);
+                                    
+                return address;
             }
         }
         public async static Task<bool> UploadImage(IConfiguration configuration, IFormFile file, string name)
@@ -324,6 +332,44 @@ namespace RelibreApi.Utils
             var response = await clietn.PutObjectAsync(putRequest);
 
             return (response.HttpStatusCode == HttpStatusCode.OK);
+        }
+        public static bool IsValidCpf(string cnpj)
+        {            
+            cnpj = cnpj.Trim()
+                .Replace(".", "")
+                    .Replace("-", "")
+                        .Replace("/", "");
+
+            if (cnpj.Length != 14)
+                return false;
+
+            string hasCnpj = cnpj.Substring(0, 12);
+            int sum = 0;
+
+            for (int i = 0; i < 12; i++)
+                sum += int.Parse(hasCnpj[i].ToString()) * Constants.Multiplier1[i];
+
+            int leftOver = (sum % 11);
+            if (leftOver < 2)
+                leftOver = 0;
+            else
+                leftOver = 11 - leftOver;
+
+            string digit = leftOver.ToString();
+            hasCnpj = hasCnpj + digit;
+            sum = 0;
+            for (int i = 0; i < 13; i++)
+                sum += int.Parse(hasCnpj[i].ToString()) * Constants.Multiplier2[i];
+
+            leftOver = (sum % 11);
+            if (leftOver < 2)
+                leftOver = 0;
+            else
+                leftOver = 11 - leftOver;
+
+            digit = digit + leftOver.ToString();
+
+            return cnpj.EndsWith(digit);
         }
     }
 }

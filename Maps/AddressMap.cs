@@ -55,18 +55,15 @@ namespace RelibreApi.Maps
 
             o.Property(x => x.ZipCode)
                 .HasColumnName("zip_code")
-                .HasColumnType("varchar(8)")
-                .IsRequired(false);
+                .HasColumnType("varchar(8)");                
 
             o.Property(x => x.Street)
                 .HasColumnName("street")
-                .HasColumnType("varchar(255)")
-                .IsRequired(false);
+                .HasColumnType("varchar(255)");                
 
             o.Property(x => x.Number)
                 .HasColumnName("number")
-                .HasColumnType("varchar(144)")
-                .IsRequired(false);
+                .HasColumnType("varchar(144)");                
 
             o.Property(x => x.Neighborhood)
                 .HasColumnName("neighborhood")
@@ -75,18 +72,15 @@ namespace RelibreApi.Maps
 
             o.Property(x => x.City)
                 .HasColumnName("city")
-                .HasColumnType("varchar(255)")
-                .IsRequired(false);
+                .HasColumnType("varchar(255)");                
 
             o.Property(x => x.State)                
                 .HasColumnName("state")
-                .HasColumnType("varchar(255)")
-                .IsRequired(false);
+                .HasColumnType("varchar(255)");                
 
             o.Property(x => x.Complement)
                 .HasColumnName("complement")
-                .HasColumnType("varchar(255)")
-                .IsRequired(false);
+                .HasColumnType("varchar(255)");                
 
             o.Property(x => x.Active)
                 .HasColumnName("active")

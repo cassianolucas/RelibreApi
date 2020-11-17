@@ -6,8 +6,8 @@ namespace RelibreApi
     {
         public CustomPolicies(AuthorizationOptions x)
         {
-            x.AddPolicy("", p =>
-                p.Requirements.Add(new CustomRequirement("")));
+            x.AddPolicy("PJ", p =>
+                p.Requirements.Add(new CustomRequirement("PJ")));
         }
     }
 }

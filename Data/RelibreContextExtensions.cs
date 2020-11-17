@@ -35,6 +35,16 @@ namespace RelibreApi.Data
             };
 
             modelBuilder.Entity<Type>().HasData(types);
+
+            var plans = new List<Subscription>
+            {
+                new Subscription { Id = 1, Description = "Pacote de 1 mês", Period = 1, Value = 15.00, CreatedAt = Util.CurrentDateTime()  },
+                new Subscription { Id = 2, Description = "Pacote de 3 meses", Period = 3, Value = 39.00, CreatedAt = Util.CurrentDateTime()  },
+                new Subscription { Id = 3, Description = "Pacote de 6 meses", Period = 6, Value = 60.00, CreatedAt = Util.CurrentDateTime()  }
+            };
+
+            modelBuilder.Entity<Subscription>().HasData(plans);
+            
         }
     }
 }

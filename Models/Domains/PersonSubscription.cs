@@ -9,6 +9,6 @@ namespace RelibreApi.Models
         public long IdSubscription { get; set; }
         public virtual Subscription Subscription { get; set; }
         public DateTime PaidAt { get; set; }
-        public string Validate { get; set; }
+        public bool Validate { get; set; }
     }
 }

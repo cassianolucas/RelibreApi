@@ -85,6 +85,30 @@ namespace RelibreApi.Controllers
                 newPhone.CreatedAt = Util.CurrentDateTime();
                 newPhone.UpdatedAt = newPhone.CreatedAt;
 
+                if (userMap.Person.Addresses != null)
+                {
+                    var address = userMap.Person.Addresses
+                        .SingleOrDefault();
+
+                    if (address != null)
+                    {
+                        if (!string.IsNullOrEmpty(address.Latitude) &&
+                                    !string.IsNullOrEmpty(address.Longitude))
+                        {
+                            address.Latitude = address.Latitude;
+                            address.Longitude = address.Longitude;
+
+                            var addressResponse = await Util
+                            .GetAddressByLatitudeLogintude(_configuration,
+                                address.Latitude, address.Longitude);
+
+                            address.FullAddress = addressResponse.FullAddress;
+
+                            address.UpdatedAt = Util.CurrentDateTime();
+                        };
+                    }
+                }
+
                 userMap.LoginVerified = false;
                 userMap.Profile = profileDb;
                 userMap.Password = Util.Encrypt(userMap.Password);
@@ -92,7 +116,7 @@ namespace RelibreApi.Controllers
                 userMap.Person.PersonType = "PF";
                 userMap.Person.BirthDate = user.BirthDate;
                 userMap.Person.CreatedAt = Util.CurrentDateTime();
-                userMap.Person.UpdatedAt = userMap.Person.CreatedAt;                
+                userMap.Person.UpdatedAt = userMap.Person.CreatedAt;
 
                 await _userMananger.CreateAsync(userMap);
 
@@ -118,7 +142,7 @@ namespace RelibreApi.Controllers
 
                 await _emailVerificationService.CreateAsync(emailVerification);
 
-                Util.SendEmailAsync(_configuration, emailVerification.CodeVerification, 
+                Util.SendEmailAsync(_configuration, emailVerification.CodeVerification,
                     user.Login, user.Name, HtmlEmailType.NewAccount);
 
                 _uow.Commit();
@@ -162,7 +186,7 @@ namespace RelibreApi.Controllers
                         }
                     });
 
-                if (string.IsNullOrEmpty(userMap.Login)) 
+                if (string.IsNullOrEmpty(userMap.Login))
                     return BadRequest(new ResponseErrorViewModel
                     {
                         Result = Constants.Error,
@@ -178,13 +202,19 @@ namespace RelibreApi.Controllers
                     .Replace("-", "")
                     .Trim();
 
+                if (!Util.IsValidCpf(document))
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Result = Constants.Error,
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserCnpjInvalid }
+                        }
+                    });
+
                 var userDb = await _userMananger
                     .GetByLoginOrDocumentNoTracking(userMap.Login,
                         document);
-
-                // captura perfil de usuario padrão
-                var profileDb = await _profileMananger
-                    .GetByIdAsync(1);
 
                 // usuario já existe
                 if (userDb != null) return Conflict(
@@ -194,6 +224,10 @@ namespace RelibreApi.Controllers
                         Errors = new List<object> { new { Message = Constants.UserFound } }
                     });
 
+                // captura perfil de usuario padrão
+                var profileDb = await _profileMananger
+                    .GetByIdAsync(1);
+
                 var newPhone = userMap.Person.Phones
                     .FirstOrDefault(x => x.Number.Equals(user.Phone));
                 newPhone.Active = true;
@@ -202,14 +236,17 @@ namespace RelibreApi.Controllers
                 newPhone.UpdatedAt = newPhone.CreatedAt;
 
                 // remover caracteres especiais do cep 
-                var address = userMap.Person.Addresses.SingleOrDefault();
-                address.FullAddress = string.Concat(address.Street, ", ", 
-                    address.Neighborhood, ", ", address.City, " - ", 
-                    address.State, ", ", address.ZipCode);
-                address.ZipCode = address.ZipCode
-                    .Trim().Replace("-", "");
-                address.Master = true;
-                address.NickName = "Principal";
+                if (userMap.Person.Addresses != null)
+                {
+                    var address = userMap.Person.Addresses.SingleOrDefault();
+                    address.FullAddress = string.Concat(address.Street, ", ",
+                        address.Neighborhood, ", ", address.City, " - ",
+                        address.State, ", ", address.ZipCode);
+                    address.ZipCode = address.ZipCode
+                        .Trim().Replace("-", "");
+                    address.Master = true;
+                    address.NickName = "Principal";
+                }
 
                 userMap.Person.Document = document;
                 userMap.LoginVerified = false;
@@ -219,7 +256,7 @@ namespace RelibreApi.Controllers
                 userMap.Person.PersonType = "PJ";
                 userMap.Person.CreatedAt = Util.CurrentDateTime();
                 userMap.Person.UpdatedAt = userMap.Person.CreatedAt;
-                
+
                 await _userMananger.CreateAsync(userMap);
 
                 // create library
@@ -244,7 +281,7 @@ namespace RelibreApi.Controllers
 
                 await _emailVerificationService.CreateAsync(emailVerification);
 
-                Util.SendEmailAsync(_configuration, emailVerification.CodeVerification, 
+                Util.SendEmailAsync(_configuration, emailVerification.CodeVerification,
                     user.Login, user.Name, HtmlEmailType.NewAccount);
 
                 _uow.Commit();
@@ -348,9 +385,9 @@ namespace RelibreApi.Controllers
             );
 
             // tentar logar com usuario PJ na platatorma PF
-            if (!((userMap.Person.PersonType.Equals("PF") && 
+            if (!((userMap.Person.PersonType.Equals("PF") &&
                 user.Platform.ToLower().Equals("personal")) ||
-                (userMap.Person.PersonType.Equals("PJ") && 
+                (userMap.Person.PersonType.Equals("PJ") &&
                 user.Platform.ToLower().Equals("business"))))
             {
                 return BadRequest(
@@ -498,7 +535,7 @@ namespace RelibreApi.Controllers
 
                         if (addressDb == null)
                         {
-                            var fullAddress = await Util
+                            var addressResponse = await Util
                                 .GetAddressByLatitudeLogintude(_configuration,
                                     address.Latitude, address.Longitude);
 
@@ -506,7 +543,7 @@ namespace RelibreApi.Controllers
                             {
                                 Longitude = address.Latitude,
                                 Latitude = address.Longitude,
-                                FullAddress = fullAddress,
+                                FullAddress = addressResponse.FullAddress,
                                 Active = true,
                                 CreatedAt = Util.CurrentDateTime(),
                                 UpdatedAt = Util.CurrentDateTime(),
@@ -524,11 +561,11 @@ namespace RelibreApi.Controllers
                                 addressDb.Latitude = address.Latitude;
                                 addressDb.Longitude = address.Longitude;
 
-                                var fullAddress = await Util
+                                var addressResponse = await Util
                                 .GetAddressByLatitudeLogintude(_configuration,
                                     address.Latitude, address.Longitude);
 
-                                addressDb.FullAddress = fullAddress;
+                                addressDb.FullAddress = addressResponse.FullAddress;
                             }
 
                             addressDb.UpdatedAt = Util.CurrentDateTime();
@@ -667,7 +704,7 @@ namespace RelibreApi.Controllers
 
                         if (addressDb == null)
                         {
-                            var fullAddress = await Util
+                            var addressResponse = await Util
                                 .GetAddressByLatitudeLogintude(_configuration,
                                     address.Latitude, address.Longitude);
 
@@ -675,7 +712,11 @@ namespace RelibreApi.Controllers
                             {
                                 Longitude = address.Latitude,
                                 Latitude = address.Longitude,
-                                FullAddress = fullAddress,
+                                FullAddress = addressResponse.FullAddress,
+                                City = addressResponse.City,
+                                Neighborhood = " ",
+                                State = addressResponse.State,
+                                Street = addressResponse.Road,
                                 Active = true,
                                 CreatedAt = Util.CurrentDateTime(),
                                 UpdatedAt = Util.CurrentDateTime(),
@@ -693,11 +734,18 @@ namespace RelibreApi.Controllers
                                 addressDb.Latitude = address.Latitude;
                                 addressDb.Longitude = address.Longitude;
 
-                                var fullAddress = await Util
+                                var addressResponse = await Util
                                 .GetAddressByLatitudeLogintude(_configuration,
                                     address.Latitude, address.Longitude);
 
-                                addressDb.FullAddress = fullAddress;
+                                addressDb.FullAddress = addressResponse.FullAddress;
+                                addressDb.Longitude = address.Latitude;
+                                addressDb.Latitude = address.Longitude;
+                                addressDb.FullAddress = addressResponse.FullAddress;
+                                addressDb.City = addressResponse.City;
+                                addressDb.Neighborhood = " ";
+                                addressDb.State = addressResponse.State;
+                                addressDb.Street = addressResponse.Road;
                             }
 
                             addressDb.UpdatedAt = Util.CurrentDateTime();
@@ -730,7 +778,7 @@ namespace RelibreApi.Controllers
                 });
             }
         }
-        
+
         [HttpGet, Route(""), Authorize]
         public async Task<IActionResult> GetAsync()
         {
@@ -741,7 +789,38 @@ namespace RelibreApi.Controllers
 
                 var user = await _userMananger.GetByLogin(login);
 
-                var userMap = _mapper.Map<UserViewModel>(user);
+                var userMap = _mapper.Map<UserViewModel>(user);                
+
+                return Ok(new ResponseViewModel
+                {
+                    Result = userMap,
+                    Status = Constants.Sucess
+                });
+            }
+            catch (Exception ex)
+            {
+                // gerar log
+                return BadRequest(new ResponseErrorViewModel
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object> { Util.ReturnException(ex) }
+                });
+            }
+        }
+        
+        [HttpGet, Route("Bussiness"), Authorize(Policy = "PJ")]
+        public async Task<IActionResult> GetBusinessAsync()
+        {
+            try
+            {
+                var login = Util.GetClaim(_httpContext,
+                    Constants.UserClaimIdentifier);
+
+                var user = await _userMananger.GetByLogin(login);
+
+                var userMap = _mapper.Map<UserBusinessViewModel>(user);
+
+                userMap.Password = null;
 
                 return Ok(new ResponseViewModel
                 {
@@ -797,8 +876,8 @@ namespace RelibreApi.Controllers
 
                 // redirecionar para login
                 var endPoint = _configuration.GetValue<string>(
-                        (userDb.Person.PersonType.Equals("PJ")? 
-                            Constants.RedirectLoginBussiness:
+                        (userDb.Person.PersonType.Equals("PJ") ?
+                            Constants.RedirectLoginBussiness :
                             Constants.RedirectLogin));
 
                 return Redirect(endPoint);
@@ -812,7 +891,7 @@ namespace RelibreApi.Controllers
                 return Redirect(endPointError);
             }
         }
-        
+
         /// <summary>
         /// Método realiza alteração da senha de acordo com código gerado
         /// </summary>
@@ -907,7 +986,7 @@ namespace RelibreApi.Controllers
                 });
             }
         }
-                
+
         [HttpPost, Route("Rate"), Authorize]
         public async Task<IActionResult> Rating(
             [FromForm(Name = "note")] int note,
@@ -961,7 +1040,7 @@ namespace RelibreApi.Controllers
                 });
             }
         }
-    
+
         private async Task<IActionResult> ForgotPassword(string login)
         {
             try
@@ -1006,8 +1085,8 @@ namespace RelibreApi.Controllers
                     .GetSection(Constants.RedirectChangePassword).Value;
 
                 // verificar para redirecionar para url do front 
-                Util.SendEmailAsync(_configuration, emailVerification.CodeVerification, 
-                    userDb.Login, userDb.Person.Name, 
+                Util.SendEmailAsync(_configuration, emailVerification.CodeVerification,
+                    userDb.Login, userDb.Person.Name,
                         HtmlEmailType.NewAccount);
 
                 return Ok(new ResponseViewModel

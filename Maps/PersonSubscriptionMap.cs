@@ -11,8 +11,7 @@ namespace RelibreApi.Maps
             o.ToTable("person_subscription");
 
             o.Property(x => x.Id)
-                .HasColumnName("id")
-                // .UseSerialColumn<long>()
+                .HasColumnName("id")                
                 .ValueGeneratedOnAdd()
                 .IsRequired();
 
@@ -45,7 +44,7 @@ namespace RelibreApi.Maps
 
             o.Property(x => x.Validate)
                 .HasColumnName("validate")
-                .HasColumnType("varchar(255)");                
+                .HasColumnType("boolean");
 
             o.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")

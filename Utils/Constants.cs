@@ -26,6 +26,9 @@ namespace RelibreApi.Utils
         public const string HtmlEmailButtonTextPassword = "Trocar senha";
         public const string HtmlEmailButtonTextAccount = "Confirmar minha conta";
         public enum HtmlEmailType { ForgetPassword, NewAccount };
+        public static int[] Multiplier1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+        public static int[] Multiplier2 = new int[13] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+        
 
 
         public const string MessageExceptionDefault = "Não foi possível completar a requisição";
@@ -40,6 +43,7 @@ namespace RelibreApi.Utils
         public const string UserNotValidate = "Email não verificado!";
         public const string UserPasswordInvalid = "Senha inválida";
         public const string UserDocumentInvalid = "Documento inválido";
+        public const string UserCnpjInvalid = "Cnpj inválido";
         public const string UserLoginInvalid = "Email inválido";
         public const string UserNameInvalid = "Nome inválido";
         public const string UserPhoneInvalid = "Telefone inválido";
@@ -51,6 +55,10 @@ namespace RelibreApi.Utils
         public const string BookInvalid = "Não é possível adicionar o livro da sua biblioteca!";
         public const string InvalidImage = "Nenhuma imagem localizada!";
         public const string InvalidNotification = "Notificação não localizada!";
-        public const string InvalidType = "Tipo inválido!";        
+        public const string InvalidType = "Tipo inválido!";
+        public const string InvalidPlan = "Nenhum plano localizado!";
+        public const string SubscriptionInvalid = "Usuário já possui um plano!";
+        
+
     }
 }

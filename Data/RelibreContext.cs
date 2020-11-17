@@ -28,6 +28,7 @@ namespace RelibreApi.Data
         public DbSet<NotificationPerson> NotificationPerson { get; set; }
         public DbSet<ContactBook> ContactBook { get; set; }
         public DbSet<Subscription> Subscription { get; set; }
+        public DbSet<PersonSubscription> PersonSubscription { get; set; }
         public RelibreContext(DbContextOptions options) : base(options) { }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -124,6 +124,7 @@ namespace RelibreApi
             services.AddTransient<IEmailVerification, EmailVerificationRepository>();
             services.AddTransient<INotification, NotificationRepository>();
             services.AddTransient<INotificationPerson, NotificationPersonRepository>();
+            services.AddTransient<ISubscription, SubscriptionRepository>();
 
             services.AddMvc(x =>
             {

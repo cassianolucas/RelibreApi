@@ -155,11 +155,24 @@ namespace RelibreApi.Controllers
                     bookDb.CreatedAt = Util.CurrentDateTime();
                 }
 
-                // capturar do cadastro
+                // capturar login 
                 var login = Util.GetClaim(_httpContext,
                     Constants.UserClaimIdentifier);
-
+                
+                // carrega usuario
                 var userDb = await _userMananger.GetByLogin(login);
+
+                // verificar quando for PJ se está com o plano ativo
+                if (userDb.Person.PersonType.Equals("PJ") && userDb.Person
+                    .PersonSubscriptions.Any(x => x.Validate != true))
+                    return BadRequest(new ResponseErrorViewModel
+                    {
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.UserPlanInvalid }
+                        },
+                        Status = Constants.Error
+                    });
 
                 if (userDb.Person.Addresses == null ||
                     userDb.Person.Addresses.Count <= 0)
@@ -474,7 +487,9 @@ namespace RelibreApi.Controllers
                             Result = new ResponseTypesViewModel
                             {
                                 Books = booksResponse,
-                                Matches = responseCombination
+                                Matches = ResponseLibraryBook(
+                                        (ICollection<LibraryBookViewModel>)responseCombination, 
+                                            latitude, longitude)
                             },
                             Status = Constants.Sucess
                         });

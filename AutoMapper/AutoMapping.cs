@@ -42,19 +42,43 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Person.Addresses, m => m.MapFrom(x => x.Addresses))            
             .AfterMap((src, dest) =>
             {
+                if (dest.Person.PersonSubscriptions != null)
+                {
+                    src.ValidPlan = dest.Person.PersonSubscriptions
+                        .SingleOrDefault().Validate;
+                }
+
                 dest.Person.Phones = new List<Models.Phone>();
 
                 dest.Person.Phones.Add(new Models.Phone
                 {
                     Number = src.Phone
-                });
-                
-                // if (dest.Person.PersonSubscriptions != null)
-                // {
-                //     src.ValidPlan = dest.Person.PersonSubscriptions.SingleOrDefault().Validate;
-                // }
-            })
-            .ReverseMap();
+                });                                
+            });
+
+            CreateMap<Models.User, UserBusinessViewModel>()
+            .ForPath(x => x.Id, m => m.MapFrom(x => x.Person.Id))
+            .ForPath(x => x.Name, m => m.MapFrom(x => x.Person.Name))
+            .ForPath(x => x.LastName, m => m.MapFrom(x => x.Person.LastName))
+            .ForPath(x => x.WebSite, m => m.MapFrom(x => x.Person.WebSite))
+            .ForPath(x => x.UrlImage, m => m.MapFrom(x => x.Person.UrlImage))
+            .ForPath(x => x.Description, m => m.MapFrom(x => x.Person.Description))
+            .ForPath(x => x.Document, m => m.MapFrom(x => x.Person.Document))
+            .ForPath(x => x.Addresses, m => m.MapFrom(x => x.Person.Addresses))
+            .AfterMap((src, dest) =>
+            {                
+                if (src.Person.PersonSubscriptions != null)
+                {
+                    dest.ValidPlan = src.Person.PersonSubscriptions
+                        .SingleOrDefault().Validate;
+                }                
+
+                if (src.Person.Phones != null)
+                {
+                    dest.Phone = src.Person.Phones
+                        .SingleOrDefault(x => x.Master == true).Number;
+                }                                                                                  
+            });            
 
             CreateMap<PhoneViewModel, Models.Phone>().ReverseMap();
 

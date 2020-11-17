@@ -38,7 +38,7 @@ namespace RelibreApi.Controllers
         )
         {
             try
-            {                
+            {
                 if (id > 0)
                 {
                     var userBusinessDb = await _userMananger
@@ -64,7 +64,8 @@ namespace RelibreApi.Controllers
                             Distance = Util.Distance(
                             Double.Parse(userMap.Addresses.Single(x => x.Master = true).Latitude),
                             Double.Parse(userMap.Addresses.Single(x => x.Master = true).Longitude),
-                            latidude, longitude)
+                            latidude, longitude),
+                            Valid_Plan = userMap.ValidPlan
                         },
                         Status = Constants.Sucess
                     });
@@ -80,22 +81,24 @@ namespace RelibreApi.Controllers
                     return Ok(new ResponseViewModel
                     {
                         Result = usersMap
-                    .Select(x => new
-                    {
-                        x.Id,
-                        x.Name,
-                        x.LastName,
-                        x.Document,
-                        x.Description,
-                        x.Addresses,
-                        x.Phone,
-                        x.UrlImage,
-                        x.WebSite,
-                        Distance = Util.Distance(
+                        .Select(x => new
+                        {
+                            x.Id,
+                            x.Name,
+                            Legal_Name = x.LastName,
+                            x.Login,
+                            x.Document,
+                            x.WebSite,
+                            x.UrlImage,
+                            x.Description,
+                            x.Addresses,
+                            x.Phone,
+                            Distance = Util.Distance(
                             Double.Parse(x.Addresses.Single(x => x.Master = true).Latitude),
                             Double.Parse(x.Addresses.Single(x => x.Master = true).Longitude),
-                        latidude, longitude)
-                    }),
+                            latidude, longitude),
+                            Valid_Plan = x.ValidPlan
+                        }),
                         Status = Constants.Sucess
                     });
                 }

@@ -47,6 +47,7 @@ namespace RelibreApi.Utils
         public const string UserLoginInvalid = "Email inválido";
         public const string UserNameInvalid = "Nome inválido";
         public const string UserPhoneInvalid = "Telefone inválido";
+        public const string UserPlanInvalid = "Usuario não está com o plano ativo!";
         public const string Error = "Erro!";
         public const string CodeInvalid = "Código não válido!";
         public const string InvalidParameter = "Parametro não informado!";

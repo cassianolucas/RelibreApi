@@ -409,22 +409,37 @@ namespace RelibreApi.Controllers
             var phones = userMap.Person.Phones
                 .SingleOrDefault(x => x.Master == true);
 
-            return Ok(new ResponseViewModel
+            if (userMap.Person.PersonType.Equals("PJ"))
             {
-                Result = new
+                var userBusinessMap = _mapper.Map<UserBusinessViewModel>(userMap);
+
+                userBusinessMap.Password = null;
+                
+                return Ok(new ResponseViewModel
                 {
-                    Login = userMap.Login,
-                    Name = userMap.Person.Name,
-                    Document = userMap.Person.Document,
-                    BirthDate = userMap.Person.BirthDate,
-                    Address = address != null ? address.FullAddress : null,
-                    Phone = phones != null ? phones.Number : null,
-                    Access_Token = access_token,
-                    Latitude = address != null ? address.Latitude : null,
-                    Longitude = address != null ? address.Longitude : null
-                },
-                Status = Constants.Sucess
-            });
+                    Result = userBusinessMap,
+                    Status = Constants.Sucess
+                });
+            }
+            else
+            {
+                return Ok(new ResponseViewModel
+                {
+                    Result = new
+                    {
+                        Login = userMap.Login,
+                        Name = userMap.Person.Name,
+                        Document = userMap.Person.Document,
+                        BirthDate = userMap.Person.BirthDate,
+                        Address = address != null ? address.FullAddress : null,
+                        Phone = phones != null ? phones.Number : null,
+                        Access_Token = access_token,
+                        Latitude = address != null ? address.Latitude : null,
+                        Longitude = address != null ? address.Longitude : null
+                    },
+                    Status = Constants.Sucess
+                });
+            }
         }
 
         [HttpPut, Route("Bussiness"), Authorize]
@@ -789,7 +804,7 @@ namespace RelibreApi.Controllers
 
                 var user = await _userMananger.GetByLogin(login);
 
-                var userMap = _mapper.Map<UserViewModel>(user);                
+                var userMap = _mapper.Map<UserViewModel>(user);
 
                 return Ok(new ResponseViewModel
                 {
@@ -807,7 +822,7 @@ namespace RelibreApi.Controllers
                 });
             }
         }
-        
+
         [HttpGet, Route("Bussiness"), Authorize(Policy = "PJ")]
         public async Task<IActionResult> GetBusinessAsync()
         {

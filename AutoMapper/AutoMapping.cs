@@ -155,6 +155,8 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Description, m => m.MapFrom(x => x.Description))
             .ReverseMap();
 
+            CreateMap<SubscriptionViewModel, Models.PersonSubscription>().ReverseMap();
+
         }
     }
 }

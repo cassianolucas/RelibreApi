@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RelibreApi.Data;
@@ -9,9 +10,10 @@ using RelibreApi.Data;
 namespace RelibreApi.Migrations
 {
     [DbContext(typeof(RelibreContext))]
-    partial class RelibreContextModelSnapshot : ModelSnapshot
+    [Migration("20201117023354_SQL_008")]
+    partial class SQL_008
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -46,7 +46,7 @@ namespace RelibreApi.Maps
 
             o.Property(x => x.UrlImage)
                 .HasColumnName("url_image")
-                .HasColumnType("varchar(255)")
+                .HasColumnType("text")
                 .IsRequired(false);
 
             o.Property(x => x.PersonType)

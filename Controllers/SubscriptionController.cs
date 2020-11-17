@@ -40,7 +40,7 @@ namespace RelibreApi.Controllers
         }
 
         [HttpPost, Route(""), Authorize(Policy = "PJ")]
-        public async Task<IActionResult> Subscribe(
+        public async Task<IActionResult> CreateSubscribeAsync(
             [FromQuery] int idPlan
         )
         {
@@ -92,17 +92,57 @@ namespace RelibreApi.Controllers
                     Subscription = subscription,
                     IdSubscription = subscription.Id,
                     CreatedAt = Util.CurrentDateTime(),
-                    Validate = false                    
+                    Validate = false
                 };
 
                 await _subscriptionMananger
                     .CreateAsync(personSubscription);
-                
+
                 _uow.Commit();
+
+                return Created(new Uri(
+                    Url.ActionLink("CreateSubscribe", "Subscribe")),
+                    new ResponseViewModel
+                    {
+                        Result = null,
+                        Status = Constants.Sucess
+                    });
+            }
+            catch (Exception ex)
+            {
+                // gerar log
+                return BadRequest(new ResponseErrorViewModel
+                {
+                    Status = Constants.Error,
+                    Errors = new List<object> { Util.ReturnException(ex) }
+                });
+            }
+        }
+
+        [HttpGet, Route(""), Authorize(Policy = "PJ")]
+        public async Task<IActionResult> GetSubscribeAsync()
+        {
+            try
+            {
+                // captura login de usuario logado
+                var login = Util
+                    .GetClaim(_httpContext,
+                        Constants.UserClaimIdentifier);
+
+                // busca dados do usuario logado
+                var user = await _userMananger
+                    .GetByLogin(login);
+
+                // busca planos do usuario
+                var plan = await _subscriptionMananger
+                    .GetByPersonAsyncNoTacking(user.Person.Id);
+
+                var planMap = _mapper
+                    .Map<SubscriptionViewModel>(plan);
 
                 return Ok(new ResponseViewModel
                 {
-                    Result = null,
+                    Result = planMap,
                     Status = Constants.Sucess
                 });
             }
@@ -116,7 +156,5 @@ namespace RelibreApi.Controllers
                 });
             }
         }
-
-
     }
 }

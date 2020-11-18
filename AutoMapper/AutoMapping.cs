@@ -53,7 +53,7 @@ namespace RelibreApi.AutoMapper
                 dest.Person.Phones.Add(new Models.Phone
                 {
                     Number = src.Phone
-                });                                
+                });
             });
 
             CreateMap<Models.User, UserBusinessViewModel>()
@@ -73,7 +73,7 @@ namespace RelibreApi.AutoMapper
                         .SingleOrDefault().Validate;
                 }                
 
-                if (src.Person.Phones != null)
+                if (src.Person.Phones != null && src.Person.Phones.Count > 0)
                 {
                     dest.Phone = src.Person.Phones
                         .SingleOrDefault(x => x.Master == true).Number;

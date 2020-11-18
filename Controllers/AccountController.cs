@@ -245,7 +245,10 @@ namespace RelibreApi.Controllers
                     address.ZipCode = address.ZipCode
                         .Trim().Replace("-", "");
                     address.Master = true;
+                    address.Active = true;
                     address.NickName = "Principal";
+                    address.CreatedAt = Util.CurrentDateTime();
+                    address.UpdatedAt = address.CreatedAt;
                 }
 
                 userMap.Person.Document = document;
@@ -576,14 +579,17 @@ namespace RelibreApi.Controllers
                                 Complement = address.Complement,
                                 Neighborhood = address.Neighborhood,
                                 Number = address.Number,
-                                ZipCode = address.ZipCode.Trim().Replace("-", ""),
-                                Active = true,
-                                CreatedAt = Util.CurrentDateTime(),
-                                UpdatedAt = Util.CurrentDateTime(),
+                                ZipCode = address.ZipCode
+                                    .Trim()
+                                        .Replace("-", "")
+                                            .Replace(" ", ""),
+                                Active = true,                                
                                 IdPerson = userDb.Person.Id,
                                 Person = userDb.Person,
                                 Master = true,
-                                NickName = "Principal"
+                                NickName = "Principal",
+                                CreatedAt = Util.CurrentDateTime(),
+                                UpdatedAt = Util.CurrentDateTime(),
                             });
                         }
                         else
@@ -601,9 +607,11 @@ namespace RelibreApi.Controllers
                                 addressDb.Complement = address.Complement;
                                 addressDb.Neighborhood = address.Neighborhood;
                                 addressDb.Number = address.Number;
-                                addressDb.ZipCode = address.ZipCode.Trim().Replace("-", "");
-
+                                addressDb.ZipCode = address.ZipCode.Trim()
+                                    .Replace("-", "")
+                                        .Replace(" ", "");
                                 addressDb.FullAddress = addressResponse.FullAddress;
+                                addressDb.UpdatedAt = Util.CurrentDateTime();
                             }
 
                             addressDb.UpdatedAt = Util.CurrentDateTime();
@@ -846,7 +854,7 @@ namespace RelibreApi.Controllers
             }
         }
 
-        [HttpGet, Route("Bussiness"), Authorize(Policy = "PJ")]
+        [HttpGet, Route("Business"), Authorize(Policy = "PJ")]
         public async Task<IActionResult> GetBusinessAsync()
         {
             try
@@ -915,7 +923,7 @@ namespace RelibreApi.Controllers
                 // redirecionar para login
                 var endPoint = _configuration.GetValue<string>(
                         (userDb.Person.PersonType.Equals("PJ") ?
-                            Constants.RedirectLoginBussiness :
+                            Constants.RedirectLoginBusiness :
                             Constants.RedirectLogin));
 
                 return Redirect(endPoint);

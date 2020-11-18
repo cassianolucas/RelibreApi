@@ -31,7 +31,7 @@ namespace RelibreApi.Controllers
         }
 
         [HttpGet, Route(""), AllowAnonymous]
-        public async Task<IActionResult> GetBussiness(
+        public async Task<IActionResult> GetBusiness(
             [FromQuery(Name = "latitude")] double latidude,
             [FromQuery(Name = "longitude")] double longitude,
             [FromQuery(Name = "id")] long id

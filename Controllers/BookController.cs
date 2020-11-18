@@ -713,7 +713,7 @@ namespace RelibreApi.Controllers
         }
         private async Task<List<LibraryBookViewModel>> GetSuggestion(List<LibraryBookViewModel> books, string type, long idLibraryRequest)
         {
-            // retorna livroz relacionados de acordo com as categorias e o tipo
+            // retorna livros relacionados de acordo com as categorias e o tipo
             var categories = books
                 .Select(x => x.Book)
                     .Select(x => x.Categories

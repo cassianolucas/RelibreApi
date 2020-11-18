@@ -559,7 +559,7 @@ namespace RelibreApi.Controllers
                     foreach (var address in userMap.Person.Addresses)
                     {
                         var addressDb = userDb.Person.Addresses
-                            .SingleOrDefault(x => x.Master == true);
+                            .SingleOrDefault();
 
                         if (addressDb == null)
                         {
@@ -569,8 +569,8 @@ namespace RelibreApi.Controllers
 
                             userDb.Person.Addresses.Add(new Address
                             {
-                                Longitude = address.Latitude,
-                                Latitude = address.Longitude,
+                                Longitude = address.Longitude,
+                                Latitude = address.Latitude,
                                 FullAddress = addressResponse.FullAddress,
                                 City = addressResponse.City,
                                 Complement = address.Complement,
@@ -748,8 +748,8 @@ namespace RelibreApi.Controllers
 
                             userDb.Person.Addresses.Add(new Address
                             {
-                                Longitude = address.Latitude,
-                                Latitude = address.Longitude,
+                                Longitude = address.Longitude,
+                                Latitude = address.Latitude,
                                 FullAddress = addressResponse.FullAddress,
                                 City = addressResponse.City,
                                 Neighborhood = " ",
@@ -777,8 +777,8 @@ namespace RelibreApi.Controllers
                                     address.Latitude, address.Longitude);
 
                                 addressDb.FullAddress = addressResponse.FullAddress;
-                                addressDb.Longitude = address.Latitude;
-                                addressDb.Latitude = address.Longitude;
+                                addressDb.Longitude = address.Longitude;
+                                addressDb.Latitude = address.Latitude;
                                 addressDb.FullAddress = addressResponse.FullAddress;
                                 addressDb.City = addressResponse.City;
                                 addressDb.Neighborhood = " ";

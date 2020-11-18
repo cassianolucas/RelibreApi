@@ -611,6 +611,7 @@ namespace RelibreApi.Controllers
                                     .Replace("-", "")
                                         .Replace(" ", "");
                                 addressDb.FullAddress = addressResponse.FullAddress;
+                                addressDb.Active = true;
                                 addressDb.UpdatedAt = Util.CurrentDateTime();
                             }
 

@@ -231,6 +231,12 @@ namespace RelibreApi.Controllers
 
                 var newPhone = userMap.Person.Phones
                     .FirstOrDefault(x => x.Number.Equals(user.Phone));
+                    
+                newPhone.Number = newPhone.Number
+                    .Replace("(", "")
+                    .Replace(")", "")
+                    .Replace("-", "")
+                    .Replace(" ", "");                    
                 newPhone.Active = true;
                 newPhone.Master = true;
                 newPhone.CreatedAt = Util.CurrentDateTime();

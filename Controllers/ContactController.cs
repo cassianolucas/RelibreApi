@@ -522,6 +522,7 @@ namespace RelibreApi.Controllers
                             created_at = x.CreatedAt,
                             x.LibraryBook.Book,
                             id_book = x.LibraryBook.Id,
+                            Price = x.LibraryBook.Price
                         });
 
                     return Ok(new ResponseViewModel
@@ -547,6 +548,7 @@ namespace RelibreApi.Controllers
                             Created_At = x.CreatedAt,
                             x.LibraryBook.Book,
                             id_book = x.LibraryBook.Id,
+                            Price = x.LibraryBook.Price
                         });
 
                     return Ok(new ResponseViewModel

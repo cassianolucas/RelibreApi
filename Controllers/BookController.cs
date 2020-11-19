@@ -158,7 +158,7 @@ namespace RelibreApi.Controllers
                 // capturar login 
                 var login = Util.GetClaim(_httpContext,
                     Constants.UserClaimIdentifier);
-                
+
                 // carrega usuario
                 var userDb = await _userMananger.GetByLogin(login);
 
@@ -307,7 +307,7 @@ namespace RelibreApi.Controllers
                                 new LibraryBookType
                                 {
                                     Type = typeDb,
-                                    LibraryBook = libraryDb                                    
+                                    LibraryBook = libraryDb
                                 });
                             }
                         }
@@ -488,7 +488,7 @@ namespace RelibreApi.Controllers
                             {
                                 Books = booksResponse,
                                 Matches = ResponseLibraryBook(
-                                        (ICollection<LibraryBookViewModel>)responseCombination, 
+                                        (ICollection<LibraryBookViewModel>)responseCombination,
                                             latitude, longitude)
                             },
                             Status = Constants.Sucess
@@ -549,14 +549,25 @@ namespace RelibreApi.Controllers
             [FromQuery(Name = "limit")] int limit,
             [FromQuery(Name = "latitude")] double latitude,
             [FromQuery(Name = "longitude")] double longitude,
-            [FromQuery(Name = "type")] string type
+            [FromQuery(Name = "type")] string type,
+            [FromQuery(Name = "id_library")] int idLibrary
         )
         {
             try
             {
-                // busca livros de acordo com tipo e titulo
-                var booksMap =
-                    await GetByTitle(type, title, offset, limit);
+                var booksMap = new List<LibraryBookViewModel>();
+                // buscar por biblioteca
+                if (idLibrary > 0)
+                {
+                    booksMap = await
+                        GetByIdLibrary(idLibrary, title, offset, limit);
+                }
+                else
+                {
+                    // busca livros de acordo com tipo e titulo
+                    booksMap =
+                        await GetByTitle(type, title, offset, limit);
+                }
 
                 // retorna resultados
                 var response = ResponseLibraryBook(booksMap, latitude, longitude);

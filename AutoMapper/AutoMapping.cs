@@ -121,6 +121,7 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Library.Person.Addresses, m => m.MapFrom(x => x.Addresses))
             .ForPath(x => x.Library.Person.Name, m => m.MapFrom(x => x.Name))
             .ForPath(x => x.Description, m => m.MapFrom(x => x.Book.Description))
+            .ForPath(x => x.Book, m => m.MapFrom(x => x.Book))
             .ForPath(x => x.Book.AuthorBooks, m => m.MapFrom(x => x.Book.Authors))
             .ForPath(x => x.Book.CategoryBooks, m => m.MapFrom(x => x.Book.Categories))
             .ReverseMap();

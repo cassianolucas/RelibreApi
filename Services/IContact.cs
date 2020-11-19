@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RelibreApi.Models;
@@ -11,5 +12,6 @@ namespace RelibreApi.Services
         Task<List<ContactBook>> GetByRequestNoTracking(string email, bool approved, bool denied, int limit, int offset);
         Task<ContactBook> GetByOwner(long idLiraryBook, long idContact, long idContactRequest);
         void UpdateContactBook(ContactBook contactBook);
+        long GetQuantityConcactReceivedNoTracking(string email, DateTime current);
     }
 }

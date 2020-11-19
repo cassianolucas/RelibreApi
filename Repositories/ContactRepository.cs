@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -109,6 +110,25 @@ namespace RelibreApi.Repositories
                 .Take((limit > 0 ? limit : 30))
                 .Skip((offset > 0 ? offset : 0))
                 .ToListAsync();
+        }
+
+        public long GetQuantityConcactReceivedNoTracking(string email, DateTime current)
+        {
+            return _context.ContactBook
+                .Include(x => x.ContactRequest)
+                .Include(x => x.LibraryBook)
+                .Include(x => x.LibraryBook.Library)
+                .Include(x => x.LibraryBook.Library.Person)
+                .Include(x => x.LibraryBook.Book)
+                .Include(x => x.LibraryBook.Book.AuthorBooks)
+                    .ThenInclude(x => x.Author)
+                .Include(x => x.LibraryBook.Book.CategoryBooks)
+                    .ThenInclude(x => x.Category)
+                .Where(x => x.ContactOwner.Email.Equals(email) && 
+                    (current.ToString("MM/dd/yyyy").Equals("01/01/1900") || 
+                        x.CreatedAt >= current ))
+                .AsNoTracking()                
+                .Count();
         }
 
         public void RemoveAsync(Contact model)

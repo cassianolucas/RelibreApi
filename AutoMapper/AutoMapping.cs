@@ -67,13 +67,15 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Addresses, m => m.MapFrom(x => x.Person.Addresses))
             .AfterMap((src, dest) =>
             {                
-                if (src.Person.PersonSubscriptions != null)
+                if (src.Person.PersonSubscriptions != null && 
+                    src.Person.PersonSubscriptions.Count > 0)
                 {
                     dest.ValidPlan = src.Person.PersonSubscriptions
                         .SingleOrDefault().Validate;
                 }                
 
-                if (src.Person.Phones != null && src.Person.Phones.Count > 0)
+                if (src.Person.Phones != null && 
+                    src.Person.Phones.Count > 0)
                 {
                     dest.Phone = src.Person.Phones
                         .SingleOrDefault(x => x.Master == true).Number;

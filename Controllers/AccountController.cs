@@ -85,7 +85,8 @@ namespace RelibreApi.Controllers
                 newPhone.CreatedAt = Util.CurrentDateTime();
                 newPhone.UpdatedAt = newPhone.CreatedAt;
 
-                if (userMap.Person.Addresses != null)
+                if (userMap.Person.Addresses != null &&
+                    userMap.Person.Addresses.Count > 0)
                 {
                     var address = userMap.Person.Addresses
                         .SingleOrDefault();
@@ -236,7 +237,8 @@ namespace RelibreApi.Controllers
                 newPhone.UpdatedAt = newPhone.CreatedAt;
 
                 // remover caracteres especiais do cep 
-                if (userMap.Person.Addresses != null)
+                if (userMap.Person.Addresses != null &&
+                    userMap.Person.Addresses.Count > 0)
                 {
                     var address = userMap.Person.Addresses.SingleOrDefault();
                     address.FullAddress = string.Concat(address.Street, ", ",
@@ -432,7 +434,7 @@ namespace RelibreApi.Controllers
                         Phone = phones != null ? phones.Number : null,
                         Access_Token = accessToken,
                         Latitude = address != null ? address.Latitude : null,
-                        Longitude = address != null ? address.Longitude : null                        
+                        Longitude = address != null ? address.Longitude : null
                     },
                     Status = Constants.Sucess
                 });
@@ -507,7 +509,7 @@ namespace RelibreApi.Controllers
                 userDb.Person.Description = userMap.Person.Description;
                 userDb.Person.UrlImage = userMap.Person.UrlImage;
                 userDb.Person.WebSite = userMap.Person.WebSite;
-                userDb.Person.UpdatedAt = Util.CurrentDateTime();                
+                userDb.Person.UpdatedAt = Util.CurrentDateTime();
 
                 // phones
                 if (userMap.Person.Phones != null &&
@@ -583,7 +585,7 @@ namespace RelibreApi.Controllers
                                     .Trim()
                                         .Replace("-", "")
                                             .Replace(" ", ""),
-                                Active = true,                                
+                                Active = true,
                                 IdPerson = userDb.Person.Id,
                                 Person = userDb.Person,
                                 Master = true,
@@ -596,7 +598,7 @@ namespace RelibreApi.Controllers
                         {
                             if (!string.IsNullOrEmpty(address.Latitude) &&
                                 !string.IsNullOrEmpty(address.Longitude))
-                            {                                
+                            {
                                 var addressResponse = await Util
                                 .GetAddressByLatitudeLogintude(_configuration,
                                     address.Latitude, address.Longitude);
@@ -836,13 +838,30 @@ namespace RelibreApi.Controllers
 
                 var user = await _userMananger.GetByLogin(login);
 
-                var userMap = _mapper.Map<UserViewModel>(user);
-
-                return Ok(new ResponseViewModel
+                // verificar se é pj ou pf
+                if (user.Person.PersonType.Equals("PJ"))
                 {
-                    Result = userMap,
-                    Status = Constants.Sucess
-                });
+                    var userMap = _mapper
+                        .Map<UserBusinessViewModel>(user);
+                    
+                    userMap.Password = null;
+
+                    return Ok(new ResponseViewModel
+                    {
+                        Result = userMap,
+                        Status = Constants.Sucess
+                    });
+                }
+                else
+                {
+                    var userMap = _mapper.Map<UserViewModel>(user);
+
+                    return Ok(new ResponseViewModel
+                    {
+                        Result = userMap,
+                        Status = Constants.Sucess
+                    });
+                }
             }
             catch (Exception ex)
             {

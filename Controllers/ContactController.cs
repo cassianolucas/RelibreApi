@@ -96,6 +96,24 @@ namespace RelibreApi.Controllers
                         CreatedAt = Util.CurrentDateTime()
                     };
                 }
+                else
+                {
+                    // verifica se já solicitou contato para o mesmo livro
+                    var contactDb = await _contactMananger
+                        .GetByIdLiraryAndContactRequest(
+                            createContactViewModel.IdLibraryBook, 
+                                contactDbRequest.Id);
+
+                    if (contactDb != null)
+                    return Conflict(new ResponseErrorViewModel
+                    {
+                        Errors = new List<object>
+                        {
+                            new { Message = Constants.ContactConflict }
+                        },
+                        Status = Constants.Error
+                    });
+                }
 
                 contactDbRequest.UpdatedAt = Util.CurrentDateTime();
 
@@ -164,8 +182,8 @@ namespace RelibreApi.Controllers
                     };
                 }
 
-                contactDbOwner.UpdatedAt = Util.CurrentDateTime();                
-                
+                contactDbOwner.UpdatedAt = Util.CurrentDateTime();
+
                 var contactBook = new ContactBook
                 {
                     ContactOwner = contactDbOwner,
@@ -291,7 +309,7 @@ namespace RelibreApi.Controllers
 
         [HttpPost, Route("Public"), AllowAnonymous]
         public async Task<IActionResult> CreatePublicAsync(
-            [FromBody] CreateContactPublicViewModel contact            
+            [FromBody] CreateContactPublicViewModel contact
         )
         {
             try
@@ -358,11 +376,11 @@ namespace RelibreApi.Controllers
                 }
 
                 var userDb = await _userMananger
-                    .GetByIdAsync(libraryBookDb.Library.Person.Id);                
+                    .GetByIdAsync(libraryBookDb.Library.Person.Id);
 
                 var contactDbOwner = await _contactMananger
                     .GetByEmail(userDb.Login);
-                
+
                 if (contactDbOwner == null)
                 {
                     contactDbOwner = new Contact
@@ -425,11 +443,11 @@ namespace RelibreApi.Controllers
 
                 await _notificationPersonMananger
                     .CreateAsync(personNotification);
-                
+
                 _uow.Commit();
-                
+
                 return Created(
-                    new Uri(Url.ActionLink("CreatePublic", "Contact")), 
+                    new Uri(Url.ActionLink("CreatePublic", "Contact")),
                     new ResponseViewModel
                     {
                         Result = null,
@@ -543,7 +561,7 @@ namespace RelibreApi.Controllers
                                 _userMananger.GetByLogin(x.Email)
                                     .Result.Person.Addresses.SingleOrDefault(x => x.Master == true)),
                             FullName = x.FullName,
-                            IdContact = x.IdContact,                            
+                            IdContact = x.IdContact,
                             Rating = _userMananger.GetRatingByLogin(x.Email),
                             Created_At = x.CreatedAt,
                             x.LibraryBook.Book,

@@ -346,7 +346,7 @@ namespace RelibreApi.Controllers
             )
         {
             try
-            {
+            {                
                 var libraryDb = await _libraryBookMananger
                     .GetByIdAsync(id);
 
@@ -360,6 +360,16 @@ namespace RelibreApi.Controllers
                     },
                     Result = Constants.Error
                 });
+
+
+                // verificar se existe algum contato solicitado
+                // se existir remover
+                var contactDb = await _contactMananger
+                    .GetByIdLibraryBookAsync(libraryDb.Id);
+
+                // remover os contatos
+                if (contactDb != null)
+                    _contactMananger.RemoveAllContactBook(contactDb);
 
                 _libraryBookMananger.RemoveAsync(libraryDb);
 

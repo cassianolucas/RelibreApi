@@ -59,7 +59,6 @@ namespace RelibreApi.Utils
         public const string InvalidType = "Tipo inválido!";
         public const string InvalidPlan = "Nenhum plano localizado!";
         public const string SubscriptionInvalid = "Usuário já possui um plano!";
-        
-
+        public const string ContactConflict = "Contato já solicitado!";
     }
 }

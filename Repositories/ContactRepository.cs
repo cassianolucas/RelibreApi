@@ -56,6 +56,13 @@ namespace RelibreApi.Repositories
             throw new System.NotImplementedException();
         }
 
+        public Task<List<ContactBook>> GetByIdLibraryBookAsync(long idLiraryBook)
+        {
+            return _context.ContactBook
+                .Where(x => x.IdLibraryBook == idLiraryBook)
+                .ToListAsync();
+        }
+
         public Task<ContactBook> GetByOwner(long idLiraryBook, long idContactOwner, long idContactRequest)
         {
             return _context.ContactBook
@@ -135,15 +142,31 @@ namespace RelibreApi.Repositories
         {
             throw new System.NotImplementedException();
         }
-
+        public void RemoveAllContactBook(List<ContactBook> model)
+        {
+            _context.ContactBook.RemoveRange(model);
+        }
         public void Update(Contact model)
         {
             _context.Contact.Update(model);
         }
-
         public void UpdateContactBook(ContactBook contactBook)
         {
             _context.ContactBook.Update(contactBook);
+        }
+        public Task<ContactBook> GetByIdLiraryAndContactRequest(long idLiraryBook, long idContactRequest)
+        {
+            return _context.ContactBook
+                .Include(x => x.ContactRequest)
+                .Include(x => x.LibraryBook)
+                .Include(x => x.LibraryBook.Library)
+                .Include(x => x.LibraryBook.Library.Person)
+                .Include(x => x.LibraryBook.Book)
+                .Include(x => x.LibraryBook.Book.AuthorBooks)
+                .Include(x => x.LibraryBook.Book.CategoryBooks)
+                .Where(x => x.ContactRequest.Id == idContactRequest &&
+                    x.LibraryBook.Id == idLiraryBook)
+                .SingleOrDefaultAsync();
         }
     }
 }

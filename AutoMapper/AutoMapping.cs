@@ -119,16 +119,20 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Library.Person.Addresses, m => m.MapFrom(x => x.Addresses))
             .ForPath(x => x.Library.Person.Name, m => m.MapFrom(x => x.Name))
             .ForPath(x => x.Description, m => m.MapFrom(x => x.Book.Description))
+            .ForPath(x => x.Book.AuthorBooks, m => m.MapFrom(x => x.Book.Authors))
+            .ForPath(x => x.Book.CategoryBooks, m => m.MapFrom(x => x.Book.Categories))
             .ReverseMap();
 
             CreateMap<ContactViewModel, Models.Contact>()
             .ReverseMap();
             
             CreateMap<ContactBookViewModel, Models.ContactBook>()
-            .ForPath(x => x.Approved, m => m.MapFrom(x => x.Approved));
+            .ForPath(x => x.Approved, m => m.MapFrom(x => x.Approved))
+            .ForPath(x => x.CreatedAt, m => m.MapFrom(x => x.CreatedAt))
+            .ForPath(x => x.LibraryBook, m => m.MapFrom(x => x.LibraryBook));            
 
             CreateMap<Models.ContactBook, ContactBookViewModel>()
-            .ForPath(x => x.Book, m => m.MapFrom(x => x.LibraryBook.Book))
+            .ForPath(x => x.LibraryBook, m => m.MapFrom(x => x.LibraryBook))
             .AfterMap((src, dest) =>
             {
                 if (src.ContactOwner == null)
@@ -148,10 +152,10 @@ namespace RelibreApi.AutoMapper
                 
                 dest.Approved = src.Approved;
                 dest.Denied = src.Denied;
-                dest.IdLibraryBook = dest.IdLibraryBook;
             });
 
             CreateMap<Models.ContactBook, ContactBookApprovedViewModel>()
+            .ForPath(x => x.LibraryBook, m => m.MapFrom(x => x.LibraryBook))
             .AfterMap((src, dest) =>
             {
                 if (src.ContactOwner == null)
@@ -169,7 +173,7 @@ namespace RelibreApi.AutoMapper
                     dest.FullName = src.ContactOwner.Name;
                     dest.Phone = src.ContactOwner.Phone;
                     dest.CreatedAt = src.ContactOwner.CreatedAt;
-                }
+                }                
             });
 
             CreateMap<NotificationPersonViewModel, Models.NotificationPerson>()

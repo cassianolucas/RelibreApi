@@ -81,7 +81,9 @@ namespace RelibreApi.Repositories
                 .Include(x => x.LibraryBook.Library.Person)
                 .Include(x => x.LibraryBook.Book)
                 .Include(x => x.LibraryBook.Book.AuthorBooks)
+                    .ThenInclude(x => x.Author)
                 .Include(x => x.LibraryBook.Book.CategoryBooks)
+                    .ThenInclude(x => x.Category)
                 .Where(x => x.ContactOwner.Email.Equals(email) &&
                     x.Approved == approved &&
                     x.Denied == denied)

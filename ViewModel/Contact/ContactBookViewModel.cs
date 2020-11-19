@@ -6,10 +6,7 @@ namespace RelibreApi.ViewModel
     public class ContactBookViewModel
     {
         [JsonProperty(PropertyName = "id_contact")]
-        public long IdContact { get; set; }
-
-        [JsonProperty(PropertyName = "id_book")]
-        public long IdLibraryBook { get; set; }
+        public long IdContact { get; set; }        
 
         [JsonProperty(PropertyName = "email")]
         public string Email { get; set; }
@@ -33,6 +30,6 @@ namespace RelibreApi.ViewModel
         public double Distance { get; set; }
 
         [JsonProperty(PropertyName = "book")]
-        public BookViewModel Book { get; set; }
+        public LibraryBookViewModel LibraryBook { get; set; }        
     }
 }

@@ -54,6 +54,11 @@ namespace RelibreApi.Maps
                 .HasColumnName("denied")
                 .HasColumnType("boolean")
                 .IsRequired();
+
+            o.Property(x => x.CreatedAt)
+                .HasColumnName("created_at")
+                .HasColumnType("timestamp")
+                .IsRequired();
         }
     }
 }

@@ -1,4 +1,6 @@
 
+using System;
+
 namespace RelibreApi.Models
 {    
     public class ContactBook
@@ -11,5 +13,6 @@ namespace RelibreApi.Models
         public virtual LibraryBook LibraryBook { get; set; }
         public bool Approved { get; set; }
         public bool Denied { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

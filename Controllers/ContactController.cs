@@ -164,15 +164,16 @@ namespace RelibreApi.Controllers
                     };
                 }
 
-                contactDbOwner.UpdatedAt = Util.CurrentDateTime();
-
+                contactDbOwner.UpdatedAt = Util.CurrentDateTime();                
+                
                 var contactBook = new ContactBook
                 {
                     ContactOwner = contactDbOwner,
                     ContactRequest = contactDbRequest,
                     LibraryBook = libraryBook,
-                    Approved = false,
-                    Denied = false
+                    Approved = libraryBook.LibraryBookTypes.Any(x => x.Type.Id == 5),
+                    Denied = false,
+                    CreatedAt = Util.CurrentDateTime()
                 };
 
                 contactDbOwner.ContactBooksOwner.Add(contactBook);
@@ -251,7 +252,7 @@ namespace RelibreApi.Controllers
 
                 // buscar contato de acordo com livro e contato
                 var contactBook = await _contactMananger
-                    .GetByOwner(contactBookViewModel.IdLibraryBook,
+                    .GetByOwner(contactBookViewModel.LibraryBook.Id,
                         contactBookViewModel.IdContact, contactDb.Id);
 
                 if (contactBook == null)
@@ -515,10 +516,12 @@ namespace RelibreApi.Controllers
                                     .Result.Person.Addresses.SingleOrDefault(x => x.Master == true)),
                             Email = x.Email,
                             FullName = x.FullName,
-                            IdContact = x.IdContact,
-                            IdLibraryBook = x.IdLibraryBook,
+                            id_contact = x.IdContact,
                             Phone = x.Phone,
-                            Rating = _userMananger.GetRatingByLogin(x.Email)
+                            Rating = _userMananger.GetRatingByLogin(x.Email),
+                            created_at = x.CreatedAt,
+                            x.LibraryBook.Book,
+                            id_book = x.LibraryBook.Id,
                         });
 
                     return Ok(new ResponseViewModel
@@ -539,9 +542,11 @@ namespace RelibreApi.Controllers
                                 _userMananger.GetByLogin(x.Email)
                                     .Result.Person.Addresses.SingleOrDefault(x => x.Master == true)),
                             FullName = x.FullName,
-                            IdContact = x.IdContact,
-                            IdLibraryBook = x.IdLibraryBook,
-                            Rating = _userMananger.GetRatingByLogin(x.Email)
+                            IdContact = x.IdContact,                            
+                            Rating = _userMananger.GetRatingByLogin(x.Email),
+                            Created_At = x.CreatedAt,
+                            x.LibraryBook.Book,
+                            id_book = x.LibraryBook.Id,
                         });
 
                     return Ok(new ResponseViewModel

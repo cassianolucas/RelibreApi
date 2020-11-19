@@ -231,7 +231,7 @@ namespace RelibreApi.Controllers
 
                 var newPhone = userMap.Person.Phones
                     .FirstOrDefault(x => x.Number.Equals(user.Phone));
-                    
+
                 newPhone.Number = newPhone.Number
                     .Replace("(", "")
                     .Replace(")", "")
@@ -584,6 +584,8 @@ namespace RelibreApi.Controllers
                                 Latitude = address.Latitude,
                                 FullAddress = addressResponse.FullAddress,
                                 City = addressResponse.City,
+                                Street = address.Street,
+                                State = address.State,
                                 Complement = address.Complement,
                                 Neighborhood = address.Neighborhood,
                                 Number = address.Number,
@@ -612,6 +614,8 @@ namespace RelibreApi.Controllers
                                 addressDb.Latitude = address.Latitude;
                                 addressDb.Longitude = address.Longitude;
                                 addressDb.City = addressResponse.City;
+                                addressDb.Street = address.Street;
+                                addressDb.State = address.State;
                                 addressDb.Complement = address.Complement;
                                 addressDb.Neighborhood = address.Neighborhood;
                                 addressDb.Number = address.Number;

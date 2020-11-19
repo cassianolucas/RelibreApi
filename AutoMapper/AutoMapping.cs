@@ -11,13 +11,13 @@ namespace RelibreApi.AutoMapper
         {
             CreateMap<UserViewModel, Models.User>()
             .ForPath(x => x.Person.Name, m => m.MapFrom(x => x.Name))
-            .ForPath(x => x.Person.LastName, m => m.MapFrom(x => x.LastName))            
-            .ForPath(x => x.Person.BirthDate,m => m.MapFrom(x => x.BirthDate))
+            .ForPath(x => x.Person.LastName, m => m.MapFrom(x => x.LastName))
+            .ForPath(x => x.Person.BirthDate, m => m.MapFrom(x => x.BirthDate))
             .ForPath(x => x.Person.Document, m => m.MapFrom(x => x.Document))
             .ForPath(x => x.Person.Addresses, m => m.MapFrom(x => x.Addresses))
             .ForPath(x => x.Person.Phones, m => m.MapFrom(x => x.Phones))
             .ReverseMap();
-            
+
             CreateMap<UserRegisterViewModel, Models.User>()
             .ForPath(x => x.Person.Name, m => m.MapFrom(x => x.Name))
             .AfterMap((src, dest) =>
@@ -39,7 +39,7 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Person.UrlImage, m => m.MapFrom(x => x.UrlImage))
             .ForPath(x => x.Person.Description, m => m.MapFrom(x => x.Description))
             .ForPath(x => x.Person.Document, m => m.MapFrom(x => x.Document))
-            .ForPath(x => x.Person.Addresses, m => m.MapFrom(x => x.Addresses))            
+            .ForPath(x => x.Person.Addresses, m => m.MapFrom(x => x.Addresses))
             .AfterMap((src, dest) =>
             {
                 if (dest.Person.PersonSubscriptions != null)
@@ -66,21 +66,21 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Document, m => m.MapFrom(x => x.Person.Document))
             .ForPath(x => x.Addresses, m => m.MapFrom(x => x.Person.Addresses))
             .AfterMap((src, dest) =>
-            {                
-                if (src.Person.PersonSubscriptions != null && 
+            {
+                if (src.Person.PersonSubscriptions != null &&
                     src.Person.PersonSubscriptions.Count > 0)
                 {
                     dest.ValidPlan = src.Person.PersonSubscriptions
                         .SingleOrDefault().Validate;
-                }                
+                }
 
-                if (src.Person.Phones != null && 
+                if (src.Person.Phones != null &&
                     src.Person.Phones.Count > 0)
                 {
                     dest.Phone = src.Person.Phones
                         .SingleOrDefault(x => x.Master == true).Number;
-                }                                                                                  
-            });            
+                }
+            });
 
             CreateMap<PhoneViewModel, Models.Phone>().ReverseMap();
 
@@ -116,30 +116,31 @@ namespace RelibreApi.AutoMapper
             .ForPath(x => x.Type.Description, m => m.MapFrom(x => x.Description))
             .ReverseMap();
 
-            CreateMap<LibraryBookViewModel, Models.LibraryBook>()
-            .ForPath(x => x.LibraryBookTypes, m => m.MapFrom(x => x.Types))
+            CreateMap<LibraryBookViewModel, Models.LibraryBook>()            
             .ForPath(x => x.Library.Person.Addresses, m => m.MapFrom(x => x.Addresses))
             .ForPath(x => x.Library.Person.Name, m => m.MapFrom(x => x.Name))
             .ForPath(x => x.Description, m => m.MapFrom(x => x.Book.Description))
             .ForPath(x => x.Book, m => m.MapFrom(x => x.Book))
             .ForPath(x => x.Book.AuthorBooks, m => m.MapFrom(x => x.Book.Authors))
             .ForPath(x => x.Book.CategoryBooks, m => m.MapFrom(x => x.Book.Categories))
+            .ForPath(x => x.LibraryBookTypes, m => m.MapFrom(x => x.Types))
+            .ForPath(x => x.CreatedAt, m => m.MapFrom(x => x.CreatedAt))
             .ReverseMap();
 
             CreateMap<ContactViewModel, Models.Contact>()
             .ReverseMap();
-            
+
             CreateMap<ContactBookViewModel, Models.ContactBook>()
             .ForPath(x => x.Approved, m => m.MapFrom(x => x.Approved))
             .ForPath(x => x.CreatedAt, m => m.MapFrom(x => x.CreatedAt))
-            .ForPath(x => x.LibraryBook, m => m.MapFrom(x => x.LibraryBook));            
+            .ForPath(x => x.LibraryBook, m => m.MapFrom(x => x.LibraryBook));
 
             CreateMap<Models.ContactBook, ContactBookViewModel>()
             .ForPath(x => x.LibraryBook, m => m.MapFrom(x => x.LibraryBook))
             .AfterMap((src, dest) =>
             {
                 if (src.ContactOwner == null)
-                {                
+                {
                     dest.IdContact = src.IdContactRequest;
                     dest.FullName = src.ContactRequest.Name;
                     dest.CreatedAt = src.ContactRequest.CreatedAt;
@@ -152,7 +153,7 @@ namespace RelibreApi.AutoMapper
                     dest.CreatedAt = src.ContactOwner.CreatedAt;
                     dest.Email = src.ContactOwner.Email;
                 }
-                
+
                 dest.Approved = src.Approved;
                 dest.Denied = src.Denied;
             });
@@ -176,7 +177,7 @@ namespace RelibreApi.AutoMapper
                     dest.FullName = src.ContactOwner.Name;
                     dest.Phone = src.ContactOwner.Phone;
                     dest.CreatedAt = src.ContactOwner.CreatedAt;
-                }                
+                }
             });
 
             CreateMap<NotificationPersonViewModel, Models.NotificationPerson>()

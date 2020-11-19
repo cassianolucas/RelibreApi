@@ -454,7 +454,7 @@ namespace RelibreApi.Controllers
                 if (booksMap == null || booksMap.Count <= 0)
                     throw new ArgumentNullException(Constants.BooksNotFound);
 
-                // acerta calculo para retornar 
+                // acerta calculo para retornar
                 var response = ResponseLibraryBook(booksMap, latitude, longitude);
 
                 // quando for dos tipos informados a baixo, alterar response
@@ -464,7 +464,7 @@ namespace RelibreApi.Controllers
                 {
                     try
                     {
-                        var responseCombination = (IEnumerable<LibraryBookViewModel>)
+                        var responseCombination = 
                             await GetByType("combinacao", user.Person.Library.Id, "", 9999, 0);
 
                         List<LibraryBookViewModel> booksResponse = new List<LibraryBookViewModel>();
@@ -473,12 +473,19 @@ namespace RelibreApi.Controllers
                         if (responseCombination != null &&
                             responseCombination.Count() > 0)
                         {
-                            foreach (var result in response)
+                            if (response.Count() > 0)
                             {
-                                if (!responseCombination
-                                    .Any(x => x.Book.CodeIntegration
-                                        .Equals(result.Book.CodeIntegration)))
-                                    booksResponse.Add(result);
+                                foreach (var result in response)
+                                {
+                                    if (!responseCombination
+                                        .Any(x => x.Book.CodeIntegration
+                                            .Equals(result.Book.CodeIntegration)))
+                                        booksResponse.Add(result);
+                                }
+                            }
+                            else
+                            {
+                                booksResponse.AddRange((List<LibraryBookViewModel>)responseCombination);
                             }
                         }
 
@@ -792,16 +799,18 @@ namespace RelibreApi.Controllers
             new LibraryBookViewModel
             {
                 Id = x.Id,
-                Distance = Util.Distance(
-                    Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
-                    Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude),
-                    latitude, longitude),
+                Distance = 0,
+                // Distance = Util.Distance(
+                //     Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
+                //     Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude),
+                //     latitude, longitude),
                 Book = x.Book,
                 Contact = x.Contact,
                 Images = x.Images,
                 Types = x.Types,
                 Name = x.Name,
-                Price = x.Price
+                Price = x.Price,
+                CreatedAt = x.CreatedAt
             })
             .OrderBy(x => x.Distance);
         }

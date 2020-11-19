@@ -388,7 +388,7 @@ namespace RelibreApi.Controllers
                     ContactOwner = contactDbOwner,
                     ContactRequest = contactDbRequest,
                     LibraryBook = libraryBookDb,
-                    Approved = false,
+                    Approved = libraryBookDb.LibraryBookTypes.Any(x => x.Type.Id == 5),
                     Denied = false
                 };
 

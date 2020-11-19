@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace RelibreApi.ViewModel
 {
-    public class BookViewModel : BaseCreatedViewModel
+    public class BookViewModel 
     {                
         [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }

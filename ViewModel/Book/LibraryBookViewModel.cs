@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
@@ -29,6 +30,8 @@ namespace RelibreApi.ViewModel
 
         [JsonProperty(PropertyName = "distance")]
         public decimal Distance { get; set; }
-
+        
+        [JsonProperty(PropertyName = "created_at")]
+        public DateTime CreatedAt { get; set; }
     }
 }

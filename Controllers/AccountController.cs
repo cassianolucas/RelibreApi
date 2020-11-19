@@ -440,7 +440,8 @@ namespace RelibreApi.Controllers
                         Phone = phones != null ? phones.Number : null,
                         Access_Token = accessToken,
                         Latitude = address != null ? address.Latitude : null,
-                        Longitude = address != null ? address.Longitude : null
+                        Longitude = address != null ? address.Longitude : null,
+                        valid_plan = userBusinessMap.ValidPlan
                     },
                     Status = Constants.Sucess
                 });

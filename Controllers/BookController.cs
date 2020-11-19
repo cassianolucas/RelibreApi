@@ -798,12 +798,11 @@ namespace RelibreApi.Controllers
             return notCalculate.Select(x =>
             new LibraryBookViewModel
             {
-                Id = x.Id,
-                Distance = 0,
-                // Distance = Util.Distance(
-                //     Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
-                //     Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude),
-                //     latitude, longitude),
+                Id = x.Id,                
+                Distance = Util.Distance(
+                    Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Latitude),
+                    Double.Parse(x.Addresses.SingleOrDefault(x => x.Master == true).Longitude),
+                    latitude, longitude),
                 Book = x.Book,
                 Contact = x.Contact,
                 Images = x.Images,

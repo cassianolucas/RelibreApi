@@ -1068,13 +1068,12 @@ namespace RelibreApi.Controllers
 
         [HttpPost, Route("Rate"), Authorize]
         public async Task<IActionResult> Rating(
-            [FromForm(Name = "note")] int note,
-            [FromForm(Name = "email")] string email
+            [FromBody] RateViewModel rate
         )
         {
             try
             {
-                if (string.IsNullOrEmpty(email))
+                if (string.IsNullOrEmpty(rate.Email))
                     return NotFound(new ResponseErrorViewModel
                     {
                         Status = Constants.Error,
@@ -1084,7 +1083,7 @@ namespace RelibreApi.Controllers
                         }
                     });
 
-                if (note < 0)
+                if (rate.Note < 0)
                     return BadRequest(new ResponseErrorViewModel
                     {
                         Status = Constants.Error,
@@ -1094,10 +1093,11 @@ namespace RelibreApi.Controllers
                         }
                     });
 
-                var userRate = await _userMananger.GetByLogin(email);
+                var userRate = await _userMananger
+                    .GetByLogin(rate.Email);
 
                 userRate.TotalCount += 1;
-                userRate.TotalCount += note;
+                userRate.TotalCount += rate.Note;
 
                 _userMananger.Update(userRate);
 

@@ -51,7 +51,7 @@ namespace RelibreApi.Maps
                 .HasColumnType("total_value")
                 .HasColumnType("integer")
                 .IsRequired();
-            
+                        
             o.HasOne(x => x.Person)
                 .WithMany(x => x.Users)
                 .HasForeignKey(x => x.IdPerson)

@@ -144,7 +144,8 @@ namespace RelibreApi.Controllers
                 await _emailVerificationService.CreateAsync(emailVerification);
 
                 Util.SendEmailAsync(_configuration, emailVerification.CodeVerification,
-                    user.Login, user.Name, HtmlEmailType.NewAccount);
+                    user.Login, user.Name, HtmlEmailType.NewAccount,  
+                        HtmlEmailPersonType.IndividualPerson);
 
                 _uow.Commit();
 
@@ -293,7 +294,8 @@ namespace RelibreApi.Controllers
                 await _emailVerificationService.CreateAsync(emailVerification);
 
                 Util.SendEmailAsync(_configuration, emailVerification.CodeVerification,
-                    user.Login, user.Name, HtmlEmailType.NewAccount);
+                    user.Login, user.Name, HtmlEmailType.NewAccount, 
+                        HtmlEmailPersonType.LegalPerson);
 
                 _uow.Commit();
 
@@ -1164,7 +1166,10 @@ namespace RelibreApi.Controllers
                 // verificar para redirecionar para url do front 
                 Util.SendEmailAsync(_configuration, emailVerification.CodeVerification,
                     userDb.Login, userDb.Person.Name,
-                        HtmlEmailType.NewAccount);
+                        HtmlEmailType.NewAccount, 
+                            userDb.Person.PersonType.Equals("PJ")? 
+                                HtmlEmailPersonType.LegalPerson : 
+                                    HtmlEmailPersonType.IndividualPerson);
 
                 return Ok(new ResponseViewModel
                 {

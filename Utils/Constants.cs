@@ -25,7 +25,10 @@ namespace RelibreApi.Utils
         public const string HtmlEmailInformationAccount = "Para confirmar seu cadastro, clique no botão abaixo.";
         public const string HtmlEmailButtonTextPassword = "Trocar senha";
         public const string HtmlEmailButtonTextAccount = "Confirmar minha conta";
+        public const string HtmlEmailRedirectLinkIndividualPerson = "https://relibre.vercel.app/";
+        public const string HtmlEmailRedirectLinkLegalPerson = "https://relibre-business.vercel.app/";
         public enum HtmlEmailType { ForgetPassword, NewAccount };
+        public enum HtmlEmailPersonType { LegalPerson, IndividualPerson };
         public static int[] Multiplier1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
         public static int[] Multiplier2 = new int[13] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
         

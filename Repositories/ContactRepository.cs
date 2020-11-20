@@ -75,8 +75,9 @@ namespace RelibreApi.Repositories
                 .Include(x => x.LibraryBook.Book.CategoryBooks)
                 .Where(x => x.ContactOwner.Id == idContactOwner &&
                     x.ContactRequest.Id == idContactRequest &&
-                    x.LibraryBook.Id == idLiraryBook &&
-                    x.Approved == false && x.Denied == false)
+                    x.LibraryBook.Id == idLiraryBook )
+                    // &&
+                    // x.Approved == false && x.Denied == false)
                 .SingleOrDefaultAsync();
         }
 

@@ -268,6 +268,8 @@ namespace RelibreApi.Controllers
                         }
                     });
 
+                // criar nova query no banco para retornar aprovado e reprovado                
+
                 // buscar contato de acordo com livro e contato
                 var contactBook = await _contactMananger
                     .GetByOwner(contactBookViewModel.LibraryBook.Id,
@@ -560,10 +562,10 @@ namespace RelibreApi.Controllers
                             Distance = Util.Distance(addressDb,
                                 _userMananger.GetByLogin(x.Email)
                                     .Result.Person.Addresses.SingleOrDefault(x => x.Master == true)),
-                            FullName = x.FullName,
-                            IdContact = x.IdContact,
+                            full_name = x.FullName,
+                            id_contact = x.IdContact,
                             Rating = _userMananger.GetRatingByLogin(x.Email),
-                            Created_At = x.CreatedAt,
+                            created_at = x.CreatedAt,
                             x.LibraryBook.Book,
                             id_book = x.LibraryBook.Id,
                             Price = x.LibraryBook.Price

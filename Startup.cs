@@ -27,7 +27,6 @@ using RelibreApi.Models;
 using RelibreApi.Repositories;
 using RelibreApi.Services;
 using RelibreApi.Utils;
-using static RelibreApi.Utils.Constants;
 
 namespace RelibreApi
 {
@@ -40,8 +39,13 @@ namespace RelibreApi
             Configuration = configuration;
             _env = env;
 
-            // Util.SendEmailAsync(configuration, "teste", 
-            //     "lucas_cassiano@live.com", "Lucas", HtmlEmailType.NewAccount);
+            // Util.SendEmailAsync(configuration, "teste PF", 
+            //     "lucas_cassiano@live.com", "Lucas", 
+            //         HtmlEmailType.NewAccount, HtmlEmailPersonType.IndividualPerson);
+
+            // Util.SendEmailAsync(configuration, "teste PJ", 
+            //     "lucas_cassiano@live.com", "Lucas", 
+            //         HtmlEmailType.NewAccount, HtmlEmailPersonType.LegalPerson);
         }
         public void ConfigureServices(IServiceCollection services)
         {

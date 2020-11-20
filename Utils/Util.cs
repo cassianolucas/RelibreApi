@@ -167,7 +167,8 @@ namespace RelibreApi.Utils
 
             return rgx.Replace(valor, "");
         }    
-        public static string LoadHtmlBase(IConfiguration configuration, string name, string codeVerification, HtmlEmailType type)
+        public static string LoadHtmlBase(IConfiguration configuration, string name, 
+            string codeVerification, HtmlEmailType type, HtmlEmailPersonType personType)
         {
             var httpClient = new HttpClient();
 
@@ -224,6 +225,13 @@ namespace RelibreApi.Utils
             elemento.SetAttributeValue("data-saferedirecturl", string.Format((type == HtmlEmailType.ForgetPassword ? 
                 settings.RedirectLinkPassword: settings.RedirectLinkAccount), codeVerification));
 
+            elemento = doc.GetElementbyId(settings.IdentifierLinkRedirect);
+
+            elemento.SetAttributeValue("href", 
+                (personType == HtmlEmailPersonType.LegalPerson)? 
+                    Constants.HtmlEmailRedirectLinkLegalPerson : 
+                        Constants.HtmlEmailRedirectLinkIndividualPerson);
+            
             var result = doc.DocumentNode.OuterHtml;
             
             return result;            
@@ -237,9 +245,11 @@ namespace RelibreApi.Utils
                 textNode.Text = newText;
             }
         }
-        public static void SendEmailAsync(IConfiguration configuration, string codeVerification, string email, string name, HtmlEmailType type)
+        public static void SendEmailAsync(IConfiguration configuration, string codeVerification, 
+            string email, string name, HtmlEmailType type, HtmlEmailPersonType personType)
         {            
-            var htmlEmail = LoadHtmlBase(configuration, name, codeVerification, type);
+            var htmlEmail = LoadHtmlBase(configuration, name, 
+                codeVerification, type, personType);
             
             var emailSend = new EmailSend
             {

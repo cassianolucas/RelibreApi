@@ -7,7 +7,8 @@ namespace RelibreApi.Utils
         public string IdentifierInformation { get; set; }
         public string IdentifierButton { get; set; }
         public string IdetifierHtmlFile { get; set; }
+        public string IdentifierLinkRedirect { get; set; }
         public string RedirectLinkPassword { get; set; }
-        public string RedirectLinkAccount { get; set; }        
+        public string RedirectLinkAccount { get; set; }
     }
 }

@@ -30,6 +30,7 @@ namespace RelibreApi.Controllers
         private readonly IProfile _profileMananger;
         private readonly ILibrary _libraryMananger;
         private readonly IEmailVerification _emailVerificationService;
+        private readonly IContact _contactMananger;
         public AccountController(
             [FromServices] IUnitOfWork uow,
             [FromServices] IMapper mapper,
@@ -38,7 +39,8 @@ namespace RelibreApi.Controllers
             [FromServices] IUser userMananger,
             [FromServices] IProfile profileMananger,
             [FromServices] ILibrary libraryMananger,
-            [FromServices] IEmailVerification emailVerificationService
+            [FromServices] IEmailVerification emailVerificationService,
+            [FromServices] IContact contactMananger
             )
         {
             _uow = uow;
@@ -49,6 +51,7 @@ namespace RelibreApi.Controllers
             _profileMananger = profileMananger;
             _libraryMananger = libraryMananger;
             _emailVerificationService = emailVerificationService;
+            _contactMananger = contactMananger;
         }
 
         [HttpPost, Route("Register"), AllowAnonymous]
@@ -1100,6 +1103,16 @@ namespace RelibreApi.Controllers
                 userRate.TotalCount += rate.Note;
 
                 _userMananger.Update(userRate);
+
+                var contactDb = await _contactMananger
+                    .GetByEmail(rate.Email);
+
+                var contactBook = await _contactMananger
+                    .GetByOwner(rate.IdBook, contactDb.Id, rate.IdContact);
+
+                contactBook.Available = true;
+
+                _contactMananger.UpdateContactBook(contactBook);
 
                 _uow.Commit();
 

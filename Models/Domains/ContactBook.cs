@@ -13,6 +13,7 @@ namespace RelibreApi.Models
         public virtual LibraryBook LibraryBook { get; set; }
         public bool Approved { get; set; }
         public bool Denied { get; set; }
+        public bool Available { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

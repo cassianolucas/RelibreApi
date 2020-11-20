@@ -55,6 +55,11 @@ namespace RelibreApi.Maps
                 .HasColumnType("boolean")
                 .IsRequired();
 
+            o.Property(x => x.Available)
+                .HasColumnName("avaliable")
+                .HasColumnType("boolean")
+                .IsRequired();
+
             o.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
                 .HasColumnType("timestamp")

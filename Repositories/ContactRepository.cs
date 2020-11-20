@@ -95,7 +95,8 @@ namespace RelibreApi.Repositories
                     .ThenInclude(x => x.Category)
                 .Where(x => x.ContactOwner.Email.Equals(email) &&
                     x.Approved == approved &&
-                    x.Denied == denied)
+                    x.Denied == denied &&
+                    x.Available == false)
                 .AsNoTracking()
                 .Take((limit > 0 ? limit : 30))
                 .Skip((offset > 0 ? offset : 0))
@@ -113,7 +114,8 @@ namespace RelibreApi.Repositories
                 .Include(x => x.LibraryBook.Book.AuthorBooks)
                 .Include(x => x.LibraryBook.Book.CategoryBooks)
                 .Where(x => x.ContactRequest.Email.Equals(email) &&
-                    x.Approved == approved && x.Denied == denied)
+                    x.Approved == approved && x.Denied == denied && 
+                        x.Available == false)
                 .AsNoTracking()
                 .Take((limit > 0 ? limit : 30))
                 .Skip((offset > 0 ? offset : 0))

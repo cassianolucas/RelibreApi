@@ -466,7 +466,7 @@ namespace RelibreApi.Controllers
 
                 // acerta calculo para retornar
                 var response = ResponseLibraryBook(booksMap, latitude, longitude);
-
+                
                 // quando for dos tipos informados a baixo, alterar response
                 if (!string.IsNullOrEmpty(type) && (type.ToLower().Equals("trocar") ||
                     type.ToLower().Equals("emprestar") ||

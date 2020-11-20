@@ -8,6 +8,12 @@ namespace RelibreApi.ViewModel
         public int Note { get; set; }
 
         [JsonProperty(PropertyName = "email")]
-        public string Email { get; set; }    
+        public string Email { get; set; }   
+
+        [JsonProperty(PropertyName = "id_contact")]
+        public long IdContact { get; set; }
+
+        [JsonProperty(PropertyName = "id_book")]
+        public long IdBook { get; set; }
     }
 }

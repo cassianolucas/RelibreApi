@@ -11,8 +11,7 @@ namespace RelibreApi.Models
         public bool LoginVerified { get; set; }
         public virtual Person Person { get; set; }
         public int TotalCount { get; set; }
-        public int TotalValue { get; set; }        
-        public string Message { get; set; }
+        public int TotalValue { get; set; }                
         public bool IsVerified()
         {
             return LoginVerified;

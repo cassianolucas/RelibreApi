@@ -147,7 +147,7 @@ namespace RelibreApi.Controllers
                 await _emailVerificationService.CreateAsync(emailVerification);
 
                 Util.SendEmailAsync(_configuration, emailVerification.CodeVerification,
-                    user.Login, user.Name, HtmlEmailType.NewAccount,  
+                    user.Login, user.Name, HtmlEmailType.NewAccount,
                         HtmlEmailPersonType.IndividualPerson);
 
                 _uow.Commit();
@@ -240,7 +240,7 @@ namespace RelibreApi.Controllers
                     .Replace("(", "")
                     .Replace(")", "")
                     .Replace("-", "")
-                    .Replace(" ", "");                    
+                    .Replace(" ", "");
                 newPhone.Active = true;
                 newPhone.Master = true;
                 newPhone.CreatedAt = Util.CurrentDateTime();
@@ -297,7 +297,7 @@ namespace RelibreApi.Controllers
                 await _emailVerificationService.CreateAsync(emailVerification);
 
                 Util.SendEmailAsync(_configuration, emailVerification.CodeVerification,
-                    user.Login, user.Name, HtmlEmailType.NewAccount, 
+                    user.Login, user.Name, HtmlEmailType.NewAccount,
                         HtmlEmailPersonType.LegalPerson);
 
                 _uow.Commit();
@@ -859,7 +859,7 @@ namespace RelibreApi.Controllers
                 {
                     var userMap = _mapper
                         .Map<UserBusinessViewModel>(user);
-                    
+
                     userMap.Password = null;
 
                     return Ok(new ResponseViewModel
@@ -1104,15 +1104,22 @@ namespace RelibreApi.Controllers
 
                 _userMananger.Update(userRate);
 
+                var login = Util.GetClaim(_httpContext,
+                    Constants.UserClaimIdentifier);
+
                 var contactDb = await _contactMananger
-                    .GetByEmail(rate.Email);
+                    .GetByEmail(login);
 
                 var contactBook = await _contactMananger
-                    .GetByOwner(rate.IdBook, contactDb.Id, rate.IdContact);
+                    .GetByOwner(rate.IdBook, 
+                        rate.Param.ToLower().Equals("received")? contactDb.Id: rate.IdContact,
+                        rate.Param.ToLower().Equals("received")? rate.IdContact: contactDb.Id );
 
-                contactBook.Available = true;
-
-                _contactMananger.UpdateContactBook(contactBook);
+                if (contactBook != null)
+                {
+                    contactBook.Available = true;                    
+                    _contactMananger.UpdateContactBook(contactBook);
+                }
 
                 _uow.Commit();
 
@@ -1179,9 +1186,9 @@ namespace RelibreApi.Controllers
                 // verificar para redirecionar para url do front 
                 Util.SendEmailAsync(_configuration, emailVerification.CodeVerification,
                     userDb.Login, userDb.Person.Name,
-                        HtmlEmailType.NewAccount, 
-                            userDb.Person.PersonType.Equals("PJ")? 
-                                HtmlEmailPersonType.LegalPerson : 
+                        HtmlEmailType.NewAccount,
+                            userDb.Person.PersonType.Equals("PJ") ?
+                                HtmlEmailPersonType.LegalPerson :
                                     HtmlEmailPersonType.IndividualPerson);
 
                 return Ok(new ResponseViewModel

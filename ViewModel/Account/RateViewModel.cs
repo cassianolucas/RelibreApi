@@ -15,5 +15,8 @@ namespace RelibreApi.ViewModel
 
         [JsonProperty(PropertyName = "id_book")]
         public long IdBook { get; set; }
+        
+        [JsonProperty(PropertyName = "param")]
+        public string Param { get; set; }
     }
 }

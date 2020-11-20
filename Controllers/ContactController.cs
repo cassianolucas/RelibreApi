@@ -273,7 +273,7 @@ namespace RelibreApi.Controllers
                 // buscar contato de acordo com livro e contato
                 var contactBook = await _contactMananger
                     .GetByOwner(contactBookViewModel.LibraryBook.Id,
-                        contactBookViewModel.IdContact, contactDb.Id);
+                        contactDb.Id, contactBookViewModel.IdContact);
 
                 if (contactBook == null)
                     return BadRequest(new ResponseErrorViewModel
@@ -535,7 +535,7 @@ namespace RelibreApi.Controllers
                                 _userMananger.GetByLogin(x.Email)
                                     .Result.Person.Addresses.SingleOrDefault(x => x.Master == true)),
                             Email = x.Email,
-                            FullName = x.FullName,
+                            full_name = x.FullName,
                             id_contact = x.IdContact,
                             Phone = x.Phone,
                             Rating = _userMananger.GetRatingByLogin(x.Email),
